@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Configure a security policy — SpecterX Help</title>
+  <link rel="stylesheet" href="../site.css">
+</head>
+<body>
+<nav class="topnav">
+  <div class="topnav-inner">
+    <div class="topnav-brand">SpecterX Docs <small>· reference library</small></div>
+    <div class="topnav-links">
+      <a href="/index.html">Overview</a>
+      <a href="/specterx.html">SpecterX</a>
+      <a href="/compare.html">Compare</a>
+    </div>
+    <div class="topnav-meta">POC article</div>
+  </div>
+</nav>
+<main class="page page-narrow article">
+
+  <nav class="article-breadcrumb">
+    <a href="/specterx.html">SpecterX KB</a>
+    <span class="crumb-sep">›</span>
+    <a href="/specterx.html#security-policies">Security policies</a>
+    <span class="crumb-sep">›</span>
+    Configure a security policy
+  </nav>
+
+  <h1>Configure a security policy</h1>
+
+  <p class="article-intro">
+    SpecterX security policies define how recipients can access, verify, download, and forward files you share with them. Every file in SpecterX is governed by a policy. This article shows you how to create a new policy and configure its three main sections: <strong>Policy Configuration</strong>, <strong>Access Control</strong>, and <strong>Data Protection</strong>.
+  </p>
+
+  <div class="article-prereq">
+    <h2>Before you get started</h2>
+    <ul>
+      <li><strong>Permissions required.</strong> Administrator role. Only users with the Administrators role can create, edit, or delete policies. Collaborators can view the policy list and apply existing policies when sharing, but cannot modify them.</li>
+      <li><strong>Default policy.</strong> Every SpecterX tenant ships with a <strong>Default</strong> policy. You cannot delete the Default policy, but you can duplicate it and modify the copy.</li>
+      <li><strong>Policy changes take effect immediately.</strong> Updating a policy affects all files currently governed by that policy, including files that were already shared. Inform users before changing a policy that is widely in use.</li>
+      <li><strong>Limitations.</strong> Rights Management (RMS) encryption supports .pdf, .docx, .xlsx, and .pptx files only. Watermarking is only visible when the file is opened in the SpecterX Viewer; downloaded copies that bypass the viewer will not carry the watermark unless RMS encryption is also enabled.</li>
+    </ul>
+  </div>
+
+  <nav class="article-toc">
+    <h2>In this article</h2>
+    <ol>
+      <li><a href="#open-policies">Open the Policies page</a></li>
+      <li><a href="#create-policy">Create a new policy</a></li>
+      <li><a href="#policy-configuration">Configure Policy Configuration</a></li>
+      <li><a href="#access-control">Configure Access Control</a></li>
+      <li><a href="#data-protection">Configure Data Protection</a></li>
+      <li><a href="#recipient-experience">Set the Recipient Experience language</a></li>
+      <li><a href="#apply">Save and apply the policy</a></li>
+      <li><a href="#examples">Policy examples</a></li>
+    </div>
+  </nav>
+
+  <h2 id="open-policies">Open the Policies page</h2>
+
+  <div class="steps">
+    <div class="step">
+      <span class="step-num">1</span>
+      <div class="step-body">
+        <p>In the left navigation, click <strong>Policies</strong>. The <strong>Policies</strong> page opens at <code>/policy-editor</code>.</p>
+        <p>The left panel lists all existing policies alphabetically. The right panel shows the editor for the currently selected policy.</p>
+        <figure class="step-figure">
+          <img src="assets/configure-security-policy/00-policy-list-and-editor.png" alt="The Policies page showing the policy list on the left and the policy editor on the right with Policy Configuration, Access Control, and Data Protection sections">
+          <figcaption>The <strong>Policies</strong> page. The left panel is the policy list; the right panel is the editor. The policy name at the top of the list panel indicates which policy is selected.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="create-policy">Create a new policy</h2>
+
+  <div class="steps">
+    <div class="step">
+      <span class="step-num">1</span>
+      <div class="step-body">
+        <p>At the top of the policy list, click <strong>+ Add Policy</strong>.</p>
+        <p>A new untitled policy appears in the list and is immediately selected. The editor on the right shows all settings at their defaults.</p>
+        <div class="article-note"><strong>Tip:</strong> If you want to start from an existing policy, select it in the list and click <strong>Duplicate</strong> instead. The duplicate is created with a <em>(1)</em> suffix and you can rename and edit it.</div>
+      </div>
+    </div>
+    <div class="step">
+      <span class="step-num">2</span>
+      <div class="step-body">
+        <p>At the top of the editor panel, type a descriptive name for your policy. Use a name that clearly communicates the data sensitivity or use case, for example <em>HIPAA — PHI Restricted</em> or <em>Partner NDA — View Only</em>.</p>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="policy-configuration">Configure Policy Configuration</h2>
+
+  <p>The <strong>Policy Configuration</strong> section controls who in your organization can apply this policy when sharing files.</p>
+
+  <div class="steps">
+    <div class="step">
+      <span class="step-num">1</span>
+      <div class="step-body">
+        <p>Click <strong>Policy Configuration</strong> to expand the section (it is expanded by default).</p>
+        <figure class="step-figure">
+          <img src="assets/configure-security-policy/01-policy-editor-access-control.png" alt="The Policy Configuration section with the Restrict Policy to Specific Users toggle, followed by the Access Control section with Recipient Sharing Permissions radio buttons">
+          <figcaption>The <strong>Policy Configuration</strong> section (top) controls access to the policy itself. The <strong>Access Control</strong> section (below) controls what recipients can do with shared files.</figcaption>
+        </figure>
+      </div>
+    </div>
+    <div class="step">
+      <span class="step-num">2</span>
+      <div class="step-body">
+        <p>If you want only specific users in your organization to be able to apply this policy when sharing files, enable the <strong>Restrict Policy to Specific Users</strong> toggle, then select the users or groups from the picker that appears.</p>
+        <p>Leave this toggle off if the policy should be available to all Collaborators and Administrators.</p>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="access-control">Configure Access Control</h2>
+
+  <p>The <strong>Access Control</strong> section governs how recipients can share and verify their identity when accessing your files.</p>
+
+  <h3>Recipient Sharing Permissions</h3>
+
+  <div class="steps">
+    <div class="step">
+      <span class="step-num">1</span>
+      <div class="step-body">
+        <p>Under <strong>Recipient Sharing Permissions</strong>, choose how recipients may forward or reshare your files:</p>
+        <ul>
+          <li><strong>Allow Sharing with Anyone</strong> — recipients can forward the protected link to any email address.</li>
+          <li><strong>Restrict Sharing to Recipient's Domain</strong> — recipients can only forward within their own email domain (e.g. <code>@acme.com</code>). Useful for partner-sharing scenarios.</li>
+          <li><strong>Disable Further Sharing</strong> — recipients cannot forward the file at all. The sharing button in the SpecterX Viewer is hidden. Recommended for highly sensitive documents.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h3>Verification Requirements</h3>
+
+  <div class="steps">
+    <div class="step">
+      <span class="step-num">1</span>
+      <div class="step-body">
+        <p>Under <strong>Verification Requirements</strong>, choose how recipients must prove their identity before accessing the file. Enable one or more verification methods:</p>
+        <ul>
+          <li><strong>Email verification</strong> — SpecterX sends a one-time code to the recipient's email address. The recipient must enter the code to open the file. This is the most common method for external sharing.</li>
+          <li><strong>Phone (SMS/call) verification</strong> — SpecterX sends a one-time code by SMS or phone call to a mobile number you specify at share time. Adds a strong second factor for highly sensitive data.</li>
+          <li><strong>Verify personal secret</strong> — the sender defines a password during the share flow; the recipient must enter it before accessing the file.</li>
+        </ul>
+        <div class="article-note"><strong>Note:</strong> You can combine verification methods (for example, email + phone). Each combination creates a distinct multi-factor experience for the recipient.</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Allowing Access</h3>
+
+  <div class="steps">
+    <div class="step">
+      <span class="step-num">1</span>
+      <div class="step-body">
+        <p>Enable <strong>Acknowledge receipt</strong> if you want recipients to confirm that they are the intended recipient before the file opens. A popup appears to the recipient asking them to confirm their name and purpose of access.</p>
+        <figure class="step-figure">
+          <img src="assets/configure-security-policy/02-policy-data-protection.png" alt="The Access Control section scrolled to show Verify personal secret and Acknowledge receipt toggles">
+          <figcaption>The lower part of <strong>Access Control</strong>: <strong>Verify personal secret</strong> and <strong>Acknowledge receipt</strong>. Scroll down from the Recipient Sharing Permissions row to reach these controls.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="data-protection">Configure Data Protection</h2>
+
+  <p>The <strong>Data Protection</strong> section controls how files are protected at rest and in use — both in the SpecterX cloud and when downloaded to the recipient's device.</p>
+
+  <figure class="step-figure">
+    <img src="assets/configure-security-policy/03-data-protection-downloading.png" alt="The Data Protection section showing Cloud Applications Protect and Track (enabled), Downloading Files with Block file download and Encrypt using a Password toggles, and the beginning of Encrypt using Information Rights Management">
+    <figcaption>The <strong>Data Protection</strong> section. <strong>Protect and Track</strong> is always on. The <strong>Downloading Files</strong> group controls what happens when recipients download the file.</figcaption>
+  </figure>
+
+  <h3>Cloud Applications</h3>
+
+  <div class="steps">
+    <div class="step">
+      <span class="step-num">1</span>
+      <div class="step-body">
+        <p><strong>Protect and Track</strong> is enabled by default and cannot be disabled. This setting ensures that all access to the file through the SpecterX Viewer is tracked in the audit log.</p>
+      </div>
+    </div>
+  </div>
+
+  <h3>Downloading files</h3>
+
+  <div class="steps">
+    <div class="step">
+      <span class="step-num">1</span>
+      <div class="step-body">
+        <p>Enable <strong>Block file download</strong> to prevent recipients from downloading any copy of the file. Recipients can view the file online in the SpecterX Viewer but the download button is hidden. This is the strictest download control — enable it for your most sensitive documents.</p>
+      </div>
+    </div>
+    <div class="step">
+      <span class="step-num">2</span>
+      <div class="step-body">
+        <p>Enable <strong>Encrypt using a Password</strong> to require that downloaded copies are protected by a password the sender sets at share time.</p>
+        <p>Supported file formats for password encryption: <code>.pdf</code>, <code>.docx</code>, <code>.xlsx</code>, <code>.pptx</code>.</p>
+        <div class="article-note"><strong>Note:</strong> <strong>Block file download</strong> and <strong>Encrypt using a Password</strong> are mutually exclusive. If you enable <strong>Block file download</strong>, the password encryption toggle is automatically disabled.</div>
+      </div>
+    </div>
+    <div class="step">
+      <span class="step-num">3</span>
+      <div class="step-body">
+        <p>Enable <strong>Encrypt using Information Rights Management</strong> (RMS) to apply Microsoft Rights Management Service encryption to downloaded copies. RMS encryption is enforced at the file level, ensuring the file remains protected even if it is copied to another location or forwarded outside SpecterX.</p>
+        <p>RMS encryption requires that your tenant has an active Microsoft Azure RMS or Entra ID configuration. Contact your administrator if this toggle is not available.</p>
+      </div>
+    </div>
+    <div class="step">
+      <span class="step-num">4</span>
+      <div class="step-body">
+        <p>Enable <strong>Watermark</strong> to add a dynamic visible watermark to the file in the SpecterX Viewer. The watermark text typically includes the recipient's email address and access timestamp, creating a traceable record that can identify unauthorized distribution.</p>
+        <p>Watermark text and position can be customized by your administrator.</p>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="recipient-experience">Set the Recipient Experience language</h2>
+
+  <div class="steps">
+    <div class="step">
+      <span class="step-num">1</span>
+      <div class="step-body">
+        <p>Click <strong>Recipient Experience</strong> to expand the section.</p>
+        <p>Select the language in which the SpecterX Recipient Page and verification prompts are displayed to recipients. Currently supported options are <strong>English</strong> and <strong>Hebrew</strong>.</p>
+        <p>Choose the language that your recipients use. For a mixed audience, create one policy per language.</p>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="apply">Save and apply the policy</h2>
+
+  <div class="steps">
+    <div class="step">
+      <span class="step-num">1</span>
+      <div class="step-body">
+        <p>After configuring all sections, click <strong>Apply</strong> at the bottom of the editor panel.</p>
+        <p>The policy is saved and becomes available in the policy dropdown when sharing files.</p>
+        <div class="article-note"><strong>Note:</strong> The <strong>Apply</strong> button is disabled until you make at least one change from the last saved state. If you see <strong>Apply</strong> greyed out, verify that you have modified a setting.</div>
+      </div>
+    </div>
+    <div class="step">
+      <span class="step-num">2</span>
+      <div class="step-body">
+        <p>To delete a policy you no longer need, select it in the policy list and click <strong>Delete</strong>. You cannot delete the <strong>Default</strong> policy.</p>
+        <div class="article-note"><strong>Warning:</strong> Deleting a policy does not revoke access to files that were previously shared with that policy. Those files fall back to the <strong>Default</strong> policy. To fully restrict access to previously shared files, revoke access from the Share &amp; Permissions Drawer for each file.</div>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="examples">Policy examples</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Use case</th>
+          <th>Recommended settings</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Standard internal share</strong><br><span style="font-size:13px;color:var(--text-muted)">Sharing reports with colleagues</span></td>
+          <td>Allow Sharing with Anyone · Email verification · Protect and Track on · Download allowed</td>
+        </tr>
+        <tr>
+          <td><strong>External partner NDA file</strong><br><span style="font-size:13px;color:var(--text-muted)">Contract or legal document</span></td>
+          <td>Restrict Sharing to Recipient's Domain · Email verification · Watermark on · Block file download</td>
+        </tr>
+        <tr>
+          <td><strong>Highly sensitive / regulated data</strong><br><span style="font-size:13px;color:var(--text-muted)">PHI, PII, financial data</span></td>
+          <td>Disable Further Sharing · Phone verification · Watermark on · Encrypt using RMS · Block file download</td>
+        </tr>
+        <tr>
+          <td><strong>Board package / confidential presentation</strong><br><span style="font-size:13px;color:var(--text-muted)">Internal board members only</span></td>
+          <td>Restrict Policy to Specific Users (board members group) · Disable Further Sharing · Email + Phone verification · Encrypt using RMS</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <section class="article-related">
+    <h2>Related articles</h2>
+    <div class="related-cards">
+      <a href="share-files-from-web.html" class="related-card">
+        <div class="related-card-section">Share files</div>
+        <div class="related-card-title">Securely share a file from the web platform</div>
+        <div class="related-card-desc">Apply your policy when uploading and sharing files with recipients.</div>
+      </a>
+      <a href="audit-logs.html" class="related-card">
+        <div class="related-card-section">Administration</div>
+        <div class="related-card-title">Review audit logs &amp; usage dashboards</div>
+        <div class="related-card-desc">Verify that policy controls are working as expected by reviewing access events in the audit log.</div>
+      </a>
+      <a href="#" class="related-card">
+        <div class="related-card-section">Administration</div>
+        <div class="related-card-title">Manage users &amp; groups</div>
+        <div class="related-card-desc">Create groups to use with the Restrict Policy to Specific Users control.</div>
+      </a>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

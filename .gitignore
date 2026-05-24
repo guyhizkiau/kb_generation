@@ -1,0 +1,15 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+.python-version
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+.scrape-state/
+.playwright-cache/
+
+Copy of My statement on workflows*.docx

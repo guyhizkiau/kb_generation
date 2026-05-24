@@ -1,0 +1,111 @@
+Admin All Files
+
+Amazon S3 Storage Integration
+
+Audit logs
+
+Authentication
+
+Box plugin
+
+Digital Signature
+
+DLP Core Mailflow Integration
+
+DLP WebUI Integration
+
+Download Functions
+
+Encrypt using Rights Management - Policy Protection
+
+Entra ID Integration
+
+File Management Panes
+
+Folders
+
+Gmail Connector
+
+Google Cloud Identity
+
+Google Cloud Storage Integration
+
+Google Drive Connector
+
+Jenkins
+
+Mail Protection Server
+
+Mobile Version
+
+MSP
+
+Notifications
+
+Okta Identity Integration
+
+Open with Adobe Desktop
+
+Open with Google Drive
+
+Open with Microsoft Edge
+
+Open with Native Office
+
+Open with Office Online
+
+Open with SpecterX Viewer (WOPI)
+
+Opswat CDR Integration
+
+Outlook Classic Connector
+
+Outlook New Connector
+
+Password - Policy Protection
+
+Platform Governance Rules
+
+Policy Management Pane
+
+Protected Messages
+
+Purview Integration
+
+Recipient Activity & Engagement Admin Dashboards
+
+Recipient Page
+
+Reset Password
+
+Salesforce Browser Extension
+
+Salesforce Reports Connector
+
+Security Policies
+
+Send File Back
+
+Sentry
+
+Share & Permissions Drawer
+
+SharePoint Connector
+
+Sharepoint Storage Integration
+
+Slack Connector
+
+SpecterX Gateway (On-Prem)
+
+SpecterX Gateway - Storage Connector (On-Prem)
+
+Unassignable Comp [Web Client]
+
+Usage Dashboards
+
+User & Group Management
+
+Watermarking - Policy Protection
+
+Workspaces

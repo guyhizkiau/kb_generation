@@ -1,0 +1,50 @@
+name: docsend
+display_name: Dropbox DocSend Help
+base_url: https://help.dropbox.com
+output_dir: sources/docsend
+
+phase: 1
+max_pages: 15
+
+request_delay_seconds: 1.5
+asset_delay_seconds: 0.3
+user_agent: "SpecterX-DocsResearch/0.1 (+internal documentation benchmark; contact: docs@specterx)"
+
+allowed_asset_hosts:
+  - help.dropbox.com
+  - aem.dropbox.com
+  - cfl.dropboxstatic.com
+  - www.dropbox.com
+  - dl.dropboxusercontent.com
+  - assets.dropbox.com
+
+asset_deny_substrings:
+  - /favicon
+  - /sprite
+
+# Phase 1 seeds — REAL URLs discovered via tools/discover_links.py against the
+# DocSend category index. Earlier attempt with guessed slugs returned 404s.
+seeds:
+  # ─── Orientation / IA reference ───────────────────────────────────────
+  - https://help.dropbox.com/docsend                                                   # rich category index
+  # ─── The user's canonical exemplar ────────────────────────────────────
+  - https://help.dropbox.com/share/dropbox-docsend-watermarks
+  # ─── Link security ────────────────────────────────────────────────────
+  - https://help.dropbox.com/share/dropbox-docsend-restrict-access-allow-or-block-viewers
+  - https://help.dropbox.com/share/dropbox-docsend-email-authentication
+  - https://help.dropbox.com/share/dropbox-docsend-viewer-email-validation
+  - https://help.dropbox.com/share/dropbox-docsend-password-protected-document-support
+  - https://help.dropbox.com/share/dropbox-docsend-disable-access-to-link
+  # ─── Agreements (DocSend's NDA-on-a-link feature) ─────────────────────
+  - https://help.dropbox.com/share/dropbox-docsend-agreements
+  # ─── Viewer analytics ─────────────────────────────────────────────────
+  - https://help.dropbox.com/share/dropbox-docsend-company-and-personal-visits
+  - https://help.dropbox.com/share/dropbox-docsend-documents-activity-tab
+  - https://help.dropbox.com/share/dropbox-docsend-documents-performance-tab
+  # ─── Spaces / data rooms ──────────────────────────────────────────────
+  - https://help.dropbox.com/share/dropbox-docsend-link-settings-in-spaces
+  # ─── Link management ──────────────────────────────────────────────────
+  - https://help.dropbox.com/share/dropbox-docsend-update-link-settings
+  - https://help.dropbox.com/share/dropbox-docsend-download-only-files
+  # ─── Account / permissions exemplar ───────────────────────────────────
+  - https://help.dropbox.com/share/dropbox-docsend-accounts-overview

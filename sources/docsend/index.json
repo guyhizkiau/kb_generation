@@ -1,0 +1,208 @@
+[
+  {
+    "url": "https://help.dropbox.com/docsend",
+    "final_url": "https://help.dropbox.com/docsend",
+    "title": "Dropbox DocSend - Dropbox Help",
+    "h1": "Dropbox DocSend",
+    "breadcrumbs": [],
+    "local_path": "sources/docsend/pages/help.dropbox.com_docsend.html",
+    "asset_count": 12,
+    "fetched_at": "2026-05-19T16:09:33+00:00"
+  },
+  {
+    "url": "https://help.dropbox.com/share/dropbox-docsend-accounts-overview",
+    "final_url": "https://help.dropbox.com/share/dropbox-docsend-accounts-overview",
+    "title": "Accounts overview in Dropbox DocSend - Dropbox Help",
+    "h1": "Accounts overview in Dropbox DocSend",
+    "breadcrumbs": [
+      "Dropbox Help Center - How to use Dropbox",
+      "Share",
+      "Accounts overview in Dropbox DocSend"
+    ],
+    "local_path": "sources/docsend/pages/help.dropbox.com_share_dropbox-docsend-accounts-overview.html",
+    "asset_count": 9,
+    "fetched_at": "2026-05-19T16:13:32+00:00"
+  },
+  {
+    "url": "https://help.dropbox.com/share/dropbox-docsend-agreements",
+    "final_url": "https://help.dropbox.com/share/dropbox-docsend-agreements",
+    "title": "Agreements overview in Dropbox DocSend - Dropbox Help",
+    "h1": "Agreements overview in Dropbox DocSend",
+    "breadcrumbs": [
+      "Dropbox Help Center - How to use Dropbox",
+      "Share",
+      "Agreements overview in Dropbox DocSend"
+    ],
+    "local_path": "sources/docsend/pages/help.dropbox.com_share_dropbox-docsend-agreements.html",
+    "asset_count": 9,
+    "fetched_at": "2026-05-19T16:11:16+00:00"
+  },
+  {
+    "url": "https://help.dropbox.com/share/dropbox-docsend-company-and-personal-visits",
+    "final_url": "https://help.dropbox.com/share/dropbox-docsend-company-and-personal-visits",
+    "title": "Company and personal visits in Dropbox DocSend - Dropbox Help",
+    "h1": "Company and personal visits in Dropbox DocSend",
+    "breadcrumbs": [
+      "Dropbox Help Center - How to use Dropbox",
+      "Share",
+      "Company and personal visits in Dropbox DocSend"
+    ],
+    "local_path": "sources/docsend/pages/help.dropbox.com_share_dropbox-docsend-company-and-personal-visits.html",
+    "asset_count": 9,
+    "fetched_at": "2026-05-19T16:11:32+00:00"
+  },
+  {
+    "url": "https://help.dropbox.com/share/dropbox-docsend-disable-access-to-link",
+    "final_url": "https://help.dropbox.com/share/dropbox-docsend-disable-access-to-link",
+    "title": "How to disable access to Dropbox DocSend links - Dropbox Help",
+    "h1": "How to disable access to Dropbox DocSend links",
+    "breadcrumbs": [
+      "Dropbox Help Center - How to use Dropbox",
+      "Share",
+      "How to disable access to Dropbox DocSend links"
+    ],
+    "local_path": "sources/docsend/pages/help.dropbox.com_share_dropbox-docsend-disable-access-to-link.html",
+    "asset_count": 9,
+    "fetched_at": "2026-05-19T16:11:01+00:00"
+  },
+  {
+    "url": "https://help.dropbox.com/share/dropbox-docsend-documents-activity-tab",
+    "final_url": "https://help.dropbox.com/share/dropbox-docsend-documents-activity-tab",
+    "title": "Using the Activity tab in Dropbox DocSend - Dropbox Help",
+    "h1": "Using the Activity tab in Dropbox DocSend",
+    "breadcrumbs": [
+      "Dropbox Help Center - How to use Dropbox",
+      "Share",
+      "Using the Activity tab in Dropbox DocSend"
+    ],
+    "local_path": "sources/docsend/pages/help.dropbox.com_share_dropbox-docsend-documents-activity-tab.html",
+    "asset_count": 9,
+    "fetched_at": "2026-05-19T16:11:49+00:00"
+  },
+  {
+    "url": "https://help.dropbox.com/share/dropbox-docsend-documents-performance-tab",
+    "final_url": "https://help.dropbox.com/share/dropbox-docsend-documents-performance-tab",
+    "title": "See document performance in Dropbox DocSend - Dropbox Help",
+    "h1": "See document performance in Dropbox DocSend",
+    "breadcrumbs": [
+      "Dropbox Help Center - How to use Dropbox",
+      "Share",
+      "See document performance in Dropbox DocSend"
+    ],
+    "local_path": "sources/docsend/pages/help.dropbox.com_share_dropbox-docsend-documents-performance-tab.html",
+    "asset_count": 11,
+    "fetched_at": "2026-05-19T16:12:08+00:00"
+  },
+  {
+    "url": "https://help.dropbox.com/share/dropbox-docsend-download-only-files",
+    "final_url": "https://help.dropbox.com/share/dropbox-docsend-download-only-files",
+    "title": "Download-only files in Dropbox DocSend - Dropbox Help",
+    "h1": "Download-only files in Dropbox DocSend",
+    "breadcrumbs": [
+      "Dropbox Help Center - How to use Dropbox",
+      "Share",
+      "Download-only files in Dropbox DocSend"
+    ],
+    "local_path": "sources/docsend/pages/help.dropbox.com_share_dropbox-docsend-download-only-files.html",
+    "asset_count": 16,
+    "fetched_at": "2026-05-19T16:13:14+00:00"
+  },
+  {
+    "url": "https://help.dropbox.com/share/dropbox-docsend-email-authentication",
+    "final_url": "https://help.dropbox.com/share/dropbox-docsend-email-authentication",
+    "title": "Email authentication in Dropbox DocSend - Dropbox Help",
+    "h1": "Email authentication in Dropbox DocSend",
+    "breadcrumbs": [
+      "Dropbox Help Center - How to use Dropbox",
+      "Share",
+      "Email authentication in Dropbox DocSend"
+    ],
+    "local_path": "sources/docsend/pages/help.dropbox.com_share_dropbox-docsend-email-authentication.html",
+    "asset_count": 9,
+    "fetched_at": "2026-05-19T16:10:22+00:00"
+  },
+  {
+    "url": "https://help.dropbox.com/share/dropbox-docsend-link-settings-in-spaces",
+    "final_url": "https://help.dropbox.com/share/dropbox-docsend-link-settings-in-spaces",
+    "title": "Link settings in Dropbox DocSend Spaces - Dropbox Help",
+    "h1": "Link settings in Dropbox DocSend Spaces",
+    "breadcrumbs": [
+      "Dropbox Help Center - How to use Dropbox",
+      "Share",
+      "Link settings in Dropbox DocSend Spaces"
+    ],
+    "local_path": "sources/docsend/pages/help.dropbox.com_share_dropbox-docsend-link-settings-in-spaces.html",
+    "asset_count": 9,
+    "fetched_at": "2026-05-19T16:12:34+00:00"
+  },
+  {
+    "url": "https://help.dropbox.com/share/dropbox-docsend-password-protected-document-support",
+    "final_url": "https://help.dropbox.com/share/dropbox-docsend-password-protected-document-support",
+    "title": "Password-protected documents in Dropbox DocSend - Dropbox Help",
+    "h1": "Password-protected documents in Dropbox DocSend",
+    "breadcrumbs": [
+      "Dropbox Help Center - How to use Dropbox",
+      "Share",
+      "Password-protected documents in Dropbox DocSend"
+    ],
+    "local_path": "sources/docsend/pages/help.dropbox.com_share_dropbox-docsend-password-protected-document-support.html",
+    "asset_count": 9,
+    "fetched_at": "2026-05-19T16:10:50+00:00"
+  },
+  {
+    "url": "https://help.dropbox.com/share/dropbox-docsend-restrict-access-allow-or-block-viewers",
+    "final_url": "https://help.dropbox.com/share/dropbox-docsend-restrict-access-allow-or-block-viewers",
+    "title": "Allow or block viewers in Dropbox DocSend - Dropbox Help",
+    "h1": "Allow or block viewers in Dropbox DocSend",
+    "breadcrumbs": [
+      "Dropbox Help Center - How to use Dropbox",
+      "Share",
+      "Allow or block viewers in Dropbox DocSend"
+    ],
+    "local_path": "sources/docsend/pages/help.dropbox.com_share_dropbox-docsend-restrict-access-allow-or-block-viewers.html",
+    "asset_count": 9,
+    "fetched_at": "2026-05-19T16:10:04+00:00"
+  },
+  {
+    "url": "https://help.dropbox.com/share/dropbox-docsend-update-link-settings",
+    "final_url": "https://help.dropbox.com/share/dropbox-docsend-update-link-settings",
+    "title": "How to update link settings in Dropbox DocSend - Dropbox Help",
+    "h1": "How to update link settings in Dropbox DocSend",
+    "breadcrumbs": [
+      "Dropbox Help Center - How to use Dropbox",
+      "Share",
+      "How to update link settings in Dropbox DocSend"
+    ],
+    "local_path": "sources/docsend/pages/help.dropbox.com_share_dropbox-docsend-update-link-settings.html",
+    "asset_count": 9,
+    "fetched_at": "2026-05-19T16:12:52+00:00"
+  },
+  {
+    "url": "https://help.dropbox.com/share/dropbox-docsend-viewer-email-validation",
+    "final_url": "https://help.dropbox.com/share/dropbox-docsend-viewer-email-validation",
+    "title": "Set up viewer email validation in Dropbox DocSend - Dropbox Help",
+    "h1": "Set up viewer email validation in Dropbox DocSend",
+    "breadcrumbs": [
+      "Dropbox Help Center - How to use Dropbox",
+      "Share",
+      "Set up viewer email validation in Dropbox DocSend"
+    ],
+    "local_path": "sources/docsend/pages/help.dropbox.com_share_dropbox-docsend-viewer-email-validation.html",
+    "asset_count": 9,
+    "fetched_at": "2026-05-19T16:10:39+00:00"
+  },
+  {
+    "url": "https://help.dropbox.com/share/dropbox-docsend-watermarks",
+    "final_url": "https://help.dropbox.com/share/dropbox-docsend-watermarks",
+    "title": "Add and customize watermarks in Dropbox DocSend - Dropbox Help",
+    "h1": "Add and customize watermarks in Dropbox DocSend",
+    "breadcrumbs": [
+      "Dropbox Help Center - How to use Dropbox",
+      "Share",
+      "Add and customize watermarks in Dropbox DocSend"
+    ],
+    "local_path": "sources/docsend/pages/help.dropbox.com_share_dropbox-docsend-watermarks.html",
+    "asset_count": 9,
+    "fetched_at": "2026-05-19T16:09:51+00:00"
+  }
+]

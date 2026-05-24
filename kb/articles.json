@@ -1,0 +1,1002 @@
+{
+  "categories": [
+    {
+      "slug": "get-started",
+      "title": "Get started",
+      "description": "Log in, understand what SpecterX does, and find the quick-start guide for your tool.",
+      "icon": "rocket",
+      "num": 1
+    },
+    {
+      "slug": "share-files",
+      "title": "Share files",
+      "description": "Upload, protect, and share files from the SpecterX web platform. Manage permissions and links.",
+      "icon": "share",
+      "num": 2
+    },
+    {
+      "slug": "receive-files",
+      "title": "Receive files",
+      "description": "Open a SpecterX-protected file as a recipient, verify your identity, and choose your viewer.",
+      "icon": "inbox",
+      "num": 3
+    },
+    {
+      "slug": "manage-workspaces",
+      "title": "Manage workspaces",
+      "description": "Create secure collaboration spaces, invite team members, and manage workspace permissions.",
+      "icon": "folder",
+      "num": 4
+    },
+    {
+      "slug": "send-protected-email",
+      "title": "Send protected email",
+      "description": "Protect email and attachments from Outlook and Gmail using the SpecterX email connectors.",
+      "icon": "email",
+      "num": 5
+    },
+    {
+      "slug": "connect-to-other-apps",
+      "title": "Connect to other apps",
+      "description": "Protect files that live in Google Drive, SharePoint, Slack, and Salesforce without moving them.",
+      "icon": "connect",
+      "num": 6
+    },
+    {
+      "slug": "configure-security-policies",
+      "title": "Configure security policies",
+      "description": "Create and manage policies that control who can access, download, forward, and verify your files.",
+      "icon": "shield",
+      "num": 7
+    },
+    {
+      "slug": "manage-your-organization",
+      "title": "Manage your organization",
+      "description": "Add users and groups, review audit logs, and track recipient engagement across your organization.",
+      "icon": "org",
+      "num": 8
+    },
+    {
+      "slug": "set-up-integrations",
+      "title": "Set up integrations",
+      "description": "Connect SpecterX to your identity provider, cloud storage, DLP tools, and mail protection service.",
+      "icon": "integrations",
+      "num": 9
+    },
+    {
+      "slug": "deploy-on-premises",
+      "title": "Deploy on-premises",
+      "description": "Install and configure the SpecterX Gateway in your own environment.",
+      "icon": "server",
+      "num": 10
+    },
+    {
+      "slug": "reference",
+      "title": "Reference & limitations",
+      "description": "Supported file types, capability limits, compliance guides, release notes, and reference tables.",
+      "icon": "book",
+      "num": 11
+    }
+  ],
+  "articles": [
+    {
+      "slug": "what-is-specterx",
+      "title": "What is SpecterX?",
+      "intro": "An overview of what SpecterX does, how it protects files and email, and how recipients access protected content.",
+      "category": "get-started",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["log-in-to-specterx", "securely-share-a-file-from-the-web-platform", "open-a-specterx-protected-file", "reset-your-password"]
+    },
+    {
+      "slug": "log-in-to-specterx",
+      "title": "Log in to the SpecterX web platform",
+      "intro": "How to access the SpecterX web platform using your organization's credentials.",
+      "category": "get-started",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["what-is-specterx", "reset-your-password", "set-up-entra-id-authentication", "set-up-okta-authentication"]
+    },
+    {
+      "slug": "reset-your-password",
+      "title": "Reset your password",
+      "intro": "Steps to reset your SpecterX password if you have been locked out or need to change it.",
+      "category": "get-started",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["log-in-to-specterx", "what-is-specterx", "set-up-entra-id-authentication", "set-up-okta-authentication"]
+    },
+    {
+      "slug": "supported-file-types-and-browsers",
+      "title": "Supported file types & browsers",
+      "intro": "The full list of file formats and web browsers that SpecterX supports for protecting, viewing, and downloading files.",
+      "category": "get-started",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["watermarking-supported-formats", "password-encryption-supported-formats", "rms-requirements-and-limitations", "open-a-specterx-protected-file"]
+    },
+
+    {
+      "slug": "securely-share-a-file-from-the-web-platform",
+      "title": "Securely share a file from the SpecterX Web Platform",
+      "intro": "Upload a file, set recipient permissions and a security policy, then share a protected link from your browser.",
+      "category": "share-files",
+      "sub_section": null,
+      "status": "poc",
+      "related": ["share-a-folder", "set-recipient-permissions", "configure-a-security-policy", "open-a-specterx-protected-file"]
+    },
+    {
+      "slug": "share-a-folder",
+      "title": "Share a folder",
+      "intro": "How to share an entire folder from the SpecterX web platform, with policy applied to all files inside.",
+      "category": "share-files",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["securely-share-a-file-from-the-web-platform", "set-recipient-permissions", "create-and-manage-a-workspace", "update-permissions-after-sharing"]
+    },
+    {
+      "slug": "request-files-from-recipients",
+      "title": "Request files from recipients",
+      "intro": "Send a secure request link so an external party can upload files directly into your SpecterX account.",
+      "category": "share-files",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["securely-share-a-file-from-the-web-platform", "send-a-file-back-to-the-sender", "create-and-manage-a-workspace", "set-recipient-permissions"]
+    },
+    {
+      "slug": "set-recipient-permissions",
+      "title": "Set recipient permissions",
+      "intro": "Choose the Viewer, Contributor, or Co-Owner role for each person you share a file or folder with.",
+      "category": "share-files",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["securely-share-a-file-from-the-web-platform", "update-permissions-after-sharing", "user-roles-and-permissions-reference", "control-who-can-reshare-your-files"]
+    },
+    {
+      "slug": "update-permissions-after-sharing",
+      "title": "Update permissions after sharing",
+      "intro": "How to change or remove a recipient's access to a file or folder you have already shared.",
+      "category": "share-files",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["set-recipient-permissions", "revoke-access-to-a-shared-file", "securely-share-a-file-from-the-web-platform", "configure-a-security-policy"]
+    },
+    {
+      "slug": "revoke-access-to-a-shared-file",
+      "title": "Revoke access to a shared file",
+      "intro": "Immediately disable all access to a protected link, including for recipients who have already opened the file.",
+      "category": "share-files",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["update-permissions-after-sharing", "set-recipient-permissions", "review-audit-logs-and-usage-dashboards", "configure-a-security-policy"]
+    },
+    {
+      "slug": "set-an-expiration-date-on-a-shared-file",
+      "title": "Set an expiration date on a shared file",
+      "intro": "Apply a time limit to a share so the protected link automatically expires after a set period.",
+      "category": "share-files",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["securely-share-a-file-from-the-web-platform", "revoke-access-to-a-shared-file", "configure-a-security-policy", "update-permissions-after-sharing"]
+    },
+
+    {
+      "slug": "open-a-specterx-protected-file",
+      "title": "Open a SpecterX-protected file",
+      "intro": "The recipient's guide to clicking a protected link, verifying your identity with email OTP, and viewing the file in the SpecterX Viewer.",
+      "category": "receive-files",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["verify-with-sms-code", "verify-with-a-personal-secret", "open-with-microsoft-office-desktop", "send-a-file-back-to-the-sender"]
+    },
+    {
+      "slug": "verify-with-sms-code",
+      "title": "Verify with an SMS code",
+      "intro": "How to complete identity verification using a one-time code sent to your mobile phone number.",
+      "category": "receive-files",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["open-a-specterx-protected-file", "verify-with-a-personal-secret", "require-identity-verification-before-opening-a-file", "open-with-microsoft-office-desktop"]
+    },
+    {
+      "slug": "verify-with-a-personal-secret",
+      "title": "Verify with a personal secret",
+      "intro": "How to open a file that is protected by a password or personal secret set by the sender.",
+      "category": "receive-files",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["open-a-specterx-protected-file", "verify-with-sms-code", "encrypt-downloaded-files-with-a-password", "require-identity-verification-before-opening-a-file"]
+    },
+    {
+      "slug": "open-with-adobe-desktop",
+      "title": "Open with Adobe Desktop",
+      "intro": "How to open a SpecterX-protected PDF in Adobe Acrobat Reader while maintaining policy controls.",
+      "category": "receive-files",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["open-a-specterx-protected-file", "open-with-microsoft-office-desktop", "open-with-office-online", "rms-requirements-and-limitations"]
+    },
+    {
+      "slug": "open-with-microsoft-office-desktop",
+      "title": "Open with Microsoft Office (desktop)",
+      "intro": "How to open a SpecterX-protected Office file in your installed Word, Excel, or PowerPoint application.",
+      "category": "receive-files",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["open-a-specterx-protected-file", "open-with-adobe-desktop", "open-with-office-online", "rms-requirements-and-limitations"]
+    },
+    {
+      "slug": "open-with-office-online",
+      "title": "Open with Office Online",
+      "intro": "How to view and edit a SpecterX-protected Office file directly in your browser using Microsoft Office Online.",
+      "category": "receive-files",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["open-a-specterx-protected-file", "open-with-microsoft-office-desktop", "open-with-google-drive", "rms-requirements-and-limitations"]
+    },
+    {
+      "slug": "open-with-google-drive",
+      "title": "Open with Google Drive",
+      "intro": "How to open a SpecterX-protected file in your Google Docs, Sheets, or Slides environment.",
+      "category": "receive-files",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["open-a-specterx-protected-file", "open-with-office-online", "open-with-microsoft-office-desktop", "set-up-google-cloud-identity"]
+    },
+    {
+      "slug": "send-a-file-back-to-the-sender",
+      "title": "Send a file back to the sender",
+      "intro": "How to upload a file back to the person who shared with you, using the return link included in your notification email.",
+      "category": "receive-files",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["open-a-specterx-protected-file", "request-files-from-recipients", "create-and-manage-a-workspace", "securely-share-a-file-from-the-web-platform"]
+    },
+
+    {
+      "slug": "create-and-manage-a-workspace",
+      "title": "Create and manage a workspace",
+      "intro": "How to create a new SpecterX workspace, configure its name and default policy, and manage its settings.",
+      "category": "manage-workspaces",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["invite-collaborators-and-set-roles", "upload-files-to-a-workspace", "manage-folders-in-a-workspace", "configure-a-security-policy"]
+    },
+    {
+      "slug": "invite-collaborators-and-set-roles",
+      "title": "Invite collaborators & set roles",
+      "intro": "Add internal and external users to a workspace and assign them Viewer, Contributor, or Co-Owner roles.",
+      "category": "manage-workspaces",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["create-and-manage-a-workspace", "user-roles-and-permissions-reference", "manage-users-and-groups", "set-recipient-permissions"]
+    },
+    {
+      "slug": "upload-files-to-a-workspace",
+      "title": "Upload files to a workspace",
+      "intro": "How to add files to a workspace, including bulk uploads and the automatic policy inheritance behaviour.",
+      "category": "manage-workspaces",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["create-and-manage-a-workspace", "manage-folders-in-a-workspace", "configure-a-security-policy", "securely-share-a-file-from-the-web-platform"]
+    },
+    {
+      "slug": "manage-folders-in-a-workspace",
+      "title": "Manage folders in a workspace",
+      "intro": "How to create, rename, and organise folders inside a workspace, and how policies propagate to sub-folders.",
+      "category": "manage-workspaces",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["create-and-manage-a-workspace", "upload-files-to-a-workspace", "share-a-folder", "configure-a-security-policy"]
+    },
+    {
+      "slug": "view-workspace-audit-logs",
+      "title": "View workspace audit logs",
+      "intro": "How to filter the audit log to events for a specific workspace, including uploads, downloads, and permission changes.",
+      "category": "manage-workspaces",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["create-and-manage-a-workspace", "review-audit-logs-and-usage-dashboards", "manage-users-and-groups", "invite-collaborators-and-set-roles"]
+    },
+
+    {
+      "slug": "outlook-classic-vs-outlook-new",
+      "title": "Outlook Classic vs Outlook New — which should I use?",
+      "intro": "A comparison of the SpecterX Outlook Classic Add-in (Windows, maintenance mode) and the Outlook New Add-in (recommended for all new installations).",
+      "category": "send-protected-email",
+      "sub_section": "outlook-new",
+      "status": "planned",
+      "related": ["get-started-with-outlook-new-add-in", "set-up-outlook-new-add-in", "get-started-with-outlook-classic-add-in", "set-up-outlook-classic-add-in"]
+    },
+    {
+      "slug": "get-started-with-outlook-new-add-in",
+      "title": "Get started with the SpecterX Outlook New Add-in",
+      "intro": "An overview of the SpecterX Outlook New Add-in: what it protects, what it requires, and links to all lifecycle articles.",
+      "category": "send-protected-email",
+      "sub_section": "outlook-new",
+      "status": "planned",
+      "related": ["set-up-outlook-new-add-in", "send-protected-email-outlook-new", "troubleshoot-outlook-new-add-in", "outlook-classic-vs-outlook-new"]
+    },
+    {
+      "slug": "set-up-outlook-new-add-in",
+      "title": "Set up the SpecterX Outlook New Add-in",
+      "intro": "Install and activate the SpecterX Outlook New Add-in on Outlook for Web, Desktop, and Mobile.",
+      "category": "send-protected-email",
+      "sub_section": "outlook-new",
+      "status": "planned",
+      "related": ["get-started-with-outlook-new-add-in", "send-protected-email-outlook-new", "track-recipient-activity-in-outlook", "troubleshoot-outlook-new-add-in"]
+    },
+    {
+      "slug": "send-protected-email-outlook-new",
+      "title": "Send a protected email with the Outlook New Add-in",
+      "intro": "How to enable SpecterX protection in Outlook, attach files, set a policy, and send a secure message.",
+      "category": "send-protected-email",
+      "sub_section": "outlook-new",
+      "status": "planned",
+      "related": ["set-up-outlook-new-add-in", "track-recipient-activity-in-outlook", "configure-a-security-policy", "open-a-specterx-protected-file"]
+    },
+    {
+      "slug": "track-recipient-activity-in-outlook",
+      "title": "Track recipient activity in Outlook",
+      "intro": "View who has opened, downloaded, or forwarded a file you sent from Outlook using the SpecterX activity panel.",
+      "category": "send-protected-email",
+      "sub_section": "outlook-new",
+      "status": "planned",
+      "related": ["send-protected-email-outlook-new", "review-audit-logs-and-usage-dashboards", "track-recipient-activity-and-engagement", "set-up-outlook-new-add-in"]
+    },
+    {
+      "slug": "troubleshoot-outlook-new-add-in",
+      "title": "Troubleshoot the Outlook New Add-in",
+      "intro": "Solutions for common issues with the SpecterX Outlook New Add-in, including activation errors and missing UI.",
+      "category": "send-protected-email",
+      "sub_section": "outlook-new",
+      "status": "planned",
+      "related": ["set-up-outlook-new-add-in", "send-protected-email-outlook-new", "get-started-with-outlook-new-add-in", "outlook-classic-vs-outlook-new"]
+    },
+    {
+      "slug": "uninstall-outlook-new-add-in",
+      "title": "Uninstall the Outlook New Add-in",
+      "intro": "How to remove the SpecterX Outlook New Add-in from Outlook for Web, Desktop, or Mobile.",
+      "category": "send-protected-email",
+      "sub_section": "outlook-new",
+      "status": "planned",
+      "related": ["set-up-outlook-new-add-in", "outlook-classic-vs-outlook-new", "get-started-with-outlook-new-add-in", "troubleshoot-outlook-new-add-in"]
+    },
+    {
+      "slug": "get-started-with-outlook-classic-add-in",
+      "title": "Get started with the SpecterX Outlook Classic Add-in",
+      "intro": "Overview of the SpecterX Outlook Classic Add-in for Windows. Note: this add-in is in maintenance mode — new installations should use the Outlook New Add-in.",
+      "category": "send-protected-email",
+      "sub_section": "outlook-classic",
+      "status": "planned",
+      "related": ["outlook-classic-vs-outlook-new", "set-up-outlook-classic-add-in", "send-protected-email-outlook-classic", "get-started-with-outlook-new-add-in"]
+    },
+    {
+      "slug": "set-up-outlook-classic-add-in",
+      "title": "Set up the SpecterX Outlook Classic Add-in",
+      "intro": "Install and activate the SpecterX Outlook Classic Add-in on Windows Outlook (Desktop only).",
+      "category": "send-protected-email",
+      "sub_section": "outlook-classic",
+      "status": "planned",
+      "related": ["get-started-with-outlook-classic-add-in", "send-protected-email-outlook-classic", "outlook-classic-vs-outlook-new", "troubleshoot-outlook-new-add-in"]
+    },
+    {
+      "slug": "send-protected-email-outlook-classic",
+      "title": "Send a protected email with the Outlook Classic Add-in",
+      "intro": "How to protect emails and attachments using the SpecterX Outlook Classic Add-in on Windows.",
+      "category": "send-protected-email",
+      "sub_section": "outlook-classic",
+      "status": "planned",
+      "related": ["set-up-outlook-classic-add-in", "send-protected-email-outlook-new", "configure-a-security-policy", "open-a-specterx-protected-file"]
+    },
+    {
+      "slug": "get-started-with-gmail-extension",
+      "title": "Get started with the SpecterX Gmail Extension",
+      "intro": "An overview of the SpecterX Gmail Extension: what it protects, what it requires, and links to all lifecycle articles.",
+      "category": "send-protected-email",
+      "sub_section": "gmail",
+      "status": "planned",
+      "related": ["set-up-gmail-extension", "send-protected-email-gmail", "troubleshoot-gmail-extension", "get-started-with-outlook-new-add-in"]
+    },
+    {
+      "slug": "set-up-gmail-extension",
+      "title": "Set up the SpecterX Gmail Extension",
+      "intro": "Install and activate the SpecterX Gmail Extension in Chrome to protect emails sent from Gmail.",
+      "category": "send-protected-email",
+      "sub_section": "gmail",
+      "status": "planned",
+      "related": ["get-started-with-gmail-extension", "send-protected-email-gmail", "troubleshoot-gmail-extension", "set-up-outlook-new-add-in"]
+    },
+    {
+      "slug": "send-protected-email-gmail",
+      "title": "Send a protected email with the Gmail Extension",
+      "intro": "How to enable SpecterX protection in Gmail Compose, add recipients, and send a secure message.",
+      "category": "send-protected-email",
+      "sub_section": "gmail",
+      "status": "planned",
+      "related": ["set-up-gmail-extension", "configure-a-security-policy", "send-protected-email-outlook-new", "open-a-specterx-protected-file"]
+    },
+    {
+      "slug": "troubleshoot-gmail-extension",
+      "title": "Troubleshoot the Gmail Extension",
+      "intro": "Solutions for common issues with the SpecterX Gmail Extension, including missing SpecterX buttons and activation errors.",
+      "category": "send-protected-email",
+      "sub_section": "gmail",
+      "status": "planned",
+      "related": ["set-up-gmail-extension", "send-protected-email-gmail", "get-started-with-gmail-extension", "troubleshoot-outlook-new-add-in"]
+    },
+
+    {
+      "slug": "set-up-google-drive-connector",
+      "title": "Set up the Google Drive Connector",
+      "intro": "Connect SpecterX to Google Drive so you can apply protection to files that stay in their original Drive location.",
+      "category": "connect-to-other-apps",
+      "sub_section": "share-in-place",
+      "status": "planned",
+      "related": ["share-a-google-drive-file", "troubleshoot-google-drive-connector", "set-up-sharepoint-connector", "set-up-gmail-extension"]
+    },
+    {
+      "slug": "share-a-google-drive-file",
+      "title": "Share a Google Drive file with SpecterX protection",
+      "intro": "How to apply a SpecterX policy to a file already in Google Drive without moving or copying it.",
+      "category": "connect-to-other-apps",
+      "sub_section": "share-in-place",
+      "status": "planned",
+      "related": ["set-up-google-drive-connector", "securely-share-a-file-from-the-web-platform", "configure-a-security-policy", "troubleshoot-google-drive-connector"]
+    },
+    {
+      "slug": "troubleshoot-google-drive-connector",
+      "title": "Troubleshoot the Google Drive Connector",
+      "intro": "Solutions for common Google Drive Connector issues, including connection failures and permission errors.",
+      "category": "connect-to-other-apps",
+      "sub_section": "share-in-place",
+      "status": "planned",
+      "related": ["set-up-google-drive-connector", "share-a-google-drive-file", "troubleshoot-sharepoint-connector", "set-up-gmail-extension"]
+    },
+    {
+      "slug": "set-up-sharepoint-connector",
+      "title": "Set up the SharePoint Connector",
+      "intro": "Connect SpecterX to SharePoint so you can apply protection to files in SharePoint libraries without moving them.",
+      "category": "connect-to-other-apps",
+      "sub_section": "share-in-place",
+      "status": "planned",
+      "related": ["share-a-sharepoint-file", "troubleshoot-sharepoint-connector", "set-up-google-drive-connector", "connect-sharepoint-storage"]
+    },
+    {
+      "slug": "share-a-sharepoint-file",
+      "title": "Share a SharePoint file with SpecterX protection",
+      "intro": "How to apply a SpecterX policy to a file already in a SharePoint library without moving it.",
+      "category": "connect-to-other-apps",
+      "sub_section": "share-in-place",
+      "status": "planned",
+      "related": ["set-up-sharepoint-connector", "share-a-google-drive-file", "configure-a-security-policy", "troubleshoot-sharepoint-connector"]
+    },
+    {
+      "slug": "troubleshoot-sharepoint-connector",
+      "title": "Troubleshoot the SharePoint Connector",
+      "intro": "Solutions for common SharePoint Connector issues including authentication errors and missing files.",
+      "category": "connect-to-other-apps",
+      "sub_section": "share-in-place",
+      "status": "planned",
+      "related": ["set-up-sharepoint-connector", "share-a-sharepoint-file", "troubleshoot-google-drive-connector", "connect-sharepoint-storage"]
+    },
+    {
+      "slug": "set-up-slack-connector",
+      "title": "Set up the Slack Connector",
+      "intro": "Connect SpecterX to Slack so you can send protected files directly to Slack channels and DMs.",
+      "category": "connect-to-other-apps",
+      "sub_section": "messaging",
+      "status": "planned",
+      "related": ["send-a-protected-file-to-slack", "troubleshoot-slack-connector", "set-up-google-drive-connector", "securely-share-a-file-from-the-web-platform"]
+    },
+    {
+      "slug": "send-a-protected-file-to-slack",
+      "title": "Send a protected file to Slack",
+      "intro": "How to share a SpecterX-protected file in a Slack channel or direct message while keeping policy controls active.",
+      "category": "connect-to-other-apps",
+      "sub_section": "messaging",
+      "status": "planned",
+      "related": ["set-up-slack-connector", "securely-share-a-file-from-the-web-platform", "configure-a-security-policy", "troubleshoot-slack-connector"]
+    },
+    {
+      "slug": "troubleshoot-slack-connector",
+      "title": "Troubleshoot the Slack Connector",
+      "intro": "Solutions for common issues with the SpecterX Slack Connector, including app installation and permissions errors.",
+      "category": "connect-to-other-apps",
+      "sub_section": "messaging",
+      "status": "planned",
+      "related": ["set-up-slack-connector", "send-a-protected-file-to-slack", "troubleshoot-google-drive-connector", "troubleshoot-sharepoint-connector"]
+    },
+    {
+      "slug": "install-salesforce-browser-extension",
+      "title": "Install the SpecterX Salesforce Browser Extension",
+      "intro": "How to install and activate the SpecterX browser extension for use inside Salesforce.",
+      "category": "connect-to-other-apps",
+      "sub_section": "salesforce",
+      "status": "planned",
+      "related": ["export-and-protect-salesforce-reports", "set-up-gmail-extension", "set-up-google-drive-connector", "configure-a-security-policy"]
+    },
+    {
+      "slug": "export-and-protect-salesforce-reports",
+      "title": "Export and protect Salesforce reports",
+      "intro": "How to export a Salesforce report and automatically protect it with a SpecterX policy using the browser extension.",
+      "category": "connect-to-other-apps",
+      "sub_section": "salesforce",
+      "status": "planned",
+      "related": ["install-salesforce-browser-extension", "configure-a-security-policy", "securely-share-a-file-from-the-web-platform", "review-audit-logs-and-usage-dashboards"]
+    },
+
+    {
+      "slug": "configure-a-security-policy",
+      "title": "Configure a security policy",
+      "intro": "Create and configure a SpecterX policy covering access control, identity verification, and data protection settings.",
+      "category": "configure-security-policies",
+      "sub_section": null,
+      "status": "poc",
+      "related": ["apply-a-policy-when-sharing", "add-a-watermark-to-protected-files", "require-identity-verification", "control-who-can-reshare"]
+    },
+    {
+      "slug": "apply-a-policy-when-sharing",
+      "title": "Apply a policy when sharing — files, folders, workspaces & email",
+      "intro": "How to select a security policy when sharing from the web platform, a workspace, or an email connector.",
+      "category": "configure-security-policies",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["configure-a-security-policy", "securely-share-a-file-from-the-web-platform", "send-protected-email-outlook-new", "set-an-expiration-date-on-a-shared-file"]
+    },
+    {
+      "slug": "control-who-can-reshare",
+      "title": "Control who can reshare your files",
+      "intro": "Configure the Recipient Sharing Permissions policy setting to allow, restrict, or disable forwarding of protected files.",
+      "category": "configure-security-policies",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["configure-a-security-policy", "require-identity-verification", "set-recipient-permissions", "revoke-access-to-a-shared-file"]
+    },
+    {
+      "slug": "require-identity-verification",
+      "title": "Require identity verification before opening a file",
+      "intro": "Configure email OTP, phone SMS, or personal secret verification requirements in a security policy.",
+      "category": "configure-security-policies",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["configure-a-security-policy", "control-who-can-reshare", "verify-with-sms-code", "verify-with-a-personal-secret"]
+    },
+    {
+      "slug": "add-a-watermark-to-protected-files",
+      "title": "Add a watermark to protected files",
+      "intro": "Enable dynamic watermarking in a policy so every recipient sees their email address and access timestamp on the file.",
+      "category": "configure-security-policies",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["configure-a-security-policy", "prevent-recipients-from-downloading", "watermarking-supported-formats", "encrypt-downloaded-files-with-a-password"]
+    },
+    {
+      "slug": "prevent-recipients-from-downloading",
+      "title": "Prevent recipients from downloading files",
+      "intro": "Enable the Block file download setting in a policy to hide the download button and keep content in the SpecterX Viewer only.",
+      "category": "configure-security-policies",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["configure-a-security-policy", "add-a-watermark-to-protected-files", "block-download-scope-and-limitations", "encrypt-downloaded-files-with-a-password"]
+    },
+    {
+      "slug": "encrypt-downloaded-files-with-a-password",
+      "title": "Encrypt downloaded files with a password",
+      "intro": "Enable password encryption in a policy so downloaded copies require a password to open.",
+      "category": "configure-security-policies",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["configure-a-security-policy", "protect-downloaded-files-with-rms", "password-encryption-supported-formats", "prevent-recipients-from-downloading"]
+    },
+    {
+      "slug": "protect-downloaded-files-with-rms",
+      "title": "Protect downloaded files with Rights Management (RMS)",
+      "intro": "Enable Microsoft Rights Management encryption on downloaded copies so they remain protected even after leaving SpecterX.",
+      "category": "configure-security-policies",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["configure-a-security-policy", "encrypt-downloaded-files-with-a-password", "rms-requirements-and-limitations", "set-up-entra-id-authentication"]
+    },
+    {
+      "slug": "apply-a-digital-signature",
+      "title": "Apply a digital signature",
+      "intro": "How to request and apply a digital signature to a document directly from within SpecterX.",
+      "category": "configure-security-policies",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["configure-a-security-policy", "digital-signature-limitations", "securely-share-a-file-from-the-web-platform", "add-a-watermark-to-protected-files"]
+    },
+    {
+      "slug": "configure-platform-governance-rules",
+      "title": "Configure Platform Governance Rules",
+      "intro": "Set organisation-wide rules that automatically apply policies to files based on content type, label, or sender.",
+      "category": "configure-security-policies",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["configure-a-security-policy", "configure-dlp-mailflow-integration", "configure-purview-classification", "manage-users-and-groups"]
+    },
+    {
+      "slug": "protect-email-message-content",
+      "title": "Protect email message content",
+      "intro": "Enable body and subject-line protection so the email content itself is encrypted alongside the attachments.",
+      "category": "configure-security-policies",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["configure-a-security-policy", "send-protected-email-outlook-new", "send-protected-email-gmail", "require-identity-verification"]
+    },
+
+    {
+      "slug": "manage-users-and-groups",
+      "title": "Manage users & groups",
+      "intro": "Add, edit, and remove users from your SpecterX organisation and organise them into groups.",
+      "category": "manage-your-organization",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["user-roles-and-permissions-reference", "review-audit-logs-and-usage-dashboards", "invite-collaborators-and-set-roles", "configure-a-security-policy"]
+    },
+    {
+      "slug": "review-audit-logs-and-usage-dashboards",
+      "title": "Review audit logs & usage dashboards",
+      "intro": "Find and filter every file access, share, and login event in the Audit Logs, and view sharing volume by domain in the Domains Dashboard.",
+      "category": "manage-your-organization",
+      "sub_section": null,
+      "status": "poc",
+      "related": ["track-recipient-activity-and-engagement", "manage-users-and-groups", "configure-a-security-policy", "view-workspace-audit-logs"]
+    },
+    {
+      "slug": "track-recipient-activity-and-engagement",
+      "title": "Track recipient activity & engagement",
+      "intro": "Use the Recipient Activity dashboard to see how and when external recipients are accessing your protected files.",
+      "category": "manage-your-organization",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["review-audit-logs-and-usage-dashboards", "manage-users-and-groups", "revoke-access-to-a-shared-file", "configure-a-security-policy"]
+    },
+    {
+      "slug": "configure-notifications",
+      "title": "Configure notifications",
+      "intro": "Set up email and in-app notifications for key events such as file access, download, and policy violations.",
+      "category": "manage-your-organization",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["manage-users-and-groups", "review-audit-logs-and-usage-dashboards", "configure-a-security-policy", "track-recipient-activity-and-engagement"]
+    },
+
+    {
+      "slug": "set-up-entra-id-authentication",
+      "title": "Set up Entra ID authentication",
+      "intro": "Configure Microsoft Entra ID (formerly Azure AD) as the identity provider for your SpecterX organisation.",
+      "category": "set-up-integrations",
+      "sub_section": "identity",
+      "status": "planned",
+      "related": ["set-up-okta-authentication", "set-up-google-cloud-identity", "manage-users-and-groups", "protect-downloaded-files-with-rms"]
+    },
+    {
+      "slug": "set-up-okta-authentication",
+      "title": "Set up Okta authentication",
+      "intro": "Configure Okta as the identity provider for your SpecterX organisation using SAML or SCIM.",
+      "category": "set-up-integrations",
+      "sub_section": "identity",
+      "status": "planned",
+      "related": ["set-up-entra-id-authentication", "set-up-google-cloud-identity", "manage-users-and-groups", "log-in-to-specterx"]
+    },
+    {
+      "slug": "set-up-google-cloud-identity",
+      "title": "Set up Google Cloud Identity",
+      "intro": "Configure Google Cloud Identity as the identity provider for your SpecterX organisation.",
+      "category": "set-up-integrations",
+      "sub_section": "identity",
+      "status": "planned",
+      "related": ["set-up-entra-id-authentication", "set-up-okta-authentication", "set-up-gmail-extension", "manage-users-and-groups"]
+    },
+    {
+      "slug": "connect-amazon-s3-storage",
+      "title": "Connect Amazon S3 storage",
+      "intro": "Link an AWS S3 bucket as the primary or secondary storage back-end for your SpecterX organisation.",
+      "category": "set-up-integrations",
+      "sub_section": "storage",
+      "status": "planned",
+      "related": ["connect-sharepoint-storage", "connect-google-cloud-storage", "about-the-specterx-gateway", "create-and-manage-a-workspace"]
+    },
+    {
+      "slug": "connect-sharepoint-storage",
+      "title": "Connect SharePoint storage",
+      "intro": "Configure a SharePoint site as the dedicated storage back-end for your SpecterX organisation.",
+      "category": "set-up-integrations",
+      "sub_section": "storage",
+      "status": "planned",
+      "related": ["connect-amazon-s3-storage", "connect-google-cloud-storage", "set-up-sharepoint-connector", "create-and-manage-a-workspace"]
+    },
+    {
+      "slug": "connect-google-cloud-storage",
+      "title": "Connect Google Cloud Storage",
+      "intro": "Link a Google Cloud Storage bucket as the storage back-end for your SpecterX organisation.",
+      "category": "set-up-integrations",
+      "sub_section": "storage",
+      "status": "planned",
+      "related": ["connect-amazon-s3-storage", "connect-sharepoint-storage", "set-up-google-drive-connector", "create-and-manage-a-workspace"]
+    },
+    {
+      "slug": "configure-dlp-mailflow-integration",
+      "title": "Configure DLP mailflow integration",
+      "intro": "Integrate SpecterX with your email DLP solution to intercept and protect outbound email automatically.",
+      "category": "set-up-integrations",
+      "sub_section": "security",
+      "status": "planned",
+      "related": ["configure-dlp-webui-integration", "configure-platform-governance-rules", "set-up-mail-protection-exchange", "configure-purview-classification"]
+    },
+    {
+      "slug": "configure-dlp-webui-integration",
+      "title": "Configure DLP WebUI integration",
+      "intro": "Connect SpecterX to a DLP solution for classification and policy enforcement on files shared from the web platform.",
+      "category": "set-up-integrations",
+      "sub_section": "security",
+      "status": "planned",
+      "related": ["configure-dlp-mailflow-integration", "configure-purview-classification", "configure-platform-governance-rules", "configure-opswat-cdr"]
+    },
+    {
+      "slug": "configure-opswat-cdr",
+      "title": "Configure Opswat CDR integration",
+      "intro": "Set up Opswat Content Disarm and Reconstruction (CDR) to sanitise files before they are stored in SpecterX.",
+      "category": "set-up-integrations",
+      "sub_section": "security",
+      "status": "planned",
+      "related": ["configure-dlp-mailflow-integration", "configure-dlp-webui-integration", "configure-purview-classification", "configure-platform-governance-rules"]
+    },
+    {
+      "slug": "configure-purview-classification",
+      "title": "Configure Microsoft Purview classification",
+      "intro": "Connect Microsoft Purview to SpecterX so that Purview sensitivity labels automatically map to SpecterX policies.",
+      "category": "set-up-integrations",
+      "sub_section": "security",
+      "status": "planned",
+      "related": ["configure-dlp-mailflow-integration", "configure-dlp-webui-integration", "configure-platform-governance-rules", "configure-a-security-policy"]
+    },
+    {
+      "slug": "set-up-mail-protection-exchange",
+      "title": "Set up Mail Protection for Exchange Online",
+      "intro": "Configure the SpecterX Mail Protection Service to intercept and protect outbound email from Exchange Online.",
+      "category": "set-up-integrations",
+      "sub_section": "mail-protection",
+      "status": "planned",
+      "related": ["set-up-mail-protection-google-workspace", "set-up-mail-protection-cisco-seg", "configure-dlp-mailflow-integration", "configure-a-security-policy"]
+    },
+    {
+      "slug": "set-up-mail-protection-google-workspace",
+      "title": "Set up Mail Protection for Google Workspace",
+      "intro": "Configure the SpecterX Mail Protection Service to intercept and protect outbound email from Google Workspace.",
+      "category": "set-up-integrations",
+      "sub_section": "mail-protection",
+      "status": "planned",
+      "related": ["set-up-mail-protection-exchange", "set-up-mail-protection-cisco-seg", "set-up-gmail-extension", "configure-dlp-mailflow-integration"]
+    },
+    {
+      "slug": "set-up-mail-protection-cisco-seg",
+      "title": "Set up Mail Protection for Cisco SEG",
+      "intro": "Configure the SpecterX Mail Protection Service to intercept and protect outbound email from a Cisco Secure Email Gateway.",
+      "category": "set-up-integrations",
+      "sub_section": "mail-protection",
+      "status": "planned",
+      "related": ["set-up-mail-protection-exchange", "set-up-mail-protection-google-workspace", "configure-dlp-mailflow-integration", "about-the-specterx-gateway"]
+    },
+
+    {
+      "slug": "about-the-specterx-gateway",
+      "title": "About the SpecterX Gateway",
+      "intro": "What the SpecterX Gateway is, when to use it, and how it differs from the cloud-hosted SpecterX service.",
+      "category": "deploy-on-premises",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["gateway-prerequisites", "gateway-install-steps", "gateway-storage-connector-setup", "gateway-active-directory-integration"]
+    },
+    {
+      "slug": "gateway-prerequisites",
+      "title": "Check prerequisites for the SpecterX Gateway",
+      "intro": "The hardware, OS, network, and licence requirements you must meet before installing the SpecterX Gateway.",
+      "category": "deploy-on-premises",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["about-the-specterx-gateway", "gateway-install-steps", "gateway-post-install", "gateway-reference"]
+    },
+    {
+      "slug": "gateway-install-steps",
+      "title": "Install the SpecterX Gateway",
+      "intro": "Step-by-step instructions for installing the SpecterX Gateway on your on-premises server.",
+      "category": "deploy-on-premises",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["gateway-prerequisites", "gateway-post-install", "gateway-storage-connector-setup", "about-the-specterx-gateway"]
+    },
+    {
+      "slug": "gateway-post-install",
+      "title": "Configure the SpecterX Gateway after installation",
+      "intro": "Post-installation configuration steps for the SpecterX Gateway: connecting to your SpecterX tenant, network settings, and testing.",
+      "category": "deploy-on-premises",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["gateway-install-steps", "gateway-storage-connector-setup", "gateway-active-directory-integration", "gateway-reference"]
+    },
+    {
+      "slug": "gateway-storage-connector-setup",
+      "title": "Set up the Gateway Storage Connector",
+      "intro": "Configure the SpecterX Gateway Storage Connector to route file storage through your on-premises storage system.",
+      "category": "deploy-on-premises",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["gateway-post-install", "connect-sharepoint-storage", "connect-amazon-s3-storage", "about-the-specterx-gateway"]
+    },
+    {
+      "slug": "gateway-active-directory-integration",
+      "title": "Integrate the Gateway with Active Directory",
+      "intro": "Connect the SpecterX Gateway to your on-premises Active Directory for user authentication and directory sync.",
+      "category": "deploy-on-premises",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["gateway-post-install", "set-up-entra-id-authentication", "manage-users-and-groups", "gateway-reference"]
+    },
+    {
+      "slug": "gateway-reference",
+      "title": "SpecterX Gateway — reference & supported headers",
+      "intro": "Reference tables for Gateway configuration options, supported mail headers, environment variables, and log locations.",
+      "category": "deploy-on-premises",
+      "sub_section": null,
+      "status": "planned",
+      "related": ["about-the-specterx-gateway", "gateway-install-steps", "gateway-post-install", "gateway-active-directory-integration"]
+    },
+
+    {
+      "slug": "supported-file-types-reference",
+      "title": "Supported file types & browsers",
+      "intro": "The complete list of file formats SpecterX can protect, view, and encrypt, plus the supported web browsers.",
+      "category": "reference",
+      "sub_section": "limits",
+      "status": "planned",
+      "related": ["watermarking-supported-formats", "password-encryption-supported-formats", "rms-requirements-and-limitations", "open-a-specterx-protected-file"]
+    },
+    {
+      "slug": "user-roles-and-permissions-reference",
+      "title": "User roles & permissions reference",
+      "intro": "A reference table of what Collaborators, Administrators, and Auditors can and cannot do in SpecterX.",
+      "category": "reference",
+      "sub_section": "limits",
+      "status": "planned",
+      "related": ["manage-users-and-groups", "invite-collaborators-and-set-roles", "set-recipient-permissions", "configure-a-security-policy"]
+    },
+    {
+      "slug": "watermarking-supported-formats",
+      "title": "Watermarking — supported formats & limitations",
+      "intro": "The file formats that support dynamic watermarking, and the known limitations of SpecterX watermarking.",
+      "category": "reference",
+      "sub_section": "limits",
+      "status": "planned",
+      "related": ["add-a-watermark-to-protected-files", "password-encryption-supported-formats", "rms-requirements-and-limitations", "block-download-scope-and-limitations"]
+    },
+    {
+      "slug": "password-encryption-supported-formats",
+      "title": "Password encryption — supported formats & limitations",
+      "intro": "The file formats that support password encryption on download, and known limitations.",
+      "category": "reference",
+      "sub_section": "limits",
+      "status": "planned",
+      "related": ["encrypt-downloaded-files-with-a-password", "watermarking-supported-formats", "rms-requirements-and-limitations", "supported-file-types-reference"]
+    },
+    {
+      "slug": "rms-requirements-and-limitations",
+      "title": "Rights Management (RMS) — requirements & limitations",
+      "intro": "The tenant configuration, file formats, and known limitations for SpecterX Rights Management encryption.",
+      "category": "reference",
+      "sub_section": "limits",
+      "status": "planned",
+      "related": ["protect-downloaded-files-with-rms", "watermarking-supported-formats", "password-encryption-supported-formats", "set-up-entra-id-authentication"]
+    },
+    {
+      "slug": "block-download-scope-and-limitations",
+      "title": "Block download — scope & limitations",
+      "intro": "What the Block file download setting prevents, what it does not prevent, and how it interacts with other policy settings.",
+      "category": "reference",
+      "sub_section": "limits",
+      "status": "planned",
+      "related": ["prevent-recipients-from-downloading", "watermarking-supported-formats", "rms-requirements-and-limitations", "configure-a-security-policy"]
+    },
+    {
+      "slug": "digital-signature-limitations",
+      "title": "Digital Signature — supported formats & limitations",
+      "intro": "The file formats that support SpecterX digital signatures and the known limitations of the digital signature feature.",
+      "category": "reference",
+      "sub_section": "limits",
+      "status": "planned",
+      "related": ["apply-a-digital-signature", "watermarking-supported-formats", "supported-file-types-reference", "configure-a-security-policy"]
+    },
+    {
+      "slug": "authentication-methods-reference",
+      "title": "Authentication methods reference",
+      "intro": "A reference table comparing email OTP, SMS OTP, personal secret, and SSO verification methods and when to use each.",
+      "category": "reference",
+      "sub_section": "limits",
+      "status": "planned",
+      "related": ["require-identity-verification", "verify-with-sms-code", "verify-with-a-personal-secret", "set-up-entra-id-authentication"]
+    },
+    {
+      "slug": "policy-controls-reference",
+      "title": "Policy controls reference",
+      "intro": "A complete reference table of every toggle and setting in the SpecterX policy editor, including allowed values and defaults.",
+      "category": "reference",
+      "sub_section": "limits",
+      "status": "planned",
+      "related": ["configure-a-security-policy", "authentication-methods-reference", "user-roles-and-permissions-reference", "apply-a-policy-when-sharing"]
+    },
+    {
+      "slug": "what-specterx-does-and-does-not-protect",
+      "title": "What SpecterX does and does not protect",
+      "intro": "A clear statement of the security guarantees SpecterX provides and the scenarios it does not cover.",
+      "category": "reference",
+      "sub_section": "limits",
+      "status": "planned",
+      "related": ["supported-file-types-reference", "policy-controls-reference", "block-download-scope-and-limitations", "rms-requirements-and-limitations"]
+    },
+    {
+      "slug": "hipaa-compliance",
+      "title": "HIPAA compliance with SpecterX",
+      "intro": "How SpecterX helps organisations meet HIPAA security and privacy requirements for protected health information.",
+      "category": "reference",
+      "sub_section": "compliance",
+      "status": "planned",
+      "related": ["gdpr-and-data-residency", "soc2-and-certifications", "configure-a-security-policy", "what-specterx-does-and-does-not-protect"]
+    },
+    {
+      "slug": "gdpr-and-data-residency",
+      "title": "GDPR & data residency",
+      "intro": "How SpecterX handles personal data, data residency options, and GDPR compliance documentation.",
+      "category": "reference",
+      "sub_section": "compliance",
+      "status": "planned",
+      "related": ["hipaa-compliance", "soc2-and-certifications", "configure-a-security-policy", "connect-amazon-s3-storage"]
+    },
+    {
+      "slug": "soc2-and-certifications",
+      "title": "SOC 2 & security certifications",
+      "intro": "SpecterX's current security certifications and how to request copies of audit reports.",
+      "category": "reference",
+      "sub_section": "compliance",
+      "status": "planned",
+      "related": ["hipaa-compliance", "gdpr-and-data-residency", "what-specterx-does-and-does-not-protect", "configure-a-security-policy"]
+    },
+    {
+      "slug": "release-notes-outlook-add-in",
+      "title": "Release notes — Outlook Add-in",
+      "intro": "Version history and release notes for the SpecterX Outlook New and Classic Add-ins.",
+      "category": "reference",
+      "sub_section": "release-notes",
+      "status": "planned",
+      "related": ["release-notes-gmail-extension", "release-notes-web-platform", "set-up-outlook-new-add-in", "outlook-classic-vs-outlook-new"]
+    },
+    {
+      "slug": "release-notes-gmail-extension",
+      "title": "Release notes — Gmail Extension",
+      "intro": "Version history and release notes for the SpecterX Gmail Extension.",
+      "category": "reference",
+      "sub_section": "release-notes",
+      "status": "planned",
+      "related": ["release-notes-outlook-add-in", "release-notes-web-platform", "set-up-gmail-extension", "set-up-outlook-new-add-in"]
+    },
+    {
+      "slug": "release-notes-web-platform",
+      "title": "Release notes — SpecterX Web Platform",
+      "intro": "Version history and release notes for the SpecterX web platform and API.",
+      "category": "reference",
+      "sub_section": "release-notes",
+      "status": "planned",
+      "related": ["release-notes-outlook-add-in", "release-notes-gmail-extension", "release-notes-gateway", "what-is-specterx"]
+    },
+    {
+      "slug": "release-notes-gateway",
+      "title": "Release notes — SpecterX Gateway",
+      "intro": "Version history and release notes for the SpecterX on-premises Gateway.",
+      "category": "reference",
+      "sub_section": "release-notes",
+      "status": "planned",
+      "related": ["release-notes-web-platform", "about-the-specterx-gateway", "gateway-install-steps", "gateway-reference"]
+    }
+  ]
+}

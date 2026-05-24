@@ -1,0 +1,82 @@
+{
+  "https://aem.dropbox.com/cms/content/dam/dropbox/experience/icons/Facebook.svg": {
+    "bytes": 865,
+    "content_type": "image/svg+xml",
+    "local": "2f003b2291190385.svg"
+  },
+  "https://aem.dropbox.com/cms/content/dam/dropbox/experience/icons/Twitter.svg": {
+    "bytes": 411,
+    "content_type": "image/svg+xml",
+    "local": "79fbd5a54ca1bb14.svg"
+  },
+  "https://aem.dropbox.com/cms/content/dam/dropbox/experience/icons/YouTube.svg": {
+    "bytes": 716,
+    "content_type": "image/svg+xml",
+    "local": "b06656bf56c0f3ac.svg"
+  },
+  "https://aem.dropbox.com/cms/content/dam/dropbox/www/en-us/help/community.svg": {
+    "bytes": 2230,
+    "content_type": "image/svg+xml",
+    "local": "a65875d9ba8ccec0.svg"
+  },
+  "https://aem.dropbox.com/cms/content/dam/dropbox/www/en-us/help/conversation.svg": {
+    "bytes": 2256,
+    "content_type": "image/svg+xml",
+    "local": "52b60f3e6ed63bab.svg"
+  },
+  "https://aem.dropbox.com/cms/content/dam/dropbox/www/en-us/help/help.svg": {
+    "bytes": 1913,
+    "content_type": "image/svg+xml",
+    "local": "695c4aec0676e9b6.svg"
+  },
+  "https://aem.dropbox.com/cms/content/dam/dropbox/www/en-us/help/share/dropbox-docsend-download-only-files/archive-icon.png": {
+    "bytes": 584,
+    "content_type": "image/png",
+    "local": "27a9a0831ba906f8.png"
+  },
+  "https://aem.dropbox.com/cms/content/dam/dropbox/www/en-us/help/share/dropbox-docsend-download-only-files/text-icon.png": {
+    "bytes": 545,
+    "content_type": "image/png",
+    "local": "e1397857c3ce6bef.png"
+  },
+  "https://aem.dropbox.com/cms/content/dam/dropbox/www/en-us/help/share/dropbox-docsend-live-present/spreadsheet-icon.png": {
+    "bytes": 544,
+    "content_type": "image/png",
+    "local": "34797ad3b23d7e19.png"
+  },
+  "https://aem.dropbox.com/cms/etc.clientlibs/settings/wcm/designs/dropbox-birch-help/clientlib-all/resources/32.svg": {
+    "bytes": 1195,
+    "content_type": "image/svg+xml",
+    "local": "300a7e5153be2233.svg"
+  },
+  "https://aem.dropbox.com/cms/etc.clientlibs/settings/wcm/designs/dropbox-birch-help/clientlib-all/resources/40.svg": {
+    "bytes": 1204,
+    "content_type": "image/svg+xml",
+    "local": "b71953c5e713134e.svg"
+  },
+  "https://aem.dropbox.com/cms/etc.clientlibs/settings/wcm/designs/dropbox-birch-help/clientlib-all/resources/40_Wordmark.svg": {
+    "bytes": 5021,
+    "content_type": "image/svg+xml",
+    "local": "1f9750b6af36fc26.svg"
+  },
+  "https://help.dropbox.com/cms/content/dam/dropbox/www/en-us/help/share/dropbox-docsend-download-only-files/download-only-files.png/_jcr_content/renditions/download-only-files.mobile.webp": {
+    "bytes": 10616,
+    "content_type": "image/webp",
+    "local": "32defb110d22510b.webp"
+  },
+  "https://help.dropbox.com/cms/content/dam/dropbox/www/en-us/help/share/dropbox-docsend-download-only-files/download-only-files.png/_jcr_content/renditions/download-only-files.tablet.webp": {
+    "bytes": 18624,
+    "content_type": "image/webp",
+    "local": "a45260d9b1dfdf72.webp"
+  },
+  "https://help.dropbox.com/cms/content/dam/dropbox/www/en-us/help/share/dropbox-docsend-download-only-files/download-only-files.png/_jcr_content/renditions/download-only-files.webp": {
+    "bytes": 20524,
+    "content_type": "image/webp",
+    "local": "6a88a4016153407b.webp"
+  },
+  "https://help.dropbox.com/share/dropbox-docsend-download-only-files/_jcr_content/responsivegrid/responsivegrid_1821585867/d25_asset_plank.coreimg.png/1765590028493/download-only-files.png": {
+    "bytes": 20147,
+    "content_type": "image/png",
+    "local": "39b5da349593d9d5.png"
+  }
+}

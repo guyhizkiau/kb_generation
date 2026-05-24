@@ -1,0 +1,17 @@
+{
+  "https://docs.tricentis.com/vera-latest/Skins/Default/Stylesheets/Images/transparent.gif": {
+    "bytes": 832,
+    "content_type": "image/gif",
+    "local": "ceda0c5cd17b799a.gif"
+  },
+  "https://docs.tricentis.com/vera-latest/content/resources/images/vera/icons/approve.png": {
+    "bytes": 403,
+    "content_type": "image/png",
+    "local": "40a1152ab421ee56.png"
+  },
+  "https://docs.tricentis.com/vera-latest/content/resources/images/vera/icons/reject.png": {
+    "bytes": 396,
+    "content_type": "image/png",
+    "local": "2e7f50bb3f7fbf22.png"
+  }
+}

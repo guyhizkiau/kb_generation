@@ -1,0 +1,68 @@
+name: hubspot
+display_name: HubSpot Knowledge Base
+base_url: https://knowledge.hubspot.com
+output_dir: sources/hubspot
+
+phase: 1
+max_pages: 20
+
+# HubSpot's robots.txt is malformed (bare `Disallow:` lines after bot-specific
+# User-agent blocks for Bytedance/Bytespider). Python's standard robotparser
+# mis-applies those rules to all UAs. Inspection of the file confirms the
+# `User-agent: *` block only blocks /_hcms/* and preview-query-string paths;
+# /connected-email/* and /account-security/* (our targets) are not blocked.
+respect_robots_txt: false
+
+request_delay_seconds: 1.5
+asset_delay_seconds: 0.3
+user_agent: "SpecterX-DocsResearch/0.1 (+internal documentation benchmark; contact: docs@specterx)"
+
+allowed_asset_hosts:
+  - knowledge.hubspot.com
+  - cdn2.hubspot.net
+  - cdn1.hubspot.com
+  # HubSpot uses many numeric-prefix subdomains (e.g. 53.fs1.…, 19632716.fs1.…).
+  # The host matcher accepts suffix matches, so listing the parent domain catches them all.
+  - fs1.hubspotusercontent-na1.net
+  - hubspotusercontent-na1.net
+  - hubspotusercontent00.net
+  - hubspotusercontent10.net
+  - hubspotusercontent20.net
+  - hubspotusercontent30.net
+  - hubspotusercontent40.net
+  - static.hsappstatic.net
+
+asset_deny_substrings:
+  - /logos/
+  - /favicon
+  - /social-icons/
+  - /sprite
+
+# Phase 1 seeds — connector documentation playbook.
+# All URLs confirmed via tools/discover_links.py against the user-cited
+# Chrome extension page + the Outlook add-in page + the account-and-setup
+# landing page.
+seeds:
+  # ─── User's reference exemplar ────────────────────────────────────────
+  - https://knowledge.hubspot.com/connected-email/get-started-with-the-hubspot-sales-chrome-extension
+  # ─── Chrome extension full lifecycle ──────────────────────────────────
+  - https://knowledge.hubspot.com/connected-email/how-to-install-hubspot-sales
+  - https://knowledge.hubspot.com/connected-email/customize-your-hubspot-sales-chrome-extension-default-configuration-options
+  - https://knowledge.hubspot.com/connected-email/track-and-log-emails-with-the-hubspot-sales-chrome-extension
+  - https://knowledge.hubspot.com/connected-email/use-sales-tools-in-the-hubspot-sales-chrome-extension
+  - https://knowledge.hubspot.com/connected-email/use-the-hubspot-sales-chrome-extension-across-the-web
+  - https://knowledge.hubspot.com/connected-email/manage-your-meetings-in-google-calendar-with-the-hubspot-sales-chrome-extension
+  - https://knowledge.hubspot.com/connected-email/use-contact-profiles-with-the-hubspot-sales-chrome-extension
+  - https://knowledge.hubspot.com/connected-email/troubleshooting-the-hubspot-sales-chrome-extension
+  - https://knowledge.hubspot.com/connected-email/uninstall-the-hubspot-sales-email-extension
+  # ─── Outlook desktop add-in ───────────────────────────────────────────
+  - https://knowledge.hubspot.com/connected-email/get-started-with-the-outlook-desktop-add-in
+  - https://knowledge.hubspot.com/connected-email/troubleshoot-the-hubspot-sales-outlook-desktop-add-in
+  # ─── Office 365 / Outlook on the web add-in ───────────────────────────
+  - https://knowledge.hubspot.com/connected-email/get-started-with-the-hubspot-sales-office-365-add-in
+  - https://knowledge.hubspot.com/connected-email/use-contact-profiles-with-the-hubspot-sales-office-365-add-in-and-outlook-desktop-add-in
+  # ─── Connected inbox / cross-provider compatibility ───────────────────
+  - https://knowledge.hubspot.com/connected-email/what-features-are-supported-by-my-email-provider-and-require-a-connected-inbox
+  # ─── Account & security exemplars ─────────────────────────────────────
+  - https://knowledge.hubspot.com/account-security/set-up-single-sign-on-sso
+  - https://knowledge.hubspot.com/account-security/reset-user-passwords

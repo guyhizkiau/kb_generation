@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Review audit logs &amp; usage dashboards — SpecterX Help</title>
+  <link rel="stylesheet" href="../site.css">
+</head>
+<body>
+<nav class="topnav">
+  <div class="topnav-inner">
+    <div class="topnav-brand">SpecterX Docs <small>· reference library</small></div>
+    <div class="topnav-links">
+      <a href="/index.html">Overview</a>
+      <a href="/specterx.html">SpecterX</a>
+      <a href="/compare.html">Compare</a>
+    </div>
+    <div class="topnav-meta">POC article</div>
+  </div>
+</nav>
+<main class="page page-narrow article">
+
+  <nav class="article-breadcrumb">
+    <a href="/specterx.html">SpecterX KB</a>
+    <span class="crumb-sep">›</span>
+    <a href="/specterx.html#administration">Administration</a>
+    <span class="crumb-sep">›</span>
+    Review audit logs &amp; usage dashboards
+  </nav>
+
+  <h1>Review audit logs &amp; usage dashboards</h1>
+
+  <p class="article-intro">
+    SpecterX records every file access, share, download, and login event in the <strong>Audit Logs</strong>, and surfaces sharing volume and domain breakdowns in the <strong>Domains Dashboard</strong>. Together, these two views give administrators the visibility needed to enforce compliance, investigate incidents, and understand how your organization uses SpecterX.
+  </p>
+
+  <div class="article-prereq">
+    <h2>Before you get started</h2>
+    <ul>
+      <li><strong>Permissions required.</strong> Administrators or users with the Auditors role. Users with the Auditors role can view audit logs and dashboards but cannot modify policies or user settings.</li>
+      <li><strong>Data retention.</strong> Audit log retention depends on your organization's subscription tier. Contact your SpecterX administrator or account manager for your organization's retention period.</li>
+      <li><strong>Export format.</strong> Audit log exports are delivered as a CSV file. The CSV includes all columns visible in the on-screen table plus additional metadata columns (event timestamp, file ID, IP address) not shown in the default view.</li>
+      <li><strong>Limitations.</strong> The audit log shows events for files managed by your SpecterX tenant only. Events from recipients accessing a file on their own device via a third-party viewer (such as Adobe Reader) after a download are not captured unless Rights Management (RMS) is enabled.</li>
+    </ul>
+  </div>
+
+  <nav class="article-toc">
+    <h2>In this article</h2>
+    <ol>
+      <li><a href="#open-audit-logs">Open the Audit Logs page</a></li>
+      <li><a href="#read-the-log">Read the audit log table</a></li>
+      <li><a href="#filter">Filter audit log entries</a></li>
+      <li><a href="#export">Export the audit log to CSV</a></li>
+      <li><a href="#domains-dashboard">Review the Domains Dashboard</a></li>
+    </div>
+  </nav>
+
+  <h2 id="open-audit-logs">Open the Audit Logs page</h2>
+
+  <div class="steps">
+    <div class="step">
+      <span class="step-num">1</span>
+      <div class="step-body">
+        <p>In the left navigation, click <strong>Audit logs</strong>.</p>
+        <p>The <strong>Audit Logs</strong> page opens at <code>/audits</code>. The log is sorted by most recent event first and is paginated at 25 rows per page.</p>
+        <figure class="step-figure">
+          <img src="assets/audit-logs/01-audit-logs-main.png" alt="The Audit Logs page showing filter controls at the top (All Operations dropdown, File ID, File Name, clear filters), pagination controls, and a table with Operation, File Name, and Affected users columns">
+          <figcaption>The <strong>Audit Logs</strong> page. Filters are at the top; the log table is below. Operations appear as color-coded badges (Delete, Login, Share, Open, Download, etc.).</figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="read-the-log">Read the audit log table</h2>
+
+  <p>The audit log table shows the following columns by default:</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Column</th><th>What it shows</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Operation</strong></td><td>The event type displayed as a badge: <code>Share</code>, <code>Open</code>, <code>Download</code>, <code>Delete</code>, <code>Login</code>, <code>Policy change</code>, <code>Permission change</code>.</td></tr>
+        <tr><td><strong>File Name</strong></td><td>The name of the file involved in the event. Empty for Login events.</td></tr>
+        <tr><td><strong>Affected users</strong></td><td>The user who performed the action (sender) or was affected by the action (recipient).</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>Additional columns available in the exported CSV (not shown on screen by default):</p>
+  <ul>
+    <li><strong>Timestamp</strong> — exact date and time of the event in UTC.</li>
+    <li><strong>File ID</strong> — the internal SpecterX identifier for the file. Useful for correlating events across multiple rows.</li>
+    <li><strong>IP address</strong> — the IP address from which the event was initiated.</li>
+    <li><strong>Policy</strong> — the security policy active on the file at the time of the event.</li>
+  </ul>
+
+  <h2 id="filter">Filter audit log entries</h2>
+
+  <div class="steps">
+    <div class="step">
+      <span class="step-num">1</span>
+      <div class="step-body">
+        <p>To narrow the log to events by a specific user, type their email address in the <strong>User</strong> field at the top of the page and press <kbd>Enter</kbd> or click <strong>Apply</strong>.</p>
+      </div>
+    </div>
+    <div class="step">
+      <span class="step-num">2</span>
+      <div class="step-body">
+        <p>To filter by event type, click the <strong>All Operations</strong> dropdown and select one of the available operation types: <strong>Share</strong>, <strong>Open</strong>, <strong>Download</strong>, <strong>Delete</strong>, <strong>Login</strong>, <strong>Policy change</strong>, or <strong>Permission change</strong>.</p>
+      </div>
+    </div>
+    <div class="step">
+      <span class="step-num">3</span>
+      <div class="step-body">
+        <p>To find events for a specific file, enter its exact file name in the <strong>File Name</strong> field, or enter its File ID in the <strong>File ID</strong> field. File IDs are found in the file detail view or in previously exported CSVs.</p>
+      </div>
+    </div>
+    <div class="step">
+      <span class="step-num">4</span>
+      <div class="step-body">
+        <p>Click <strong>Apply</strong> to run the filters. The log table refreshes to show only matching entries.</p>
+        <p>To clear all filters and return to the full log, click <strong>clear filters</strong>.</p>
+        <div class="article-note"><strong>Tip:</strong> Combine the <strong>User</strong> filter with the <strong>Download</strong> operation type to quickly identify which recipients have downloaded copies of a particular file.</div>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="export">Export the audit log to CSV</h2>
+
+  <div class="steps">
+    <div class="step">
+      <span class="step-num">1</span>
+      <div class="step-body">
+        <p>Apply any filters you want (for example, a specific date range or file name) to limit the export to the events you need.</p>
+      </div>
+    </div>
+    <div class="step">
+      <span class="step-num">2</span>
+      <div class="step-body">
+        <p>Click <strong>Export CSV</strong> at the top-right of the log table.</p>
+        <p>The browser downloads a CSV file named <code>audit-log-&lt;date&gt;.csv</code>. Open it in Excel, Google Sheets, or any spreadsheet tool for further analysis.</p>
+        <div class="article-note"><strong>Note:</strong> The CSV export applies the currently active filters. If you want to export the complete log without filtering, clear all filters before clicking <strong>Export CSV</strong>.</div>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="domains-dashboard">Review the Domains Dashboard</h2>
+
+  <p>The <strong>Domains Dashboard</strong> provides a high-level view of sharing activity across your organization, broken down by the external domain of the recipients. It answers questions like: <em>Which external domains receive the most shares?</em> and <em>How many files are we sharing with each domain?</em></p>
+
+  <div class="steps">
+    <div class="step">
+      <span class="step-num">1</span>
+      <div class="step-body">
+        <p>In the left navigation, click <strong>Domains dashboard</strong>.</p>
+        <p>The dashboard opens at <code>/domains-dashboard</code> and shows the total number of shares across your organization.</p>
+        <figure class="step-figure">
+          <img src="assets/audit-logs/02-domains-dashboard.png" alt="The Domains Dashboard showing Shares: 2409 headline, two donut charts for Shares per domain and Files sharing per domain, and a table listing domain names with Number of shares sent and Number of files shared columns">
+          <figcaption>The <strong>Domains Dashboard</strong> showing two donut charts (shares per domain and files per domain) and a per-domain breakdown table.</figcaption>
+        </figure>
+      </div>
+    </div>
+    <div class="step">
+      <span class="step-num">2</span>
+      <div class="step-body">
+        <p>Review the two donut charts:</p>
+        <ul>
+          <li><strong>Shares per domain</strong> — shows what percentage of your total shares went to each recipient domain. Hover over a segment to see the exact count.</li>
+          <li><strong>Files sharing per domain</strong> — shows what percentage of unique files were shared with each domain. A domain may receive many shares of a single file (high on the left chart, low on the right) or many unique files (higher on the right chart).</li>
+        </ul>
+      </div>
+    </div>
+    <div class="step">
+      <span class="step-num">3</span>
+      <div class="step-body">
+        <p>Scroll down to the per-domain table for exact numbers:</p>
+        <ul>
+          <li><strong>Number of shares sent</strong> — total share events to that domain.</li>
+          <li><strong>Number of files shared</strong> — total unique files shared with that domain.</li>
+        </ul>
+        <p>Use this table to identify domains that receive a disproportionately large volume of shares — a potential indicator of policy misconfiguration or data exfiltration risk.</p>
+      </div>
+    </div>
+  </div>
+
+  <h3>Interpreting the data</h3>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Signal</th><th>Possible interpretation</th><th>Recommended action</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>A new external domain appears with a high share count</td>
+          <td>A new project, partner, or — rarely — an accidental mass-share to an unintended domain</td>
+          <td>Cross-reference with the Audit Log filtered by that domain to identify the files and users involved</td>
+        </tr>
+        <tr>
+          <td>Internal domain (<code>yourcompany.com</code>) has a high share count</td>
+          <td>Normal — staff sharing files with colleagues</td>
+          <td>No action required; expected pattern</td>
+        </tr>
+        <tr>
+          <td>Unknown personal email domain (<code>gmail.com</code>, <code>yahoo.com</code>) in the top 5</td>
+          <td>Files being shared to personal email — possible policy exception or intent to exfiltrate</td>
+          <td>Review the Audit Log for those shares and confirm the sender had authorization. Consider adding a policy restriction on sharing to personal domains.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <section class="article-related">
+    <h2>Related articles</h2>
+    <div class="related-cards">
+      <a href="configure-security-policy.html" class="related-card">
+        <div class="related-card-section">Security policies</div>
+        <div class="related-card-title">Configure a security policy</div>
+        <div class="related-card-desc">Create policies that restrict sharing to specific domains or require verification — informed by what you observe in the audit log.</div>
+      </a>
+      <a href="share-files-from-web.html" class="related-card">
+        <div class="related-card-section">Share files</div>
+        <div class="related-card-title">Securely share a file from the web platform</div>
+        <div class="related-card-desc">Every share creates an audit log entry. Understand what each share event looks like in the log.</div>
+      </a>
+      <a href="#" class="related-card">
+        <div class="related-card-section">Administration</div>
+        <div class="related-card-title">Manage users &amp; groups</div>
+        <div class="related-card-desc">Assign the Auditors role to users who need read-only access to audit logs and dashboards.</div>
+      </a>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

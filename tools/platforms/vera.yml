@@ -1,0 +1,41 @@
+name: vera
+display_name: Vera (Tricentis) Documentation
+base_url: https://docs.tricentis.com
+output_dir: sources/vera
+
+phase: 1
+max_pages: 12
+
+request_delay_seconds: 1.5
+asset_delay_seconds: 0.3
+user_agent: "SpecterX-DocsResearch/0.1 (+internal documentation benchmark; contact: docs@specterx)"
+
+allowed_asset_hosts:
+  - docs.tricentis.com
+
+asset_deny_substrings:
+  - /skin/
+  - /favicon
+  - /sprite
+
+# Phase 1 seeds — all URLs confirmed via tools/discover_links.py against the
+# Vera home + user_guide + admin_guide pages. Focus on user workflows + admin +
+# one integration exemplar (Tricentis Tosca). Installation/upgrade explicitly
+# skipped per the plan.
+seeds:
+  # ─── Orientation ──────────────────────────────────────────────────────
+  - https://docs.tricentis.com/vera-latest/content/home.htm
+  - https://docs.tricentis.com/vera-latest/content/release_notes/key_features.htm
+  # ─── User guide (web portal workflows) ────────────────────────────────
+  - https://docs.tricentis.com/vera-latest/content/user_guide/user_guide.htm
+  - https://docs.tricentis.com/vera-latest/content/user_guide/web_portal/web_portal.htm
+  - https://docs.tricentis.com/vera-latest/content/user_guide/web_portal/approve_records.htm
+  - https://docs.tricentis.com/vera-latest/content/user_guide/web_portal/reject_records.htm
+  - https://docs.tricentis.com/vera-latest/content/user_guide/web_portal/approval_queue.htm
+  - https://docs.tricentis.com/vera-latest/content/user_guide/web_portal/email_notifications.htm
+  # ─── Integration exemplar (Tricentis Tosca) ───────────────────────────
+  - https://docs.tricentis.com/vera-latest/content/user_guide/tricentis_tosca/tricentis_tosca.htm
+  # ─── Admin guide ──────────────────────────────────────────────────────
+  - https://docs.tricentis.com/vera-latest/content/admin_guide/administrative_docu.htm
+  - https://docs.tricentis.com/vera-latest/content/admin_guide/administration/administration_guide.htm
+  - https://docs.tricentis.com/vera-latest/content/admin_guide/system_administration/system_administration.htm

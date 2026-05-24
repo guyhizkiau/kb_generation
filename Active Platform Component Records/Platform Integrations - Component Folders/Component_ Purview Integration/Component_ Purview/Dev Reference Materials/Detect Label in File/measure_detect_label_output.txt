@@ -1,0 +1,72 @@
+
+=== Running detect_label on Small Doc Exmaple.docx ===
+======================================================================
+FILE: /Users/hizki/Downloads/untitled folder 5/Small Doc Exmaple.docx
+======================================================================
+
+[Core Properties]
+  creator: User
+  last_modified_by: Guy Hizkiau
+  created: 2025-08-21T21:51:00Z
+  modified: 2026-01-18T13:24:00Z
+  revision: 4
+
+[Custom Properties]
+  ContentTypeId: 0x010100B65F6F707D87014EA2B84B36EA152A95
+
+  -- MSIP (Sensitivity Label) Properties --
+  Label GUID: 761be2cf-8b5d-4480-b233-0ed87ae7b2b1
+    ActionId: becd50cf-d0fb-4d8e-8eaf-f00fab8c4ee5
+    ContentBits: 0
+    Enabled: true
+    Method: Standard
+    Name: Confidential-Manual
+    SetDate: 2025-08-21T21:51:55Z
+    SiteId: 9e334214-abb5-4e57-a424-0c80427fb075
+    Tag: 10, 3, 0, 2
+
+[customXml scan for MSIP_Label_*]
+  (no MSIP hits under customXml)
+
+[Summary]
+  Detected Sensitivity Label: Confidential-Manual
+  Label GUID: 761be2cf-8b5d-4480-b233-0ed87ae7b2b1
+  Applied (SetDate): 2025-08-21T21:51:55Z
+
+=== Running detect_label on Large Doc Exmaple.docx ===
+======================================================================
+FILE: /Users/hizki/Downloads/untitled folder 5/Large Doc Exmaple.docx
+======================================================================
+
+[Core Properties]
+  creator: User
+  last_modified_by: Guy Hizkiau
+  created: 2025-08-21T21:51:00Z
+  modified: 2026-01-18T13:52:00Z
+  revision: 2
+
+[Custom Properties]
+  ContentTypeId: 0x010100B65F6F707D87014EA2B84B36EA152A95
+
+  -- MSIP (Sensitivity Label) Properties --
+  Label GUID: 761be2cf-8b5d-4480-b233-0ed87ae7b2b1
+    ActionId: becd50cf-d0fb-4d8e-8eaf-f00fab8c4ee5
+    ContentBits: 0
+    Enabled: true
+    Method: Standard
+    Name: Confidential-Manual
+    SetDate: 2025-08-21T21:51:55Z
+    SiteId: 9e334214-abb5-4e57-a424-0c80427fb075
+    Tag: 10, 3, 0, 2
+
+[customXml scan for MSIP_Label_*]
+  (no MSIP hits under customXml)
+
+[Summary]
+  Detected Sensitivity Label: Confidential-Manual
+  Label GUID: 761be2cf-8b5d-4480-b233-0ed87ae7b2b1
+  Applied (SetDate): 2025-08-21T21:51:55Z
+
+=== Measurements ===
+Small Doc Exmaple.docx: peak ~0.18 MB, duration 0.004s
+Large Doc Exmaple.docx: peak ~0.12 MB, duration 0.003s

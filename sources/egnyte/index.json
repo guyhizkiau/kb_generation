@@ -1,0 +1,212 @@
+[
+  {
+    "url": "https://helpdesk.egnyte.com/hc/en-us/articles/115000099332-Egnyte-Secure-Govern-Overview",
+    "final_url": "https://helpdesk.egnyte.com/hc/en-us/articles/115000099332-Egnyte-Secure-Govern-Overview",
+    "title": "Egnyte Secure & Govern Overview \u2013 Egnyte",
+    "h1": "Egnyte Secure & Govern Overview",
+    "breadcrumbs": [
+      "Egnyte",
+      "Secure and Govern",
+      "General"
+    ],
+    "local_path": "sources/egnyte/pages/helpdesk.egnyte.com_hc_en-us_articles_115000099332-egnyte-secure-govern-overview.html",
+    "asset_count": 3,
+    "fetched_at": "2026-05-19T16:20:50+00:00"
+  },
+  {
+    "url": "https://helpdesk.egnyte.com/hc/en-us/articles/115001294272-Configure-Content-Classification",
+    "final_url": "https://helpdesk.egnyte.com/hc/en-us/articles/115001294272-Configure-Content-Classification",
+    "title": "Configure Content Classification \u2013 Egnyte",
+    "h1": "Configure Content Classification",
+    "breadcrumbs": [
+      "Egnyte",
+      "Secure and Govern",
+      "Content Classification"
+    ],
+    "local_path": "sources/egnyte/pages/helpdesk.egnyte.com_hc_en-us_articles_115001294272-configure-content-classification.html",
+    "asset_count": 6,
+    "fetched_at": "2026-05-19T16:21:15+00:00"
+  },
+  {
+    "url": "https://helpdesk.egnyte.com/hc/en-us/articles/115001352451-Sensitive-Content-Tab",
+    "final_url": "https://helpdesk.egnyte.com/hc/en-us/articles/115001352451-Sensitive-Content-Tab",
+    "title": "Sensitive Content Tab \u2013 Egnyte",
+    "h1": "Sensitive Content Tab",
+    "breadcrumbs": [
+      "Egnyte",
+      "Secure and Govern",
+      "Content Classification"
+    ],
+    "local_path": "sources/egnyte/pages/helpdesk.egnyte.com_hc_en-us_articles_115001352451-sensitive-content-tab.html",
+    "asset_count": 4,
+    "fetched_at": "2026-05-19T16:21:39+00:00"
+  },
+  {
+    "url": "https://helpdesk.egnyte.com/hc/en-us/articles/201637104-Share-with-File-and-Folder-Links-in-the-WebUI",
+    "final_url": "https://helpdesk.egnyte.com/hc/en-us/articles/201637104-Share-with-File-and-Folder-Links-in-the-WebUI",
+    "title": "Share with File and Folder Links in the WebUI \u2013 Egnyte",
+    "h1": "Share with File and Folder Links in the WebUI",
+    "breadcrumbs": [
+      "Egnyte",
+      "WebUI",
+      "Share Links"
+    ],
+    "local_path": "sources/egnyte/pages/helpdesk.egnyte.com_hc_en-us_articles_201637104-share-with-file-and-folder-links-in-the-webui.html",
+    "asset_count": 16,
+    "fetched_at": "2026-05-19T16:18:08+00:00"
+  },
+  {
+    "url": "https://helpdesk.egnyte.com/hc/en-us/articles/201637164-Administrators-Power-Users-and-Standard-Users",
+    "final_url": "https://helpdesk.egnyte.com/hc/en-us/articles/201637164-Administrators-Power-Users-and-Standard-Users",
+    "title": "Administrators, Power Users, and Standard Users \u2013 Egnyte",
+    "h1": "Administrators, Power Users, and Standard Users",
+    "breadcrumbs": [
+      "Egnyte",
+      "WebUI",
+      "Users and Groups"
+    ],
+    "local_path": "sources/egnyte/pages/helpdesk.egnyte.com_hc_en-us_articles_201637164-administrators-power-users-and-standard-users.html",
+    "asset_count": 0,
+    "fetched_at": "2026-05-19T16:22:01+00:00"
+  },
+  {
+    "url": "https://helpdesk.egnyte.com/hc/en-us/articles/201637444-Folder-Permissions",
+    "final_url": "https://helpdesk.egnyte.com/hc/en-us/articles/201637444-Folder-Permissions",
+    "title": "Folder Permissions \u2013 Egnyte",
+    "h1": "Folder Permissions",
+    "breadcrumbs": [
+      "Egnyte",
+      "WebUI",
+      "Permissions"
+    ],
+    "local_path": "sources/egnyte/pages/helpdesk.egnyte.com_hc_en-us_articles_201637444-folder-permissions.html",
+    "asset_count": 19,
+    "fetched_at": "2026-05-19T16:20:02+00:00"
+  },
+  {
+    "url": "https://helpdesk.egnyte.com/hc/en-us/articles/201637554-How-Do-I-Make-File-and-Folder-Links-More-Secure",
+    "final_url": "https://helpdesk.egnyte.com/hc/en-us/articles/201637554-How-Do-I-Make-File-and-Folder-Links-More-Secure",
+    "title": "How Do I Make File and Folder Links More Secure? \u2013 Egnyte",
+    "h1": "How Do I Make File and Folder Links More Secure?",
+    "breadcrumbs": [
+      "Egnyte",
+      "WebUI",
+      "Share Links"
+    ],
+    "local_path": "sources/egnyte/pages/helpdesk.egnyte.com_hc_en-us_articles_201637554-how-do-i-make-file-and-folder-links-more-secure.html",
+    "asset_count": 11,
+    "fetched_at": "2026-05-19T16:18:36+00:00"
+  },
+  {
+    "url": "https://helpdesk.egnyte.com/hc/en-us/articles/201637714-Upload-Links",
+    "final_url": "https://helpdesk.egnyte.com/hc/en-us/articles/201637714-Upload-Links",
+    "title": "Upload Links \u2013 Egnyte",
+    "h1": "Upload Links",
+    "breadcrumbs": [
+      "Egnyte",
+      "WebUI",
+      "Upload Links"
+    ],
+    "local_path": "sources/egnyte/pages/helpdesk.egnyte.com_hc_en-us_articles_201637714-upload-links.html",
+    "asset_count": 8,
+    "fetched_at": "2026-05-19T16:19:03+00:00"
+  },
+  {
+    "url": "https://helpdesk.egnyte.com/hc/en-us/articles/202189844-Role-Based-Administration",
+    "final_url": "https://helpdesk.egnyte.com/hc/en-us/articles/202189844-Role-Based-Administration",
+    "title": "Role-Based Administration \u2013 Egnyte",
+    "h1": "Role-Based Administration",
+    "breadcrumbs": [
+      "Egnyte",
+      "Admin Users",
+      "General"
+    ],
+    "local_path": "sources/egnyte/pages/helpdesk.egnyte.com_hc_en-us_articles_202189844-role-based-administration.html",
+    "asset_count": 6,
+    "fetched_at": "2026-05-19T16:22:27+00:00"
+  },
+  {
+    "url": "https://helpdesk.egnyte.com/hc/en-us/articles/202206920-Desktop-App-Overview",
+    "final_url": "https://helpdesk.egnyte.com/hc/en-us/articles/202206920-Desktop-App-Overview",
+    "title": "Desktop App Overview \u2013 Egnyte",
+    "h1": "Desktop App Overview",
+    "breadcrumbs": [
+      "Egnyte",
+      "Desktop App",
+      "General"
+    ],
+    "local_path": "sources/egnyte/pages/helpdesk.egnyte.com_hc_en-us_articles_202206920-desktop-app-overview.html",
+    "asset_count": 11,
+    "fetched_at": "2026-05-19T16:24:03+00:00"
+  },
+  {
+    "url": "https://helpdesk.egnyte.com/hc/en-us/articles/204936034-Preview-Only-Links",
+    "final_url": "https://helpdesk.egnyte.com/hc/en-us/articles/204936034-Preview-Only-Links",
+    "title": "Preview-Only Links \u2013 Egnyte",
+    "h1": "Preview-Only Links",
+    "breadcrumbs": [
+      "Egnyte",
+      "WebUI",
+      "Share Links"
+    ],
+    "local_path": "sources/egnyte/pages/helpdesk.egnyte.com_hc_en-us_articles_204936034-preview-only-links.html",
+    "asset_count": 3,
+    "fetched_at": "2026-05-19T16:19:27+00:00"
+  },
+  {
+    "url": "https://helpdesk.egnyte.com/hc/en-us/articles/229513087-Permissions-FAQs",
+    "final_url": "https://helpdesk.egnyte.com/hc/en-us/articles/229513087-Permissions-FAQs",
+    "title": "Permissions FAQs \u2013 Egnyte",
+    "h1": "Permissions FAQs",
+    "breadcrumbs": [
+      "Egnyte",
+      "WebUI",
+      "Permissions"
+    ],
+    "local_path": "sources/egnyte/pages/helpdesk.egnyte.com_hc_en-us_articles_229513087-permissions-faqs.html",
+    "asset_count": 5,
+    "fetched_at": "2026-05-19T16:20:27+00:00"
+  },
+  {
+    "url": "https://helpdesk.egnyte.com/hc/en-us/articles/27922151052429-Knowledge-Bases-User-Guide",
+    "final_url": "https://helpdesk.egnyte.com/hc/en-us/articles/27922151052429-Knowledge-Bases-User-Guide",
+    "title": "Knowledge Bases - User Guide \u2013 Egnyte",
+    "h1": "Knowledge Bases - User Guide",
+    "breadcrumbs": [
+      "Egnyte",
+      "Egnyte's AI Assistant",
+      "Knowledge Base"
+    ],
+    "local_path": "sources/egnyte/pages/helpdesk.egnyte.com_hc_en-us_articles_27922151052429-knowledge-bases-user-guide.html",
+    "asset_count": 87,
+    "fetched_at": "2026-05-19T16:17:36+00:00"
+  },
+  {
+    "url": "https://helpdesk.egnyte.com/hc/en-us/articles/4427094546317-Egnyte-for-Outlook-Add-In-Configuration-Guide",
+    "final_url": "https://helpdesk.egnyte.com/hc/en-us/articles/4427094546317-Egnyte-for-Outlook-Add-In-Configuration-Guide",
+    "title": "Egnyte for Outlook Add-In - Configuration Guide \u2013 Egnyte",
+    "h1": "Egnyte for Outlook Add-In - Configuration Guide",
+    "breadcrumbs": [
+      "Egnyte",
+      "Integrations",
+      "Microsoft Outlook"
+    ],
+    "local_path": "sources/egnyte/pages/helpdesk.egnyte.com_hc_en-us_articles_4427094546317-egnyte-for-outlook-add-in-configuration-guide.html",
+    "asset_count": 8,
+    "fetched_at": "2026-05-19T16:23:34+00:00"
+  },
+  {
+    "url": "https://helpdesk.egnyte.com/hc/en-us/articles/4427124922125-Egnyte-for-Outlook-Add-In-User-Guide",
+    "final_url": "https://helpdesk.egnyte.com/hc/en-us/articles/4427124922125-Egnyte-for-Outlook-Add-In-User-Guide",
+    "title": "Egnyte for Outlook Add-In - User Guide \u2013 Egnyte",
+    "h1": "Egnyte for Outlook Add-In - User Guide",
+    "breadcrumbs": [
+      "Egnyte",
+      "Integrations",
+      "Microsoft Outlook"
+    ],
+    "local_path": "sources/egnyte/pages/helpdesk.egnyte.com_hc_en-us_articles_4427124922125-egnyte-for-outlook-add-in-user-guide.html",
+    "asset_count": 20,
+    "fetched_at": "2026-05-19T16:23:03+00:00"
+  }
+]

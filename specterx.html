@@ -1,0 +1,717 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SpecterX Platform — KB hierarchy & components</title>
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+<nav class="topnav">
+  <div class="topnav-inner">
+    <div class="topnav-brand">SpecterX Docs <small>· reference library</small></div>
+    <div class="topnav-links">
+      <a href="/index.html">Overview</a>
+      <a href="/sources/hubspot/index.html">HubSpot</a>
+      <a href="/sources/egnyte/index.html">Egnyte</a>
+      <a href="/sources/docsend/index.html">DocSend</a>
+      <a href="/sources/vera/index.html">Vera</a>
+      <a href="/compare.html">Compare</a>
+      <a href="/sources/virtru/index.html">Virtru</a>
+      <a href="/kb/index.html">KB</a>
+      <a href="/kb/sitemap.html">KB Sitemap</a>
+      <a class="is-active" href="/specterx.html">SpecterX</a>
+    </div>
+    <div class="topnav-meta">Phase 2 — 5 reference KBs</div>
+  </div>
+</nav>
+<main class="page">
+  <header class="hero">
+    <h1>SpecterX platform — components, KB hierarchy &amp; article voice</h1>
+    <p class="hero-lede">A unified inventory of all ~50 SpecterX components, organized into categories, mapped to a 2-level knowledge-base information architecture, with the article skeleton and 3 proof-of-concept articles.</p>
+    <div class="hero-status">Phase 2 — 5 reference KBs · IA validated · 3 POC articles shipped</div>
+  </header>
+
+  <section class="stats">
+    <div class="stat"><div class="stat-num">50</div><div class="stat-label">components mapped</div></div>
+    <div class="stat"><div class="stat-num">16</div><div class="stat-label">inventory categories</div></div>
+    <div class="stat"><div class="stat-num">11</div><div class="stat-label">top-level KB sections</div></div>
+    <div class="stat"><div class="stat-num">3</div><div class="stat-label">POC articles shipped</div></div>
+  </section>
+
+  <h2>Staging app — navigation map</h2>
+  <p class="muted">Verified against <code>staging-app.specterx.com</code>. URL slugs are the actual routes observed.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Nav item</th><th>URL</th><th>Audience</th><th>Components observed</th></tr></thead>
+      <tbody>
+        <tr><td>My files</td><td><code>/my-files</code></td><td>All users</td><td>File Management Panes, Download Functions, Share &amp; Permissions Drawer, Folders</td></tr>
+        <tr><td>Shared with me</td><td><code>/my-files?shared=true</code></td><td>All users</td><td>File Management Panes, Recipient view of shared files</td></tr>
+        <tr><td>My workspaces</td><td><code>/my-files?folder_id=…</code></td><td>All users</td><td>Workspaces, Folders, Share &amp; Permissions Drawer</td></tr>
+        <tr><td>All files</td><td><code>/all-files</code></td><td>Admin</td><td>Admin All Files</td></tr>
+        <tr><td>Policies</td><td><code>/policy-editor</code></td><td>Admin</td><td>Policy Management Pane, Security Policies, Access Control, Data Protection (Watermarking, Password, Rights Management)</td></tr>
+        <tr><td>Users</td><td><code>/users-editor</code></td><td>Admin</td><td>User &amp; Group Management (roles: Collaborators, Administrators, Auditors)</td></tr>
+        <tr><td>Audit logs</td><td><code>/audits</code></td><td>Admin</td><td>Audit Logs (Operation, File Name, Affected users, Export CSV)</td></tr>
+        <tr><td>Domains dashboard</td><td><code>/domains-dashboard</code></td><td>Admin</td><td>Usage Dashboards, Recipient Activity &amp; Engagement Admin Dashboards</td></tr>
+        <tr><td>Settings → Integrations</td><td><code>/Settings</code></td><td>Admin</td><td>Entra ID/Google/Okta Identity Integrations, Amazon S3/SharePoint/GCS Storage Integrations, Purview, Slack, Salesforce</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Component inventory</h2>
+  <p class="muted">All components from <code>all-compontents.txt</code> and the May 2026 workflows .docx, plus new items found during the staging crawl (<strong>Request files</strong>, <strong>View info</strong>, <strong>View logs</strong>). Each component carries the type word defined in the workflows .docx.</p>
+
+  <!-- Web Platform — End User -->
+  <div class="inv-group">
+    <div class="inv-group-header">
+      <h3>Web platform — end user</h3>
+      <span class="badge badge-surface">Surface</span>
+    </div>
+    <div class="inv-rows">
+      <div class="inv-row"><span>File Management Panes (My Files, Shared with me)</span><span class="badge badge-surface">Surface</span></div>
+      <div class="inv-row"><span>Workspaces</span><span class="badge badge-surface">Surface</span></div>
+      <div class="inv-row"><span>Folders</span><span class="badge badge-surface">Surface</span></div>
+      <div class="inv-row"><span>Share &amp; Permissions Drawer</span><span class="badge badge-surface">Surface</span></div>
+      <div class="inv-row"><span>Download Functions</span><span class="badge badge-surface">Surface</span></div>
+      <div class="inv-row"><span>Send File Back</span><span class="badge badge-surface">Surface</span></div>
+      <div class="inv-row"><span>Request files <em style="color:var(--text-subtle);font-size:12px">(found in staging crawl)</em></span><span class="badge badge-surface">Surface</span></div>
+      <div class="inv-row"><span>Protected Messages</span><span class="badge badge-surface">Surface</span></div>
+      <div class="inv-row"><span>Notifications</span><span class="badge badge-surface">Surface</span></div>
+      <div class="inv-row"><span>Digital Signature <em style="color:var(--text-subtle);font-size:12px">(standalone capability — not a Policy Protection)</em></span><span class="badge badge-surface">Capability</span></div>
+      <div class="inv-row"><span>Mobile Version</span><span class="badge badge-surface">Surface</span></div>
+    </div>
+  </div>
+
+  <!-- Web Platform — Recipient -->
+  <div class="inv-group">
+    <div class="inv-group-header">
+      <h3>Web platform — recipient (receive side)</h3>
+      <span class="badge badge-surface">Surface</span>
+    </div>
+    <div class="inv-rows">
+      <div class="inv-row"><span>Recipient Page</span><span class="badge badge-surface">Surface</span></div>
+      <div class="inv-row"><span>Open with SpecterX Viewer (WOPI)</span><span class="badge badge-engine">Engine</span></div>
+      <div class="inv-row"><span>Open with Office Online <em style="color:var(--text-subtle);font-size:12px">(WOPI-backed)</em></span><span class="badge badge-engine">Engine</span></div>
+      <div class="inv-row"><span>Open with Adobe Desktop</span><span class="badge badge-openwith">Open-With Target</span></div>
+      <div class="inv-row"><span>Open with Microsoft Edge</span><span class="badge badge-openwith">Open-With Target</span></div>
+      <div class="inv-row"><span>Open with Native Office</span><span class="badge badge-openwith">Open-With Target</span></div>
+      <div class="inv-row"><span>Open with Google Drive</span><span class="badge badge-openwith">Open-With Target</span></div>
+    </div>
+  </div>
+
+  <!-- Web Platform — Admin -->
+  <div class="inv-group">
+    <div class="inv-group-header">
+      <h3>Web platform — admin</h3>
+      <span class="badge badge-surface">Surface</span>
+    </div>
+    <div class="inv-rows">
+      <div class="inv-row"><span>Admin All Files</span><span class="badge badge-surface">Surface</span></div>
+      <div class="inv-row"><span>User &amp; Group Management <em style="color:var(--text-subtle);font-size:12px">(roles: Collaborators, Administrators, Auditors)</em></span><span class="badge badge-surface">Surface</span></div>
+      <div class="inv-row"><span>Security Policies (catalog)</span><span class="badge badge-surface">Surface</span></div>
+      <div class="inv-row"><span>Policy Management Pane (editor)</span><span class="badge badge-surface">Surface</span></div>
+      <div class="inv-row"><span>Platform Governance Rules</span><span class="badge badge-surface">Surface</span></div>
+      <div class="inv-row"><span>Audit Logs</span><span class="badge badge-surface">Surface</span></div>
+      <div class="inv-row"><span>Usage Dashboards (Domains Dashboard)</span><span class="badge badge-surface">Surface</span></div>
+      <div class="inv-row"><span>Recipient Activity &amp; Engagement Admin Dashboards</span><span class="badge badge-surface">Surface</span></div>
+    </div>
+  </div>
+
+  <!-- Policy Protections -->
+  <div class="inv-group">
+    <div class="inv-group-header">
+      <h3>Policy protections</h3>
+      <span class="badge badge-policy">Policy Protection</span>
+    </div>
+    <div class="inv-rows">
+      <div class="inv-row"><span>Watermarking — Policy Protection</span><span class="badge badge-policy">Policy Protection</span></div>
+      <div class="inv-row"><span>Password — Policy Protection</span><span class="badge badge-policy">Policy Protection</span></div>
+      <div class="inv-row"><span>Encrypt using Rights Management — Policy Protection</span><span class="badge badge-policy">Policy Protection</span></div>
+    </div>
+  </div>
+
+  <!-- Identity & Access -->
+  <div class="inv-group">
+    <div class="inv-group-header">
+      <h3>Identity &amp; access</h3>
+    </div>
+    <div class="inv-rows">
+      <div class="inv-row"><span>Authentication</span><span class="badge badge-surface">Surface</span></div>
+      <div class="inv-row"><span>Reset Password</span><span class="badge badge-surface">Surface</span></div>
+      <div class="inv-row"><span>Entra ID Integration</span><span class="badge badge-integration">Integration</span></div>
+      <div class="inv-row"><span>Okta Identity Integration</span><span class="badge badge-integration">Integration</span></div>
+      <div class="inv-row"><span>Google Cloud Identity</span><span class="badge badge-integration">Integration</span></div>
+    </div>
+  </div>
+
+  <!-- Mailflow Integration -->
+  <div class="inv-group">
+    <div class="inv-group-header">
+      <h3>Mailflow integration</h3>
+      <span class="badge badge-integration">Integration</span>
+    </div>
+    <div class="inv-rows">
+      <div class="inv-row"><span>Outlook Classic Connector <em style="color:var(--text-subtle);font-size:12px">(Windows only, maintenance mode)</em></span><span class="badge badge-addon">Add-in</span></div>
+      <div class="inv-row"><span>Outlook New Connector</span><span class="badge badge-addon">Add-in</span></div>
+      <div class="inv-row"><span>Gmail Connector</span><span class="badge badge-extension">Extension</span></div>
+      <div class="inv-row"><span>Mail Protection Server <em style="color:var(--text-subtle);font-size:12px">(deployed, on-premise)</em></span><span class="badge badge-service">Service</span></div>
+      <div class="inv-row"><span>Mail Protection Service <em style="color:var(--text-subtle);font-size:12px">(cloud/SaaS)</em></span><span class="badge badge-service">Service</span></div>
+    </div>
+  </div>
+
+  <!-- Share-in-Place Connectors -->
+  <div class="inv-group">
+    <div class="inv-group-header">
+      <h3>Share-in-place connectors</h3>
+      <span class="badge badge-connector">Connector</span>
+    </div>
+    <div class="inv-rows">
+      <div class="inv-row"><span>Google Drive Connector</span><span class="badge badge-connector">Connector</span></div>
+      <div class="inv-row"><span>SharePoint Connector</span><span class="badge badge-connector">Connector</span></div>
+    </div>
+  </div>
+
+  <!-- Messaging Connector -->
+  <div class="inv-group">
+    <div class="inv-group-header">
+      <h3>Messaging connector</h3>
+      <span class="badge badge-connector">Connector</span>
+    </div>
+    <div class="inv-rows">
+      <div class="inv-row"><span>Slack Connector</span><span class="badge badge-connector">Connector</span></div>
+    </div>
+  </div>
+
+  <!-- Salesforce -->
+  <div class="inv-group">
+    <div class="inv-group-header">
+      <h3>Salesforce report export</h3>
+      <span class="badge badge-connector">Connector</span>
+    </div>
+    <div class="inv-rows">
+      <div class="inv-row"><span>Salesforce Browser Extension</span><span class="badge badge-extension">Extension</span></div>
+      <div class="inv-row"><span>Salesforce Reports Connector</span><span class="badge badge-connector">Connector</span></div>
+    </div>
+  </div>
+
+  <!-- Storage Integration -->
+  <div class="inv-group">
+    <div class="inv-group-header">
+      <h3>Storage integration</h3>
+      <span class="badge badge-integration">Integration</span>
+    </div>
+    <div class="inv-rows">
+      <div class="inv-row"><span>Amazon S3 Storage Integration</span><span class="badge badge-integration">Integration</span></div>
+      <div class="inv-row"><span>Sharepoint Storage Integration</span><span class="badge badge-integration">Integration</span></div>
+      <div class="inv-row"><span>Google Cloud Storage Integration</span><span class="badge badge-integration">Integration</span></div>
+    </div>
+  </div>
+
+  <!-- DLP Integration -->
+  <div class="inv-group">
+    <div class="inv-group-header">
+      <h3>DLP integration</h3>
+      <span class="badge badge-integration">Integration</span>
+    </div>
+    <div class="inv-rows">
+      <div class="inv-row"><span>DLP Core Mailflow Integration</span><span class="badge badge-integration">Integration</span></div>
+      <div class="inv-row"><span>DLP WebUI Integration</span><span class="badge badge-integration">Integration</span></div>
+    </div>
+  </div>
+
+  <!-- CDR Integration -->
+  <div class="inv-group">
+    <div class="inv-group-header">
+      <h3>CDR integration</h3>
+      <span class="badge badge-integration">Integration</span>
+    </div>
+    <div class="inv-rows">
+      <div class="inv-row"><span>Opswat CDR Integration</span><span class="badge badge-integration">Integration</span></div>
+    </div>
+  </div>
+
+  <!-- Classification Integration -->
+  <div class="inv-group">
+    <div class="inv-group-header">
+      <h3>Classification integration</h3>
+      <span class="badge badge-integration">Integration</span>
+    </div>
+    <div class="inv-rows">
+      <div class="inv-row"><span>Purview Integration (Microsoft Purview)</span><span class="badge badge-integration">Integration</span></div>
+    </div>
+  </div>
+
+  <!-- On-Prem Gateway -->
+  <div class="inv-group">
+    <div class="inv-group-header">
+      <h3>On-premises gateway</h3>
+      <span class="badge badge-gateway">Gateway</span>
+    </div>
+    <div class="inv-rows">
+      <div class="inv-row"><span>SpecterX Gateway (On-Prem)</span><span class="badge badge-gateway">Gateway</span></div>
+      <div class="inv-row"><span>SpecterX Gateway — Storage Connector (On-Prem)</span><span class="badge badge-gateway">Gateway</span></div>
+    </div>
+  </div>
+
+  <h2>Type-word glossary</h2>
+  <p class="muted">Definitions from the May 2026 "My statement on workflows" document. Used consistently in Jira component names, docs titles, and article headings.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Type word</th><th>Definition and test</th><th>Examples</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="badge badge-integration">Integration</span></td>
+          <td>A background relationship between SpecterX and an external system for exchanging data, identity signals, or policy/classification metadata. Test: if you removed it, would a normal user notice immediately or would things just silently get worse?</td>
+          <td>Entra ID Integration, Opswat CDR Integration, DLP Mailflow Integration</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-connector">Connector</span></td>
+          <td>A user-facing surface where the user actively does something through SpecterX into a specific third-party app. Test: does the end user click a button that mentions the third-party app by name?</td>
+          <td>Google Drive Connector, Slack Connector, Salesforce Reports Connector</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-addon">Add-in</span></td>
+          <td>Microsoft's term. Code that runs inside a Microsoft Office host application. Use for anything that runs inside Outlook, Word, Excel.</td>
+          <td>Outlook Classic Add-in, Outlook New Add-in</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-extension">Extension</span></td>
+          <td>The browser ecosystem's term. Code that injects into a web page or browser chrome. Use for anything that runs inside Gmail, Chrome, Edge, Salesforce in-browser.</td>
+          <td>Gmail Extension, Salesforce Browser Extension</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-engine">Engine</span></td>
+          <td>The renderer/processor underneath a SpecterX product surface. Test: could you swap it for a different vendor's technology without the customer noticing?</td>
+          <td>SpecterX WOPI Host, SpecterX Office Viewer (engine), SpecterX PDF Viewer (engine)</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-openwith">Open-With Target</span></td>
+          <td>A third-party app the user chooses to open a SpecterX-protected file in, where the file leaves SpecterX's rendering context. Test: does the user pick this from an "Open with…" menu and does the file get handed off?</td>
+          <td>Open with Adobe Desktop, Open with Native Office, Open with Microsoft Edge</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-service">Service</span></td>
+          <td>The backend SpecterX operates to power a feature. Internal-facing word. Only split Client + Service when the two have genuinely separate deployment/release/ownership cycles.</td>
+          <td>Mail Protection Server (deployed), Mail Protection Service (cloud)</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-policy">Policy Protection</span></td>
+          <td>A file-level security measure that admins enable through the policy management UI, applied automatically to files governed by that policy. Test: is this configurable per-policy in the policy editor?</td>
+          <td>Watermarking, Password, Encrypt using Rights Management</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-gateway">Gateway</span></td>
+          <td>A self-contained SpecterX deployment that runs in a customer's environment, rather than in SpecterX's cloud. The deployment model (release cadence, support, version skew) is fundamentally different from cloud.</td>
+          <td>SpecterX Gateway (On-Prem), SpecterX Gateway Storage Connector (On-Prem)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Proposed knowledge base — information architecture</h2>
+  <p class="muted">11 sections, two levels deep (Section → Article). Section names use verb-phrase convention (DocSend style) so each title names the user's job, not the feature. Articles marked <strong class="badge badge-surface">POC</strong> are shipped; <span class="ia-article is-planned" style="display:inline">planned</span> are mapped but not yet written.</p>
+
+  <div class="ia-tree">
+
+    <div class="ia-section">
+      <div class="ia-section-header"><span class="ia-section-num">1</span> Get started</div>
+      <div class="ia-articles">
+        <span class="ia-article is-planned">What is SpecterX?</span>
+        <span class="ia-article is-planned">Log in to the SpecterX web platform</span>
+        <span class="ia-article is-planned">Reset your password</span>
+        <span class="ia-article is-planned">Supported file types &amp; browsers <em style="color:var(--text-subtle);font-size:11px">(also in §11 Reference)</em></span>
+      </div>
+    </div>
+
+    <div class="ia-section">
+      <div class="ia-section-header"><span class="ia-section-num">2</span> Share files</div>
+      <div class="ia-articles">
+        <a href="articles/share-files-from-web.html" class="ia-article is-poc">Securely share a file from the web platform ✓ POC</a>
+        <span class="ia-article is-planned">Share a folder</span>
+        <span class="ia-article is-planned">Request files from recipients <em style="color:var(--text-subtle);font-size:11px">(inbound; the Request files workflow from the left nav)</em></span>
+        <span class="ia-article is-planned">Set recipient permissions</span>
+        <span class="ia-article is-planned">Update permissions after sharing</span>
+        <span class="ia-article is-planned">Revoke access to a shared file</span>
+        <span class="ia-article is-planned">Set an expiration date on a shared file</span>
+      </div>
+    </div>
+
+    <div class="ia-section">
+      <div class="ia-section-header"><span class="ia-section-num">3</span> Receive files</div>
+      <div class="ia-articles">
+        <span class="ia-article is-planned">Open a SpecterX-protected file <em style="color:var(--text-subtle);font-size:11px">(main flow: covers email OTP as default; links to supplementary verification articles)</em></span>
+        <span class="ia-article is-planned">Verify with an SMS code <em style="color:var(--text-subtle);font-size:11px">(supplementary; separate article per Virtru pattern — SMS flow is distinct)</em></span>
+        <span class="ia-article is-planned">Verify with a personal secret <em style="color:var(--text-subtle);font-size:11px">(supplementary)</em></span>
+        <span class="ia-article is-planned">Open with Adobe Desktop</span>
+        <span class="ia-article is-planned">Open with Microsoft Office (desktop)</span>
+        <span class="ia-article is-planned">Open with Office Online</span>
+        <span class="ia-article is-planned">Open with Google Drive</span>
+        <span class="ia-article is-planned">Send a file back to the sender</span>
+      </div>
+    </div>
+
+    <div class="ia-section">
+      <div class="ia-section-header"><span class="ia-section-num">4</span> Manage workspaces</div>
+      <div class="ia-articles">
+        <span class="ia-article is-planned">Create and manage a workspace</span>
+        <span class="ia-article is-planned">Invite collaborators &amp; set roles</span>
+        <span class="ia-article is-planned">Upload files to a workspace</span>
+        <span class="ia-article is-planned">Manage folders in a workspace</span>
+        <span class="ia-article is-planned">View workspace audit logs</span>
+      </div>
+    </div>
+
+    <div class="ia-section">
+      <div class="ia-section-header"><span class="ia-section-num">5</span> Send protected email</div>
+      <div class="ia-articles" style="gap: 12px;">
+        <div style="width:100%;font-size:12px;color:var(--text-subtle);padding-bottom:4px;border-bottom:1px solid var(--border);">
+          <strong style="color:var(--text-muted)">Outlook New Add-in</strong>
+          — each connector has its own lifecycle + landing page. Disambiguation FAQ replaces cross-connector hub.
+        </div>
+        <span class="ia-article is-planned">Outlook Classic vs Outlook New — which should I use? <em style="color:var(--text-subtle);font-size:11px">(disambiguation FAQ; Virtru pattern; lives at top of Outlook sub-group)</em></span>
+        <span class="ia-article is-planned">Get started with the SpecterX Outlook New Add-in <em style="color:var(--text-subtle);font-size:11px">(connector landing page; moved from §1)</em></span>
+        <span class="ia-article is-planned">Set up the SpecterX Outlook New Add-in</span>
+        <span class="ia-article is-planned">Send a protected email with the Outlook New Add-in</span>
+        <span class="ia-article is-planned">Track recipient activity in Outlook</span>
+        <span class="ia-article is-planned">Troubleshoot the Outlook New Add-in</span>
+        <span class="ia-article is-planned">Uninstall the Outlook New Add-in</span>
+        <div style="width:100%;font-size:12px;color:var(--text-subtle);padding:4px 0;border-top:1px solid var(--border);">
+          <strong style="color:var(--text-muted)">Outlook Classic Add-in</strong>
+          — Windows only, maintenance mode; call-out inline on landing page
+        </div>
+        <span class="ia-article is-planned">Get started with the SpecterX Outlook Classic Add-in <em style="color:var(--text-subtle);font-size:11px">(Windows, maintenance mode)</em></span>
+        <span class="ia-article is-planned">Set up the SpecterX Outlook Classic Add-in</span>
+        <span class="ia-article is-planned">Send a protected email with the Outlook Classic Add-in</span>
+        <div style="width:100%;font-size:12px;color:var(--text-subtle);padding:4px 0;border-top:1px solid var(--border);">
+          <strong style="color:var(--text-muted)">Gmail Extension</strong>
+        </div>
+        <span class="ia-article is-planned">Get started with the SpecterX Gmail Extension <em style="color:var(--text-subtle);font-size:11px">(connector landing; moved from §1)</em></span>
+        <span class="ia-article is-planned">Set up the SpecterX Gmail Extension</span>
+        <span class="ia-article is-planned">Send a protected email with the Gmail Extension</span>
+        <span class="ia-article is-planned">Troubleshoot the Gmail Extension</span>
+        <p style="font-size:12px;color:var(--text-subtle);padding:6px 0 2px;margin:0;font-style:italic;">Mail Protection setup moved to §9 Set up integrations — it is admin infrastructure, not an end-user send action.</p>
+      </div>
+    </div>
+
+    <div class="ia-section">
+      <div class="ia-section-header"><span class="ia-section-num">6</span> Connect to other apps</div>
+      <div class="ia-articles" style="gap: 12px;">
+        <div style="width:100%;font-size:12px;color:var(--text-subtle);padding-bottom:4px;border-bottom:1px solid var(--border);">
+          <strong style="color:var(--text-muted)">Share-in-place connectors</strong>
+        </div>
+        <span class="ia-article is-planned">Set up the Google Drive Connector</span>
+        <span class="ia-article is-planned">Share a Google Drive file with SpecterX protection</span>
+        <span class="ia-article is-planned">Set up the SharePoint Connector</span>
+        <span class="ia-article is-planned">Share a SharePoint file with SpecterX protection</span>
+        <div style="width:100%;font-size:12px;color:var(--text-subtle);padding:4px 0;border-top:1px solid var(--border);">
+          <strong style="color:var(--text-muted)">Messaging connector</strong>
+        </div>
+        <span class="ia-article is-planned">Set up the Slack Connector</span>
+        <span class="ia-article is-planned">Send a protected file to Slack</span>
+        <span class="ia-article is-planned">Troubleshoot the Slack Connector</span>
+        <div style="width:100%;font-size:12px;color:var(--text-subtle);padding:4px 0;border-top:1px solid var(--border);">
+          <strong style="color:var(--text-muted)">Google Drive &amp; SharePoint — troubleshoot</strong>
+        </div>
+        <span class="ia-article is-planned">Troubleshoot the Google Drive Connector</span>
+        <span class="ia-article is-planned">Troubleshoot the SharePoint Connector</span>
+        <div style="width:100%;font-size:12px;color:var(--text-subtle);padding:4px 0;border-top:1px solid var(--border);">
+          <strong style="color:var(--text-muted)">Salesforce</strong>
+        </div>
+        <span class="ia-article is-planned">Install the SpecterX Salesforce Browser Extension</span>
+        <span class="ia-article is-planned">Export and protect Salesforce reports</span>
+      </div>
+    </div>
+
+    <div class="ia-section">
+      <div class="ia-section-header"><span class="ia-section-num">7</span> Configure security policies</div>
+      <div class="ia-articles">
+        <a href="articles/configure-security-policy.html" class="ia-article is-poc">Configure a security policy ✓ POC</a>
+        <span class="ia-article is-planned">Apply a policy when sharing — files, folders, workspaces &amp; email <em style="color:var(--text-subtle);font-size:11px">(end-user; covers all four contexts)</em></span>
+        <span class="ia-article is-planned">Control who can reshare your files</span>
+        <span class="ia-article is-planned">Require identity verification before opening a file</span>
+        <span class="ia-article is-planned">Add a watermark to protected files</span>
+        <span class="ia-article is-planned">Prevent recipients from downloading files</span>
+        <span class="ia-article is-planned">Encrypt downloaded files with a password</span>
+        <span class="ia-article is-planned">Protect downloaded files with Rights Management (RMS)</span>
+        <span class="ia-article is-planned">Apply a digital signature</span>
+        <span class="ia-article is-planned">Configure Platform Governance Rules</span>
+        <span class="ia-article is-planned">Protect email message content <em style="color:var(--text-subtle);font-size:11px">(Protected Messages — email body + attachment protection)</em></span>
+      </div>
+    </div>
+
+    <div class="ia-section">
+      <div class="ia-section-header"><span class="ia-section-num">8</span> Manage your organization</div>
+      <div class="ia-articles">
+        <span class="ia-article is-planned">Manage users &amp; groups</span>
+        <a href="articles/audit-logs.html" class="ia-article is-poc">Review audit logs &amp; usage dashboards ✓ POC</a>
+        <span class="ia-article is-planned">Track recipient activity &amp; engagement</span>
+        <span class="ia-article is-planned">Configure notifications</span>
+      </div>
+    </div>
+
+    <div class="ia-section">
+      <div class="ia-section-header"><span class="ia-section-num">9</span> Set up integrations</div>
+      <div class="ia-articles" style="gap: 12px;">
+        <div style="width:100%;font-size:12px;color:var(--text-subtle);padding-bottom:4px;border-bottom:1px solid var(--border);">
+          <strong style="color:var(--text-muted)">Identity integration</strong>
+        </div>
+        <span class="ia-article is-planned">Set up Entra ID authentication</span>
+        <span class="ia-article is-planned">Set up Okta authentication</span>
+        <span class="ia-article is-planned">Set up Google Cloud Identity</span>
+        <div style="width:100%;font-size:12px;color:var(--text-subtle);padding:4px 0;border-top:1px solid var(--border);">
+          <strong style="color:var(--text-muted)">Storage integration</strong>
+        </div>
+        <span class="ia-article is-planned">Connect Amazon S3 storage</span>
+        <span class="ia-article is-planned">Connect SharePoint storage</span>
+        <span class="ia-article is-planned">Connect Google Cloud Storage</span>
+        <div style="width:100%;font-size:12px;color:var(--text-subtle);padding:4px 0;border-top:1px solid var(--border);">
+          <strong style="color:var(--text-muted)">Security &amp; classification integration</strong>
+        </div>
+        <span class="ia-article is-planned">Configure DLP mailflow integration</span>
+        <span class="ia-article is-planned">Configure DLP WebUI integration</span>
+        <span class="ia-article is-planned">Configure Opswat CDR integration</span>
+        <span class="ia-article is-planned">Configure Microsoft Purview classification</span>
+        <div style="width:100%;font-size:12px;color:var(--text-subtle);padding:4px 0;border-top:1px solid var(--border);">
+          <strong style="color:var(--text-muted)">Mail Protection service</strong>
+          — moved from §5 (admin infrastructure, not end-user send action)
+        </div>
+        <span class="ia-article is-planned">Set up Mail Protection for Exchange Online</span>
+        <span class="ia-article is-planned">Set up Mail Protection for Google Workspace</span>
+        <span class="ia-article is-planned">Set up Mail Protection for Cisco SEG</span>
+      </div>
+    </div>
+
+    <div class="ia-section">
+      <div class="ia-section-header"><span class="ia-section-num">10</span> Deploy on-premises</div>
+      <div class="ia-articles" style="gap: 12px;">
+        <div style="width:100%;font-size:12px;color:var(--text-subtle);padding-bottom:4px;border-bottom:1px solid var(--border);">
+          <strong style="color:var(--text-muted)">SpecterX Gateway</strong>
+          — follows Virtru's per-product structure: About → Prerequisites → Install → Post-install → Reference
+        </div>
+        <span class="ia-article is-planned">About the SpecterX Gateway</span>
+        <span class="ia-article is-planned">Check prerequisites for the SpecterX Gateway</span>
+        <span class="ia-article is-planned">Install the SpecterX Gateway</span>
+        <span class="ia-article is-planned">Configure the SpecterX Gateway after installation</span>
+        <span class="ia-article is-planned">Set up the Gateway Storage Connector</span>
+        <span class="ia-article is-planned">Integrate the Gateway with Active Directory</span>
+        <span class="ia-article is-planned">SpecterX Gateway — reference &amp; supported headers</span>
+      </div>
+    </div>
+
+    <div class="ia-section">
+      <div class="ia-section-header"><span class="ia-section-num">11</span> Reference &amp; limitations</div>
+      <div class="ia-articles" style="gap: 12px;">
+        <div style="width:100%;font-size:12px;color:var(--text-subtle);padding-bottom:4px;border-bottom:1px solid var(--border);">
+          <strong style="color:var(--text-muted)">Capability limits</strong>
+          — per-capability limitations articles with DocSend-style Important: callout + inline cross-links
+        </div>
+        <span class="ia-article is-planned">Supported file types &amp; browsers <em style="color:var(--text-subtle);font-size:11px">(canonical; also cross-linked from §1)</em></span>
+        <span class="ia-article is-planned">User roles &amp; permissions reference <em style="color:var(--text-subtle);font-size:11px">(moved from §8 — explains what each role can do, not a task)</em></span>
+        <span class="ia-article is-planned">Watermarking — supported formats &amp; limitations</span>
+        <span class="ia-article is-planned">Password encryption — supported formats &amp; limitations</span>
+        <span class="ia-article is-planned">Rights Management (RMS) — requirements &amp; limitations</span>
+        <span class="ia-article is-planned">Block download — scope &amp; limitations</span>
+        <span class="ia-article is-planned">Digital Signature — supported formats &amp; limitations</span>
+        <span class="ia-article is-planned">Authentication methods reference</span>
+        <span class="ia-article is-planned">Policy controls reference</span>
+        <span class="ia-article is-planned">What SpecterX does and does not protect</span>
+        <div style="width:100%;font-size:12px;color:var(--text-subtle);padding:4px 0;border-top:1px solid var(--border);">
+          <strong style="color:var(--text-muted)">Compliance</strong>
+          — per-framework articles for enterprise/regulated customers (Virtru pattern)
+        </div>
+        <span class="ia-article is-planned">HIPAA compliance with SpecterX</span>
+        <span class="ia-article is-planned">GDPR &amp; data residency</span>
+        <span class="ia-article is-planned">SOC 2 &amp; security certifications</span>
+        <div style="width:100%;font-size:12px;color:var(--text-subtle);padding:4px 0;border-top:1px solid var(--border);">
+          <strong style="color:var(--text-muted)">Release notes</strong>
+          — per-product, in reference section (Virtru pattern: keeps main nav clean)
+        </div>
+        <span class="ia-article is-planned">Release notes — Outlook Add-in</span>
+        <span class="ia-article is-planned">Release notes — Gmail Extension</span>
+        <span class="ia-article is-planned">Release notes — SpecterX Web Platform</span>
+        <span class="ia-article is-planned">Release notes — SpecterX Gateway</span>
+      </div>
+    </div>
+
+  </div>
+
+  <h2>SpecterX article skeleton</h2>
+  <p>Synthesized from the four reference platforms. Every SpecterX article should follow this structure.</p>
+  <div class="split">
+    <div class="quote quote-specterx" style="border-top-color: var(--specterx);">
+      <div class="quote-label">Skeleton (every task page)</div>
+      <div class="quote-text" style="font-family: var(--font-mono); font-size: 13px; line-height: 1.7;">
+        Breadcrumb (Section › Article)<br>
+        H1&nbsp; &lt;Verb&gt; &lt;object&gt; sentence-case<br>
+        1-paragraph intro (what + why)<br>
+        H2&nbsp; Before you get started<br>
+        &nbsp;&nbsp;&nbsp;Requirements<br>
+        &nbsp;&nbsp;&nbsp;Permissions required<br>
+        H2&nbsp; In this article (TOC, skip if short)<br>
+        &nbsp;&nbsp;&nbsp;[Important: callout — supported formats/limitations<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;with inline cross-links to related concepts]<br>
+        H2&nbsp; &lt;Primary task #1&gt;<br>
+        &nbsp;&nbsp;&nbsp;Numbered steps, bold UI labels<br>
+        &nbsp;&nbsp;&nbsp;Screenshot after each major step<br>
+        H2&nbsp; &lt;Primary task #2&gt;<br>
+        H2&nbsp; Recipient experience (when applicable)<br>
+        H2&nbsp; Related articles (3–4 sibling cards)
+      </div>
+    </div>
+    <div>
+      <div class="quote" style="margin-bottom: 16px;">
+        <div class="quote-label">Voice rules (from HubSpot + DocSend)</div>
+        <div class="quote-text" style="font-size: 13px; line-height: 1.7;">
+          Strict 2nd person ("you"). No "the user".<br>
+          Bold every UI label: <strong>Share files</strong>, <strong>Contributor</strong>.<br>
+          Sentence-case headings.<br>
+          Spell out the full product name on first reference.<br>
+          "Before you get started" is the universal first H2.<br>
+          Lifecycle status callouts inline (maintenance mode, beta).
+        </div>
+      </div>
+      <div class="quote" style="margin-bottom: 0;">
+        <div class="quote-label">Length &amp; screenshots (from Egnyte + DocSend)</div>
+        <div class="quote-text" style="font-size: 13px; line-height: 1.7;">
+          Target 800–1,500 words per article.<br>
+          5–10 screenshots per task page.<br>
+          Landing pages: ≤3 screenshots.<br>
+          Screenshot immediately below each step.<br>
+          Crop to the panel, not the full window.<br>
+          Related articles: 3–4 sibling cards (DocSend pattern).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Proof-of-concept articles</h2>
+  <p class="muted">Three articles demonstrating the skeleton and voice, with screenshots from <code>staging-app.specterx.com</code>.</p>
+  <div class="split">
+    <a class="card card-specterx" href="articles/share-files-from-web.html">
+      <div class="card-head">
+        <h3>Securely share a file from the web platform</h3>
+        <span class="card-tag card-tag-specterx">End user</span>
+      </div>
+      <p class="card-desc">Covers login → upload (Share files) → Share with recipients → set permissions → choose policy → share → copy link. Includes a Recipient experience section.</p>
+      <div class="card-stats">
+        <span><strong>Section:</strong> Share files</span>
+        <span><strong>Audience:</strong> End user</span>
+      </div>
+    </a>
+    <a class="card card-specterx" href="articles/configure-security-policy.html">
+      <div class="card-head">
+        <h3>Configure a security policy</h3>
+        <span class="card-tag card-tag-specterx">Admin</span>
+      </div>
+      <p class="card-desc">Covers the Policies page → select or create a policy → Policy Configuration (restrict to users) → Access Control (sharing permissions + verification) → Data Protection (watermarking, password, RMS) → save.</p>
+      <div class="card-stats">
+        <span><strong>Section:</strong> Configure security policies</span>
+        <span><strong>Audience:</strong> Admin</span>
+      </div>
+    </a>
+    <a class="card card-specterx" href="articles/audit-logs.html">
+      <div class="card-head">
+        <h3>Review audit logs &amp; usage dashboards</h3>
+        <span class="card-tag card-tag-specterx">Admin</span>
+      </div>
+      <p class="card-desc">Covers the Audit Logs page (filters, Export CSV) and the Domains Dashboard (Shares per domain, Files shared per domain, usage over time).</p>
+      <div class="card-stats">
+        <span><strong>Section:</strong> Manage your organization</span>
+        <span><strong>Audience:</strong> Admin</span>
+      </div>
+    </a>
+  </div>
+
+  <h2>IA design decisions</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Decision</th>
+          <th>Rationale</th>
+          <th>Reference precedent</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="row-specterx">
+          <td>Section names use verb-phrase convention</td>
+          <td>"Share files", "Receive files", "Send protected email", "Configure security policies", "Manage your organization" — each title names the user's job, not the feature name. Consistent imperative form throughout.</td>
+          <td>DocSend: "Managing spaces", "Securing your data" — category names describe the user's job, not the feature</td>
+        </tr>
+        <tr class="row-specterx">
+          <td>Per-connector lifecycle pages; no shared cross-connector install hub</td>
+          <td>SpecterX users know their email client before they start. A user with Outlook searches for "Outlook add-in", not "which connector should I install?". Each connector gets its own landing + verb-split lifecycle (Set up / Send / Track / Troubleshoot / Uninstall). The cross-connector decision page HubSpot needs does not apply here.</td>
+          <td>HubSpot §0 lifecycle pattern adapted: keep per-connector pages, drop cross-connector hub</td>
+        </tr>
+        <tr class="row-specterx">
+          <td>Each Policy Protection gets its own article with verb-first title</td>
+          <td>Same UI panel but distinct security models and recipient experiences. "Add a watermark to protected files" not "Watermarking". Verb-first titles are searchable and action-oriented. Clarity over consolidation.</td>
+          <td>DocSend: email authentication vs email validation as separate pages; HubSpot: action-titled headings</td>
+        </tr>
+        <tr class="row-specterx">
+          <td>"Apply a policy when sharing" bridges admin and end-user perspectives</td>
+          <td>Policies can be applied to files, folders, workspaces, and email attachments — each context has slightly different UX. One article covers all four, with H2 per context, cross-linking to the Configure a security policy admin article and to individual policy-protection articles.</td>
+          <td>Egnyte: separate User Guide and Config Guide for the same feature</td>
+        </tr>
+        <tr class="row-specterx">
+          <td>§3 "Receive files": email OTP inline; SMS and personal secret as supplementary articles</td>
+          <td>The main "Open a SpecterX-protected file" article covers the common case (email OTP). "Verify with SMS" and "Verify with a personal secret" are separate supplementary articles because their flows are meaningfully different (phone registration, different UI path). Split when flows differ; consolidate when they don't.</td>
+          <td>Virtru: "Using SMS for secondary verification" as a separate article; DocSend: split when different end-states</td>
+        </tr>
+        <tr class="row-specterx">
+          <td>§11 Reference &amp; limitations: per-capability limitations articles with inline cross-links</td>
+          <td>Each capability (watermarking, password encryption, RMS, block download) gets a dedicated limitations reference article. Format follows DocSend's watermarks page: prominent "Important:" callout at the top of the body stating supported file types, with inline hyperlinks to articles that explain the excluded scenarios (e.g. "Download-only files" links to the download reference).</td>
+          <td>DocSend: "Important: only PDFs, Keynotes, PPT, Word can be watermarked. Download-only files and URL uploads can't." — with cross-links; Vera: top-level Constraints section</td>
+        </tr>
+        <tr class="row-specterx">
+          <td>Limitations callout placed after "In this article" TOC, not inside "Before you get started"</td>
+          <td>"Before you get started" = what you need in order to perform this task. The limitations callout = scope of what the feature does and does not cover. These are different questions; DocSend's placement (callout after TOC, before first task H2) keeps them appropriately separate.</td>
+          <td>DocSend watermarks page: Important callout appears after "In this article" TOC</td>
+        </tr>
+        <tr class="row-specterx">
+          <td>Mail Protection setup moved from §5 to §9</td>
+          <td>§5 "Send protected email" contains end-user sending actions. Mail Protection for Exchange Online / Google Workspace / Cisco SEG is admin infrastructure setup. All 5 reference platforms place gateway/mailflow admin setup in admin/integration sections, separate from user send docs. Moving Mail Protection to §9 makes §5 purely end-user content.</td>
+          <td>Virtru: admin deploy docs in "Virtru for Admins > Install &amp; Deploy"; Egnyte: Outlook User Guide vs Config Guide split</td>
+        </tr>
+        <tr class="row-specterx">
+          <td>Connector quick-start landing pages live in §5, not §1</td>
+          <td>"SpecterX for Outlook — quick start" is a connector landing page (product description + lifecycle links). All 5 reference platforms place connector landing pages inside the connector's own section, not in a global "Get started" area. §1 "Get started" should be product-wide orientation only.</td>
+          <td>HubSpot: "Set up the Chrome extension" is section-level, not global; Virtru: "Get started with Virtru for Outlook 365 Add-in" is first article in the Outlook sub-section</td>
+        </tr>
+        <tr class="row-specterx">
+          <td>Connector disambiguation FAQ article in §5</td>
+          <td>"Outlook Classic vs Outlook New Add-in — which should I use?" answers the install-decision question without a shared install hub. Scales cleanly as Classic enters maintenance mode. Each connector then has its own lifecycle articles.</td>
+          <td>Virtru: "What is the difference between Virtru's Outlook 365 Add-in and Outlook Desktop Extension?"</td>
+        </tr>
+        <tr class="row-specterx">
+          <td>Supplementary verification articles in §3 for non-default flows</td>
+          <td>The main recipient article covers the common case (email OTP). "Verify with SMS" and "Verify with a personal secret" are separate supplementary articles because their flows are meaningfully different (phone registration required; different UI path). Linked from the main article.</td>
+          <td>Virtru: "Using SMS for secondary verification" as a separate article from the main recipient flow</td>
+        </tr>
+        <tr class="row-specterx">
+          <td>§10 Gateway uses About → Prerequisites → Install → Post-install → Reference skeleton</td>
+          <td>Consistent article set per deployable product. Readers know exactly what to expect. Mirrors enterprise deployment docs pattern.</td>
+          <td>Virtru "Advanced Products" — each gateway/keystore product uses this exact 5-article structure</td>
+        </tr>
+        <tr class="row-specterx">
+          <td>§11 includes per-framework compliance articles and per-product release notes</td>
+          <td>Enterprise customers search by compliance framework name (HIPAA, GDPR). Release notes in Reference keeps the main nav clean and prevents version noise in product sections.</td>
+          <td>Virtru: "Compliance &amp; Legal" section (HIPAA, CJIS, FERPA, FIPS); per-product Release Notes in Billing &amp; More</td>
+        </tr>
+        <tr class="row-specterx">
+          <td>Always show breadcrumbs</td>
+          <td>Users land via search and need immediate orientation. HubSpot and Egnyte skip breadcrumbs; we do not.</td>
+          <td>HubSpot "Patterns NOT to copy" §2</td>
+        </tr>
+        <tr class="row-specterx">
+          <td>Inline "Related articles" footer (3–4 cards) for lateral discovery</td>
+          <td>Sibling articles in the same section are the most likely next read. Cards (heading + snippet) surface them without forcing the reader back to the section index.</td>
+          <td>DocSend "Related Articles" card footer</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</main>
+</body>
+</html>

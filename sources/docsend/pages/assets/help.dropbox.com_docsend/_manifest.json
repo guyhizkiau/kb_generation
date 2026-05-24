@@ -1,0 +1,62 @@
+{
+  "https://aem.dropbox.com/cms/content/dam/dropbox/dmep/assets/dwg-assets/icons/Lightbulb.svg": {
+    "bytes": 1362,
+    "content_type": "image/svg+xml",
+    "local": "fa60ca6151669766.svg"
+  },
+  "https://aem.dropbox.com/cms/content/dam/dropbox/dmep/assets/dwg-assets/icons/PersonMultiple.svg": {
+    "bytes": 1706,
+    "content_type": "image/svg+xml",
+    "local": "b8a7c732cbd22158.svg"
+  },
+  "https://aem.dropbox.com/cms/content/dam/dropbox/experience/icons/Facebook.svg": {
+    "bytes": 865,
+    "content_type": "image/svg+xml",
+    "local": "2f003b2291190385.svg"
+  },
+  "https://aem.dropbox.com/cms/content/dam/dropbox/experience/icons/Twitter.svg": {
+    "bytes": 411,
+    "content_type": "image/svg+xml",
+    "local": "79fbd5a54ca1bb14.svg"
+  },
+  "https://aem.dropbox.com/cms/content/dam/dropbox/experience/icons/YouTube.svg": {
+    "bytes": 716,
+    "content_type": "image/svg+xml",
+    "local": "b06656bf56c0f3ac.svg"
+  },
+  "https://aem.dropbox.com/cms/content/dam/dropbox/www/en-us/help/dwg-assets/ui-icon-line/help.svg": {
+    "bytes": 2258,
+    "content_type": "image/svg+xml",
+    "local": "ea5c1f43bfefe82c.svg"
+  },
+  "https://aem.dropbox.com/cms/etc.clientlibs/settings/wcm/designs/dropbox-birch-help/clientlib-all/resources/32.svg": {
+    "bytes": 1195,
+    "content_type": "image/svg+xml",
+    "local": "300a7e5153be2233.svg"
+  },
+  "https://aem.dropbox.com/cms/etc.clientlibs/settings/wcm/designs/dropbox-birch-help/clientlib-all/resources/40.svg": {
+    "bytes": 1204,
+    "content_type": "image/svg+xml",
+    "local": "b71953c5e713134e.svg"
+  },
+  "https://aem.dropbox.com/cms/etc.clientlibs/settings/wcm/designs/dropbox-birch-help/clientlib-all/resources/40_Wordmark.svg": {
+    "bytes": 5021,
+    "content_type": "image/svg+xml",
+    "local": "1f9750b6af36fc26.svg"
+  },
+  "https://help.dropbox.com/cms/content/dam/dropbox/www/en-us/help/homepage/docsend.png/_jcr_content/renditions/docsend.mobile.webp": {
+    "bytes": 1552,
+    "content_type": "image/webp",
+    "local": "f552c05f62fc52a0.webp"
+  },
+  "https://help.dropbox.com/cms/content/dam/dropbox/www/en-us/help/homepage/docsend.png/_jcr_content/renditions/docsend.tablet.webp": {
+    "bytes": 2828,
+    "content_type": "image/webp",
+    "local": "361998a93f54fcbf.webp"
+  },
+  "https://help.dropbox.com/cms/content/dam/dropbox/www/en-us/help/homepage/docsend.png/_jcr_content/renditions/docsend.webp": {
+    "bytes": 1322,
+    "content_type": "image/webp",
+    "local": "5f09f9de1566a8dc.webp"
+  }
+}

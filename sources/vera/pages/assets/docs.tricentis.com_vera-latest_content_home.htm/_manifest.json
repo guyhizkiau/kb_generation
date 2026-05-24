@@ -1,0 +1,67 @@
+{
+  "https://docs.tricentis.com/all/Resources/Images/Design/headphoneicon.svg": {
+    "bytes": 2041,
+    "content_type": "image/svg+xml",
+    "local": "98c250b16711f379.svg"
+  },
+  "https://docs.tricentis.com/all/Resources/Images/Design/openbook.svg": {
+    "bytes": 1808,
+    "content_type": "image/svg+xml",
+    "local": "c2756a724d305f1c.svg"
+  },
+  "https://docs.tricentis.com/all/Resources/Images/Design/shiftsync.png": {
+    "bytes": 2995,
+    "content_type": "image/png",
+    "local": "9e8b203780132bab.png"
+  },
+  "https://docs.tricentis.com/vera-latest/Skins/Default/Stylesheets/Images/transparent.gif": {
+    "bytes": 832,
+    "content_type": "image/gif",
+    "local": "ceda0c5cd17b799a.gif"
+  },
+  "https://docs.tricentis.com/vera-latest/content/resources/projectimages/homeicons/build.svg": {
+    "bytes": 1297,
+    "content_type": "image/svg+xml",
+    "local": "6680ebd79b577a93.svg"
+  },
+  "https://docs.tricentis.com/vera-latest/content/resources/projectimages/homeicons/campaign.svg": {
+    "bytes": 1443,
+    "content_type": "image/svg+xml",
+    "local": "d4a9658ca09eba36.svg"
+  },
+  "https://docs.tricentis.com/vera-latest/content/resources/projectimages/homeicons/customtest.svg": {
+    "bytes": 963,
+    "content_type": "image/svg+xml",
+    "local": "a3af884205baff07.svg"
+  },
+  "https://docs.tricentis.com/vera-latest/content/resources/projectimages/homeicons/difference.svg": {
+    "bytes": 1536,
+    "content_type": "image/svg+xml",
+    "local": "162dff6db119ca39.svg"
+  },
+  "https://docs.tricentis.com/vera-latest/content/resources/projectimages/homeicons/headsetmic.svg": {
+    "bytes": 1424,
+    "content_type": "image/svg+xml",
+    "local": "6986c98a88e1023a.svg"
+  },
+  "https://docs.tricentis.com/vera-latest/content/resources/projectimages/homeicons/menubook.svg": {
+    "bytes": 3074,
+    "content_type": "image/svg+xml",
+    "local": "bbbf17a20fd5cd81.svg"
+  },
+  "https://docs.tricentis.com/vera-latest/content/resources/projectimages/homeicons/playlistplay.svg": {
+    "bytes": 1059,
+    "content_type": "image/svg+xml",
+    "local": "daa21b3bbb7fd2c4.svg"
+  },
+  "https://docs.tricentis.com/vera-latest/content/resources/projectimages/homeicons/rocketlaunch.svg": {
+    "bytes": 2118,
+    "content_type": "image/svg+xml",
+    "local": "a5756b280c544e7a.svg"
+  },
+  "https://docs.tricentis.com/vera-latest/content/resources/projectimages/homeicons/simulators.svg": {
+    "bytes": 1879,
+    "content_type": "image/svg+xml",
+    "local": "1062a55a00227c74.svg"
+  }
+}

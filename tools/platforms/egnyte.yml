@@ -1,0 +1,60 @@
+name: egnyte
+display_name: Egnyte Help Center
+base_url: https://helpdesk.egnyte.com
+output_dir: sources/egnyte
+
+phase: 1
+max_pages: 15
+
+request_delay_seconds: 1.5
+asset_delay_seconds: 0.3
+user_agent: "SpecterX-DocsResearch/0.1 (+internal documentation benchmark; contact: docs@specterx)"
+
+allowed_asset_hosts:
+  - helpdesk.egnyte.com
+  - egnyte.zendesk.com
+  - assets.help.egnyte.com
+  - p9.zdusercontent.com
+  - p10.zdusercontent.com
+  - p11.zdusercontent.com
+  - p12.zdusercontent.com
+  - p13.zdusercontent.com
+  - p14.zdusercontent.com
+  - p15.zdusercontent.com
+  - p16.zdusercontent.com
+  - p17.zdusercontent.com
+  - p18.zdusercontent.com
+  - p19.zdusercontent.com
+  - p20.zdusercontent.com
+
+asset_deny_substrings:
+  - /theme/
+  - /favicon
+  - /sprite
+
+# Phase 1 seeds — all confirmed via Egnyte sitemap.xml. Cover the categories
+# most relevant to SpecterX: sharing, link security, permissions, governance/
+# classification, admin/roles, Outlook connector, desktop app.
+seeds:
+  # ─── The user's reference article ─────────────────────────────────────
+  - https://helpdesk.egnyte.com/hc/en-us/articles/27922151052429-Knowledge-Bases-User-Guide
+  # ─── Sharing workflows (core analog for SpecterX secure share) ────────
+  - https://helpdesk.egnyte.com/hc/en-us/articles/201637104-Share-with-File-and-Folder-Links-in-the-WebUI
+  - https://helpdesk.egnyte.com/hc/en-us/articles/201637554-How-Do-I-Make-File-and-Folder-Links-More-Secure
+  - https://helpdesk.egnyte.com/hc/en-us/articles/201637714-Upload-Links
+  - https://helpdesk.egnyte.com/hc/en-us/articles/204936034-Preview-Only-Links
+  # ─── Permissions ──────────────────────────────────────────────────────
+  - https://helpdesk.egnyte.com/hc/en-us/articles/201637444-Folder-Permissions
+  - https://helpdesk.egnyte.com/hc/en-us/articles/229513087-Permissions-FAQs
+  # ─── Governance / classification (Egnyte's Secure & Govern) ───────────
+  - https://helpdesk.egnyte.com/hc/en-us/articles/115000099332-Egnyte-Secure-Govern-Overview
+  - https://helpdesk.egnyte.com/hc/en-us/articles/115001294272-Configure-Content-Classification
+  - https://helpdesk.egnyte.com/hc/en-us/articles/115001352451-Sensitive-Content-Tab
+  # ─── Admin / roles ────────────────────────────────────────────────────
+  - https://helpdesk.egnyte.com/hc/en-us/articles/201637164-Administrators-Power-Users-and-Standard-Users
+  - https://helpdesk.egnyte.com/hc/en-us/articles/202189844-Role-Based-Administration
+  # ─── Outlook connector (direct SpecterX analog) ───────────────────────
+  - https://helpdesk.egnyte.com/hc/en-us/articles/4427124922125-Egnyte-for-Outlook-Add-In-User-Guide
+  - https://helpdesk.egnyte.com/hc/en-us/articles/4427094546317-Egnyte-for-Outlook-Add-In-Configuration-Guide
+  # ─── Desktop app (install/setup pattern) ──────────────────────────────
+  - https://helpdesk.egnyte.com/hc/en-us/articles/202206920-Desktop-App-Overview

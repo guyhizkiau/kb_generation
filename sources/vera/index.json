@@ -1,0 +1,131 @@
+[
+  {
+    "url": "https://docs.tricentis.com/vera-latest/content/admin_guide/administration/administration_guide.htm",
+    "final_url": "https://docs.tricentis.com/vera-latest/content/admin_guide/administration/administration_guide.htm",
+    "title": "User and administration",
+    "h1": "User and administration",
+    "breadcrumbs": [
+      "Admin Guides"
+    ],
+    "local_path": "sources/vera/pages/docs.tricentis.com_vera-latest_content_admin_guide_administration_administration_guide.htm.html",
+    "asset_count": 1,
+    "fetched_at": "2026-05-19T16:28:25+00:00"
+  },
+  {
+    "url": "https://docs.tricentis.com/vera-latest/content/admin_guide/administrative_docu.htm",
+    "final_url": "https://docs.tricentis.com/vera-latest/content/admin_guide/administrative_docu.htm",
+    "title": "Administrative documentation",
+    "h1": "Administrative documentation",
+    "breadcrumbs": [],
+    "local_path": "sources/vera/pages/docs.tricentis.com_vera-latest_content_admin_guide_administrative_docu.htm.html",
+    "asset_count": 1,
+    "fetched_at": "2026-05-19T16:28:21+00:00"
+  },
+  {
+    "url": "https://docs.tricentis.com/vera-latest/content/admin_guide/system_administration/system_administration.htm",
+    "final_url": "https://docs.tricentis.com/vera-latest/content/admin_guide/system_administration/system_administration.htm",
+    "title": "Vera System Administration",
+    "h1": "VeraSystem Administration",
+    "breadcrumbs": [
+      "Admin Guides",
+      "Administration Guide"
+    ],
+    "local_path": "sources/vera/pages/docs.tricentis.com_vera-latest_content_admin_guide_system_administration_system_administration.htm.html",
+    "asset_count": 1,
+    "fetched_at": "2026-05-19T16:28:29+00:00"
+  },
+  {
+    "url": "https://docs.tricentis.com/vera-latest/content/home.htm",
+    "final_url": "https://docs.tricentis.com/vera-latest/content/home.htm",
+    "title": "Vera Documentation | Tricentis Validation Management Platform",
+    "h1": "You've got this",
+    "breadcrumbs": [],
+    "local_path": "sources/vera/pages/docs.tricentis.com_vera-latest_content_home.htm.html",
+    "asset_count": 13,
+    "fetched_at": "2026-05-19T16:27:42+00:00"
+  },
+  {
+    "url": "https://docs.tricentis.com/vera-latest/content/release_notes/key_features.htm",
+    "final_url": "https://docs.tricentis.com/vera-latest/content/release_notes/key_features.htm",
+    "title": "What's new in 2026.1",
+    "h1": "What's new in2026.1",
+    "breadcrumbs": [],
+    "local_path": "sources/vera/pages/docs.tricentis.com_vera-latest_content_release_notes_key_features.htm.html",
+    "asset_count": 1,
+    "fetched_at": "2026-05-19T16:27:48+00:00"
+  },
+  {
+    "url": "https://docs.tricentis.com/vera-latest/content/user_guide/tricentis_tosca/tricentis_tosca.htm",
+    "final_url": "https://docs.tricentis.com/vera-latest/content/user_guide/tricentis_tosca/tricentis_tosca.htm",
+    "title": "Tricentis Tosca",
+    "h1": "Tricentis Tosca",
+    "breadcrumbs": [
+      "User Guide"
+    ],
+    "local_path": "sources/vera/pages/docs.tricentis.com_vera-latest_content_user_guide_tricentis_tosca_tricentis_tosca.htm.html",
+    "asset_count": 2,
+    "fetched_at": "2026-05-19T16:28:18+00:00"
+  },
+  {
+    "url": "https://docs.tricentis.com/vera-latest/content/user_guide/user_guide.htm",
+    "final_url": "https://docs.tricentis.com/vera-latest/content/user_guide/user_guide.htm",
+    "title": "Vera User Guide",
+    "h1": "VeraUser Guide",
+    "breadcrumbs": [],
+    "local_path": "sources/vera/pages/docs.tricentis.com_vera-latest_content_user_guide_user_guide.htm.html",
+    "asset_count": 1,
+    "fetched_at": "2026-05-19T16:27:52+00:00"
+  },
+  {
+    "url": "https://docs.tricentis.com/vera-latest/content/user_guide/web_portal/approval_queue.htm",
+    "final_url": "https://docs.tricentis.com/vera-latest/content/user_guide/web_portal/approval_queue.htm",
+    "title": "Approval queue",
+    "h1": "Approval queue",
+    "breadcrumbs": [],
+    "local_path": "sources/vera/pages/docs.tricentis.com_vera-latest_content_user_guide_web_portal_approval_queue.htm.html",
+    "asset_count": 3,
+    "fetched_at": "2026-05-19T16:28:09+00:00"
+  },
+  {
+    "url": "https://docs.tricentis.com/vera-latest/content/user_guide/web_portal/approve_records.htm",
+    "final_url": "https://docs.tricentis.com/vera-latest/content/user_guide/web_portal/approve_records.htm",
+    "title": "Approve records",
+    "h1": "Approve records",
+    "breadcrumbs": [],
+    "local_path": "sources/vera/pages/docs.tricentis.com_vera-latest_content_user_guide_web_portal_approve_records.htm.html",
+    "asset_count": 1,
+    "fetched_at": "2026-05-19T16:28:00+00:00"
+  },
+  {
+    "url": "https://docs.tricentis.com/vera-latest/content/user_guide/web_portal/email_notifications.htm",
+    "final_url": "https://docs.tricentis.com/vera-latest/content/user_guide/web_portal/email_notifications.htm",
+    "title": "Email notifications",
+    "h1": "Email notifications",
+    "breadcrumbs": [],
+    "local_path": "sources/vera/pages/docs.tricentis.com_vera-latest_content_user_guide_web_portal_email_notifications.htm.html",
+    "asset_count": 1,
+    "fetched_at": "2026-05-19T16:28:13+00:00"
+  },
+  {
+    "url": "https://docs.tricentis.com/vera-latest/content/user_guide/web_portal/reject_records.htm",
+    "final_url": "https://docs.tricentis.com/vera-latest/content/user_guide/web_portal/reject_records.htm",
+    "title": "Reject records",
+    "h1": "Reject records",
+    "breadcrumbs": [],
+    "local_path": "sources/vera/pages/docs.tricentis.com_vera-latest_content_user_guide_web_portal_reject_records.htm.html",
+    "asset_count": 1,
+    "fetched_at": "2026-05-19T16:28:04+00:00"
+  },
+  {
+    "url": "https://docs.tricentis.com/vera-latest/content/user_guide/web_portal/web_portal.htm",
+    "final_url": "https://docs.tricentis.com/vera-latest/content/user_guide/web_portal/web_portal.htm",
+    "title": "Tricentis Vera Web Portal",
+    "h1": "Tricentis VeraWeb Portal",
+    "breadcrumbs": [
+      "User Guide"
+    ],
+    "local_path": "sources/vera/pages/docs.tricentis.com_vera-latest_content_user_guide_web_portal_web_portal.htm.html",
+    "asset_count": 1,
+    "fetched_at": "2026-05-19T16:27:56+00:00"
+  }
+]

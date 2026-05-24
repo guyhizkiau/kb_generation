@@ -1,0 +1,172 @@
+[
+  {
+    "url": "https://knowledge.hubspot.com/account-security/reset-user-passwords",
+    "final_url": "https://knowledge.hubspot.com/account-security/reset-user-passwords",
+    "title": "Reset user passwords",
+    "h1": "Reset user passwords",
+    "breadcrumbs": [],
+    "local_path": "sources/hubspot/pages/knowledge.hubspot.com_account-security_reset-user-passwords.html",
+    "asset_count": 28,
+    "fetched_at": "2026-05-19T16:42:25+00:00"
+  },
+  {
+    "url": "https://knowledge.hubspot.com/account-security/set-up-single-sign-on-sso",
+    "final_url": "https://knowledge.hubspot.com/account-security/set-up-single-sign-on-sso",
+    "title": "Set up single sign-on (SSO)",
+    "h1": "Set up single sign-on (SSO)",
+    "breadcrumbs": [],
+    "local_path": "sources/hubspot/pages/knowledge.hubspot.com_account-security_set-up-single-sign-on-sso.html",
+    "asset_count": 34,
+    "fetched_at": "2026-05-19T16:41:56+00:00"
+  },
+  {
+    "url": "https://knowledge.hubspot.com/connected-email/customize-your-hubspot-sales-chrome-extension-default-configuration-options",
+    "final_url": "https://knowledge.hubspot.com/connected-email/customize-your-hubspot-sales-chrome-extension-default-configuration-options",
+    "title": "Customize HubSpot Sales Chrome extension settings",
+    "h1": "Customize HubSpot Sales Chrome extension settings",
+    "breadcrumbs": [],
+    "local_path": "sources/hubspot/pages/knowledge.hubspot.com_connected-email_customize-your-hubspot-sales-chrome-extension-default-configuration-options.html",
+    "asset_count": 40,
+    "fetched_at": "2026-05-19T16:35:18+00:00"
+  },
+  {
+    "url": "https://knowledge.hubspot.com/connected-email/get-started-with-the-hubspot-sales-chrome-extension",
+    "final_url": "https://knowledge.hubspot.com/connected-email/get-started-with-the-hubspot-sales-chrome-extension",
+    "title": "Set up the HubSpot Sales Chrome extension",
+    "h1": "Set up the HubSpot Sales Chrome extension",
+    "breadcrumbs": [],
+    "local_path": "sources/hubspot/pages/knowledge.hubspot.com_connected-email_get-started-with-the-hubspot-sales-chrome-extension.html",
+    "asset_count": 4,
+    "fetched_at": "2026-05-19T16:34:20+00:00"
+  },
+  {
+    "url": "https://knowledge.hubspot.com/connected-email/get-started-with-the-hubspot-sales-office-365-add-in",
+    "final_url": "https://knowledge.hubspot.com/connected-email/get-started-with-the-hubspot-sales-office-365-add-in",
+    "title": "Set up the HubSpot Sales Office 365 add-in | Knowledge Base",
+    "h1": "Set up the HubSpot Sales Office 365 add-in",
+    "breadcrumbs": [],
+    "local_path": "sources/hubspot/pages/knowledge.hubspot.com_connected-email_get-started-with-the-hubspot-sales-office-365-add-in.html",
+    "asset_count": 22,
+    "fetched_at": "2026-05-19T16:40:59+00:00"
+  },
+  {
+    "url": "https://knowledge.hubspot.com/connected-email/get-started-with-the-outlook-desktop-add-in",
+    "final_url": "https://knowledge.hubspot.com/connected-email/get-started-with-the-outlook-desktop-add-in",
+    "title": "Set up the Outlook desktop add-in | Knowledge Base",
+    "h1": "Set up the Outlook desktop add-in",
+    "breadcrumbs": [],
+    "local_path": "sources/hubspot/pages/knowledge.hubspot.com_connected-email_get-started-with-the-outlook-desktop-add-in.html",
+    "asset_count": 4,
+    "fetched_at": "2026-05-19T16:40:14+00:00"
+  },
+  {
+    "url": "https://knowledge.hubspot.com/connected-email/how-to-install-hubspot-sales",
+    "final_url": "https://knowledge.hubspot.com/connected-email/how-to-install-hubspot-sales",
+    "title": "Install HubSpot Sales for Gmail, Office 365, and Outlook desktop | Knowledge Base",
+    "h1": "Install HubSpot Sales for Gmail and Office 365",
+    "breadcrumbs": [],
+    "local_path": "sources/hubspot/pages/knowledge.hubspot.com_connected-email_how-to-install-hubspot-sales.html",
+    "asset_count": 22,
+    "fetched_at": "2026-05-19T16:34:41+00:00"
+  },
+  {
+    "url": "https://knowledge.hubspot.com/connected-email/manage-your-meetings-in-google-calendar-with-the-hubspot-sales-chrome-extension",
+    "final_url": "https://knowledge.hubspot.com/connected-email/manage-your-meetings-in-google-calendar-with-the-hubspot-sales-chrome-extension",
+    "title": "Manage meetings in Google Calendar with the HubSpot Sales Chrome extension",
+    "h1": "Manage meetings in Google Calendar with the HubSpot Sales Chrome extension",
+    "breadcrumbs": [],
+    "local_path": "sources/hubspot/pages/knowledge.hubspot.com_connected-email_manage-your-meetings-in-google-calendar-with-the-hubspot-sales-chrome-extension.html",
+    "asset_count": 35,
+    "fetched_at": "2026-05-19T16:38:04+00:00"
+  },
+  {
+    "url": "https://knowledge.hubspot.com/connected-email/track-and-log-emails-with-the-hubspot-sales-chrome-extension",
+    "final_url": "https://knowledge.hubspot.com/connected-email/track-and-log-emails-with-the-hubspot-sales-chrome-extension",
+    "title": "Track and log emails with the HubSpot Sales Chrome extension | Knowledge Base",
+    "h1": "Track and log emails with the HubSpot Sales Chrome extension",
+    "breadcrumbs": [],
+    "local_path": "sources/hubspot/pages/knowledge.hubspot.com_connected-email_track-and-log-emails-with-the-hubspot-sales-chrome-extension.html",
+    "asset_count": 52,
+    "fetched_at": "2026-05-19T16:36:08+00:00"
+  },
+  {
+    "url": "https://knowledge.hubspot.com/connected-email/troubleshoot-the-hubspot-sales-outlook-desktop-add-in",
+    "final_url": "https://knowledge.hubspot.com/connected-email/troubleshoot-the-hubspot-sales-outlook-desktop-add-in",
+    "title": "Troubleshoot the HubSpot Sales Outlook desktop add-in",
+    "h1": "Troubleshoot the HubSpot Sales Outlook desktop add-in",
+    "breadcrumbs": [],
+    "local_path": "sources/hubspot/pages/knowledge.hubspot.com_connected-email_troubleshoot-the-hubspot-sales-outlook-desktop-add-in.html",
+    "asset_count": 34,
+    "fetched_at": "2026-05-19T16:40:39+00:00"
+  },
+  {
+    "url": "https://knowledge.hubspot.com/connected-email/troubleshooting-the-hubspot-sales-chrome-extension",
+    "final_url": "https://knowledge.hubspot.com/connected-email/troubleshooting-the-hubspot-sales-chrome-extension",
+    "title": "Troubleshoot the HubSpot Sales Chrome extension",
+    "h1": "Troubleshoot the HubSpot Sales Chrome extension",
+    "breadcrumbs": [],
+    "local_path": "sources/hubspot/pages/knowledge.hubspot.com_connected-email_troubleshooting-the-hubspot-sales-chrome-extension.html",
+    "asset_count": 76,
+    "fetched_at": "2026-05-19T16:39:32+00:00"
+  },
+  {
+    "url": "https://knowledge.hubspot.com/connected-email/uninstall-the-hubspot-sales-email-extension",
+    "final_url": "https://knowledge.hubspot.com/connected-email/uninstall-the-hubspot-sales-email-extension",
+    "title": "Uninstall the HubSpot Sales email extension",
+    "h1": "Uninstall the HubSpot Sales email extension",
+    "breadcrumbs": [],
+    "local_path": "sources/hubspot/pages/knowledge.hubspot.com_connected-email_uninstall-the-hubspot-sales-email-extension.html",
+    "asset_count": 40,
+    "fetched_at": "2026-05-19T16:40:06+00:00"
+  },
+  {
+    "url": "https://knowledge.hubspot.com/connected-email/use-contact-profiles-with-the-hubspot-sales-chrome-extension",
+    "final_url": "https://knowledge.hubspot.com/connected-email/use-contact-profiles-with-the-hubspot-sales-chrome-extension",
+    "title": "Use contact profiles with the HubSpot Sales Chrome extension",
+    "h1": "Use contact profiles with the HubSpot Sales Chrome extension",
+    "breadcrumbs": [],
+    "local_path": "sources/hubspot/pages/knowledge.hubspot.com_connected-email_use-contact-profiles-with-the-hubspot-sales-chrome-extension.html",
+    "asset_count": 28,
+    "fetched_at": "2026-05-19T16:38:33+00:00"
+  },
+  {
+    "url": "https://knowledge.hubspot.com/connected-email/use-contact-profiles-with-the-hubspot-sales-office-365-add-in-and-outlook-desktop-add-in",
+    "final_url": "https://knowledge.hubspot.com/connected-email/use-contact-profiles-with-the-hubspot-sales-office-365-add-in-and-outlook-desktop-add-in",
+    "title": "Use contact profiles with the Outlook desktop add-in",
+    "h1": "Use contact profiles with the Outlook desktop add-in",
+    "breadcrumbs": [],
+    "local_path": "sources/hubspot/pages/knowledge.hubspot.com_connected-email_use-contact-profiles-with-the-hubspot-sales-office-365-add-in-and-outlook-desktop-.html",
+    "asset_count": 28,
+    "fetched_at": "2026-05-19T16:41:26+00:00"
+  },
+  {
+    "url": "https://knowledge.hubspot.com/connected-email/use-sales-tools-in-the-hubspot-sales-chrome-extension",
+    "final_url": "https://knowledge.hubspot.com/connected-email/use-sales-tools-in-the-hubspot-sales-chrome-extension",
+    "title": "Use sales tools in the HubSpot Sales Chrome extension",
+    "h1": "Use sales tools in the HubSpot Sales Chrome extension",
+    "breadcrumbs": [],
+    "local_path": "sources/hubspot/pages/knowledge.hubspot.com_connected-email_use-sales-tools-in-the-hubspot-sales-chrome-extension.html",
+    "asset_count": 47,
+    "fetched_at": "2026-05-19T16:36:51+00:00"
+  },
+  {
+    "url": "https://knowledge.hubspot.com/connected-email/use-the-hubspot-sales-chrome-extension-across-the-web",
+    "final_url": "https://knowledge.hubspot.com/connected-email/use-the-hubspot-sales-chrome-extension-across-the-web",
+    "title": "Use the HubSpot Sales Chrome extension across the web",
+    "h1": "Use the HubSpot Sales Chrome extension across the web",
+    "breadcrumbs": [],
+    "local_path": "sources/hubspot/pages/knowledge.hubspot.com_connected-email_use-the-hubspot-sales-chrome-extension-across-the-web.html",
+    "asset_count": 47,
+    "fetched_at": "2026-05-19T16:37:34+00:00"
+  },
+  {
+    "url": "https://knowledge.hubspot.com/connected-email/what-features-are-supported-by-my-email-provider-and-require-a-connected-inbox",
+    "final_url": "https://knowledge.hubspot.com/connected-email/what-features-are-supported-by-my-email-provider-and-require-a-connected-inbox",
+    "title": "Requirements to use HubSpot tools with your connected email",
+    "h1": "Requirements to use HubSpot tools with your connected email",
+    "breadcrumbs": [],
+    "local_path": "sources/hubspot/pages/knowledge.hubspot.com_connected-email_what-features-are-supported-by-my-email-provider-and-require-a-connected-inbox.html",
+    "asset_count": 4,
+    "fetched_at": "2026-05-19T16:41:34+00:00"
+  }
+]
