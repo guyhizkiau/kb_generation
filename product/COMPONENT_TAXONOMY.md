@@ -208,7 +208,7 @@ Things the source statement explicitly flagged as worth revisiting:
 ## 6. How to use this document
 
 - **Adding a new component.** Walk the decision flow in §4, then add it to the inventory in §2 under the matching umbrella, written as `<Umbrella> / <Component Name>`.
-- **Renaming an existing component.** Update the inventory entry first, then propagate to: Jira components, KB article titles, the component records under `Active Platform Component Records/`, and `all-compontents.txt`.
+- **Renaming an existing component.** Update the inventory entry first, then propagate to: Jira components, KB article titles, the component records under `component-records/`, and `product/components-inventory.txt`.
 - **Coining a new category word.** Don't, unless an existing umbrella genuinely doesn't fit. If you do, add a §3 definition with a one-line decision test, examples, and a "vs. nearest neighbor" note — same shape as the existing definitions.
 
 ---

@@ -12,6 +12,8 @@ __pycache__/
 .scrape-state/
 .playwright-cache/
 
+legacy-manuals/**/*.zip
+
 # Pipeline runtime artifacts
 workspace/articles/*/screenshots/_flagged/
 workspace/articles/*/.tmp/
