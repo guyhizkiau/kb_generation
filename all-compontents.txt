@@ -6,8 +6,6 @@ Audit logs
 
 Authentication
 
-Box plugin
-
 Digital Signature
 
 DLP Core Mailflow Integration
@@ -32,13 +30,11 @@ Google Cloud Storage Integration
 
 Google Drive Connector
 
-Jenkins
-
 Mail Protection Server
 
 Mobile Version
 
-MSP
+Mail Protection Service
 
 Notifications
 
@@ -86,8 +82,6 @@ Security Policies
 
 Send File Back
 
-Sentry
-
 Share & Permissions Drawer
 
 SharePoint Connector
@@ -99,8 +93,6 @@ Slack Connector
 SpecterX Gateway (On-Prem)
 
 SpecterX Gateway - Storage Connector (On-Prem)
-
-Unassignable Comp [Web Client]
 
 Usage Dashboards
 
