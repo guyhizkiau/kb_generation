@@ -11,9 +11,10 @@ This repository hosts two related but separate code paths:
 
 1. **Reference library + static site** (existing). Documented in
    `AGENTS.md`. Touches `tools/`, `kb/`, `reference-library/`.
-2. **KB article pipeline** (new). This file. Touches `orchestrator/`,
-   `writer/`, `tester/`, `pipeline/prompts/`, `infra/`, `workspace/`, and adds
-   article drafts under `workspace/articles/NN-slug/`.
+2. **KB article pipeline** (new). This file. Touches `writer/`,
+   `tester/`, `pipeline/prompts/`, `workspace/`, and adds article drafts
+   under `workspace/articles/NN-slug/`. Phases are run manually or via
+   Cursor — there is no long-running orchestrator service.
 
 Do not let work in one path silently mutate the other. The static-site
 build output lives in `kb/` (stubs from `tools/kb-site/`); pipeline articles
@@ -43,8 +44,8 @@ recording its position in the pipeline state machine
 (`PLANNED → DRAFTING → TESTING → REVISING → FINALIZING → PR_OPEN →
 DONE`). Before editing any article file, read its `STATE` first. Do
 not advance state implicitly by editing the wrong file for the current
-phase — only the writer/tester/orchestrator components should update
-`STATE`, and they update it as their last action of a phase.
+phase — only the writer, tester, or the human/agent running a phase
+should update `STATE`, as the last action of that phase.
 
 ## Secrets
 
@@ -53,22 +54,21 @@ phase — only the writer/tester/orchestrator components should update
   or log line.
 - `SPECTERX_PASSWORD` is a real account password. Treat it like one.
 - PII / customer data must never appear in screenshots that get
-  committed. `tester/pii_check.py` runs after every screenshot is
-  saved; if it flags an image, the redacted copy goes to the article
-  and the original goes to `screenshots/_flagged/` (also git-ignored).
+  committed. Before committing screenshots, check them against
+  `tester/sensitive-terms.txt` (and common sense). Flagged originals
+  belong in `screenshots/_flagged/` (git-ignored), not in the article.
 
 ## When to ask Guy
 
-See `docs/02-HANDOFF.md` "When to ask Guy vs. proceed" for the
-canonical list. Short version: ask before anything that costs money,
-touches customer data, or changes repo-level configuration.
+Ask before anything that costs money, touches customer data, or changes
+repo-level configuration. See [WORKFLOW.md](WORKFLOW.md) for the full
+pipeline rules.
 
 ## Pipeline entry points
 
+Run from the repo root with `.venv` activated (or `VENV_PYTHON` on a VM):
+
 - `python writer/run_claude_code.py --article NN-slug --phase {draft|test-plan|revise-from-test|revise-from-pr}`
 - `python tester/runner.py --article NN-slug`
-- `python orchestrator/main.py` (long-running; install via
-  `infra/systemd/specterx-kb.service`)
 
-Each of these expects to be run from the repo root with the venv at
-`/opt/specterx-kb-venv` active, or with `VENV_PYTHON` set in the env.
+Follow [WORKFLOW.md](WORKFLOW.md) for phase order and when to open or merge PRs.

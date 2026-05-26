@@ -6,7 +6,7 @@ This repository holds SpecterX product knowledge, KB editorial planning, competi
 
 | Path | Purpose |
 |------|---------|
-| [`editorial/`](editorial/) | Article plan ([`ARTICLES_PLAN.md`](editorial/ARTICLES_PLAN.md)), public KB scope research |
+| [`editorial/`](editorial/) | Article plan ([`ARTICLES_PLAN.md`](editorial/ARTICLES_PLAN.md)), style guide ([`STYLE_GUIDE.md`](editorial/STYLE_GUIDE.md)), public KB scope research |
 | [`product/`](product/) | Component taxonomy, flat inventory, workflow source statement |
 | [`pipeline/`](pipeline/) | VM plan, pipeline stage prompts |
 | [`component-records/`](component-records/) | Internal PRDs and product records by platform area |
@@ -15,7 +15,7 @@ This repository holds SpecterX product knowledge, KB editorial planning, competi
 | [`kb/`](kb/) | SpecterX help center scaffold (`articles.json`, CSS, preview pages) |
 | [`tools/`](tools/) | Scrape, reference-site, and KB-site builders |
 | [`WORKFLOW.md`](WORKFLOW.md) | Authoritative KB article pipeline spec (repo root) |
-| [`orchestrator/`](orchestrator/), [`writer/`](writer/), [`tester/`](tester/), [`infra/`](infra/), [`workspace/`](workspace/) | Pipeline runtime (see WORKFLOW) |
+| [`writer/`](writer/), [`tester/`](tester/), [`workspace/`](workspace/) | Article pipeline runtime (see [WORKFLOW.md](WORKFLOW.md)) |
 
 ## Quick start
 

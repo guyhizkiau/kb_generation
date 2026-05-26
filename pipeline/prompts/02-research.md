@@ -44,7 +44,7 @@ the article title and any synonyms. If matched:
 1. Update `STATE` to `PHASE=SKIPPED` with `BLOCKED_REASON=<reason from
    DO_NOT_DOCUMENT>`
 2. Stop. Do not produce research files. Do not draft.
-3. Log this to the cluster's STATE so the orchestrator can move on.
+3. Log this to the cluster's STATE so the next article can proceed.
 
 ### Step 2 — Internal sources
 
@@ -231,7 +231,7 @@ After writing the glossary:
 
 Load into context (no output file):
 
-1. `canon/STYLE_GUIDE.md` if it exists
+1. `editorial/STYLE_GUIDE.md` if it has content beyond the placeholder header
 2. `canon/GLOSSARY.md`
 3. The last 3–5 approved articles in this section, or globally if
    fewer than 3 in this section

@@ -51,10 +51,10 @@ specterx-knowledge-base/
 ├── CLAUDE.md                        # short workflow rules for any
 │                                    # Claude Code session
 ├── editorial/
-│   └── ARTICLES_PLAN.md             # the queue (already exists)
+│   ├── ARTICLES_PLAN.md             # the queue (already exists)
+│   └── STYLE_GUIDE.md               # placeholder until cluster 1; then pipeline-owned
 │
-├── canon/                           # the growing house style
-│   ├── STYLE_GUIDE.md               # empty until article 5
+├── canon/                           # growing reference canon (not the style guide)
 │   ├── GLOSSARY.md                  # grows per article
 │   ├── DO_NOT_DOCUMENT.md           # pre-seed from Deferred list +
 │                                    # add as you discover
@@ -120,12 +120,11 @@ specterx-knowledge-base/
 │   └── workspaces/
 │       └── README.md                # standard workspace setups
 │
-├── orchestrator/                    # the polling loop
-├── writer/                          # claude -p wrappers
+├── writer/                          # claude -p wrappers (one phase per invocation)
 ├── tester/                          # Playwright + computer-use
 ├── pipeline/
 │   └── prompts/                     # the prompts you call
-└── infra/                           # systemd, cron, scripts
+└── workspace/                       # per-article drafts (see workspace/README.md)
 ```
 
 ---
@@ -297,8 +296,8 @@ cluster 2 onward.
 
 ### 4.4 Initialize the canon
 
-Create empty `canon/STYLE_GUIDE.md`, `canon/GLOSSARY.md`,
-`canon/COMPETITOR_PATTERNS.md`. They get populated later.
+`editorial/STYLE_GUIDE.md` already exists as a placeholder. Create empty
+`canon/GLOSSARY.md` and `canon/COMPETITOR_PATTERNS.md`. They get populated later.
 
 ---
 
@@ -557,7 +556,7 @@ the flow yet — just capture the starting state.
 
 Load into context (no output file, just for drafting):
 
-1. `canon/STYLE_GUIDE.md` — if it exists (article 6+)
+1. `editorial/STYLE_GUIDE.md` — if populated (article 6+)
 2. `canon/GLOSSARY.md` — always
 3. `canon/DO_NOT_DOCUMENT.md` — always; if this article matches an
    entry, STOP and mark the article as skipped
@@ -837,7 +836,7 @@ This is the key moment for canon growth:
 ## 10. Style extraction (every 5 approved articles)
 
 Run via `pipeline/prompts/05-extract-style.md`. The bot reads every approved
-`final.md`, extracts patterns, writes/updates `canon/STYLE_GUIDE.md`.
+`final.md`, extracts patterns, writes/updates `editorial/STYLE_GUIDE.md`.
 
 Pattern categories to extract:
 

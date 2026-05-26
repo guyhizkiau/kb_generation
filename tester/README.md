@@ -12,6 +12,9 @@ backends:
 `step_classifier.py` picks the backend for each step (keyword-based).
 `runner.py` ties them together and writes `test-notes.md`.
 
+`sensitive-terms.txt` — names/phrases to avoid in committed screenshots
+(PII checklist; populate as needed).
+
 ## CDP connection
 
 Per the architecture doc, the browser backend was designed to connect

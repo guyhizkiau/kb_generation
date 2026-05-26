@@ -6,9 +6,8 @@ update.
 ## What you read
 
 - `articles/<NN-slug>/final.md` — the current state on the PR
-- `articles/<NN-slug>/pr-comments.json` — comments fetched by the
-  orchestrator from GitHub, with line numbers, body text, and resolved
-  status
+- `articles/<NN-slug>/pr-comments.json` — comments fetched from GitHub
+  (e.g. `gh pr view`), with line numbers, body text, and resolved status
 - The PR description and overall body (also in pr-comments.json)
 
 ## What you produce
@@ -23,8 +22,8 @@ An updated `articles/<NN-slug>/final.md`, plus optionally:
 ## How to handle different comment types
 
 ### "This step is wrong / unclear / missing"
-Fix the step. Re-test it if the fix is non-trivial (the orchestrator
-will detect modified `test-plan.json` and re-run the test).
+Fix the step. Re-test it if the fix is non-trivial (re-run
+`python tester/runner.py` after updating `test-plan.json`).
 
 ### "Add a screenshot showing X"
 If the screenshot exists in `screenshots/_all/` (the unfiltered set the
@@ -50,7 +49,7 @@ You generally don't know without testing. Options:
 Apply the change. No need to re-test.
 
 ### "LGTM" / approval
-Don't do anything. The orchestrator handles the merge state machine.
+Don't do anything. Update `STATE` when Guy merges the PR on GitHub.
 
 ## Reply on PR
 

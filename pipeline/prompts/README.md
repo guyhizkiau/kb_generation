@@ -9,6 +9,6 @@ Prompt files invoked by the article pipeline (`writer/run_claude_code.py` and ma
 | `02-research.md` | Gather research before drafting | Active |
 | `03-revise-from-test.md` | Revise draft from test notes | Active |
 | `04-revise-from-pr-comments.md` | Revise from PR review | Active |
-| `05-extract-style.md` | Refresh `canon/STYLE_GUIDE.md` from approved articles | Active |
+| `05-extract-style.md` | Refresh `editorial/STYLE_GUIDE.md` from approved articles | Active |
 
 Stages `00` (setup) and `01` (cluster scenario) prompts are not checked in yet — see [WORKFLOW.md](../WORKFLOW.md) at the repo root.

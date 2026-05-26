@@ -70,7 +70,7 @@ Claude Code on Linux calls these via `requests`. The tester's
 
 ## Step classifier (Linux side)
 
-When the orchestrator processes an article step, classify it:
+When classifying an article test step, use:
 
 | Keywords in step | Backend |
 |---|---|

@@ -12,6 +12,5 @@ Runtime working directory for pipeline-driven article drafts.
 - `workspace/articles/NN-slug/screenshots/_flagged/` — PII-flagged
   originals (git-ignored)
 
-This is intentionally separate from the top-level `articles/` directory,
-which holds generated static-site HTML for the existing
-reference-library project.
+Published KB HTML is generated under `kb/` from `kb/articles.json` (see
+`tools/kb-site/`). Pipeline drafts stay here until promoted.

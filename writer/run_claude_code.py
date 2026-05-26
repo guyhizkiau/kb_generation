@@ -7,7 +7,7 @@ Usage:
     python writer/run_claude_code.py --article NN-slug --phase revise-from-test
     python writer/run_claude_code.py --article NN-slug --phase revise-from-pr
 
-Each phase corresponds to a prompt file under prompts/ and a set of
+Each phase corresponds to a prompt file under pipeline/prompts/ and a set of
 expected outputs under workspace/articles/<slug>/. The wrapper assembles
 the prompt, invokes Claude Code in non-interactive (--print) mode, and
 streams output to stdout while also tee-ing it into a per-run log under
@@ -40,7 +40,7 @@ def article_dir(slug: str) -> Path:
 
 def assemble_prompt(slug: str, phase: str) -> str:
     """Read the phase prompt and prepend article-specific context."""
-    prompt_path = REPO_ROOT / "prompts" / PHASE_TO_PROMPT[phase]
+    prompt_path = REPO_ROOT / "pipeline" / "prompts" / PHASE_TO_PROMPT[phase]
     body = prompt_path.read_text(encoding="utf-8")
     article_path = article_dir(slug)
     header = (

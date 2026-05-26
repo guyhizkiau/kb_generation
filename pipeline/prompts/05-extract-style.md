@@ -1,7 +1,7 @@
 # Prompt: 05-extract-style
 
 You analyze every approved article and produce or update
-`canon/STYLE_GUIDE.md`. This is the most consequential prompt in the
+`editorial/STYLE_GUIDE.md`. This is the most consequential prompt in the
 pipeline; the resulting style guide governs every future article.
 
 ## When you run
@@ -18,11 +18,11 @@ pipeline; the resulting style guide governs every future article.
    `gh pr view <num> --json comments,reviews`). The comments tell you
    what reviewers cared about — which is at least as informative as
    the final text.
-3. The previous `canon/STYLE_GUIDE.md` if one exists.
+3. The previous `editorial/STYLE_GUIDE.md` if one exists.
 
 ## What you produce
 
-A new `canon/STYLE_GUIDE.md`. Not an append — a fresh write that
+A new `editorial/STYLE_GUIDE.md`. Not an append — a fresh write that
 incorporates everything you observe.
 
 ## How to extract patterns

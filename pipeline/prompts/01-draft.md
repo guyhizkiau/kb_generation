@@ -95,4 +95,4 @@ LAST_UPDATE=<ISO timestamp>
 NEXT_ACTION=execute draft against live SpecterX
 ```
 
-Then exit. The orchestrator picks up from STATE.
+Then exit. The next phase is triggered manually (or by the agent reading `STATE`).
