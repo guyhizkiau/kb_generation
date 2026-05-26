@@ -1,7 +1,7 @@
 name: vera
 display_name: Vera (Tricentis) Documentation
 base_url: https://docs.tricentis.com
-output_dir: sources/vera
+output_dir: reference-library/sources/vera
 
 phase: 1
 max_pages: 12

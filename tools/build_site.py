@@ -16,6 +16,9 @@ from pathlib import Path
 from typing import Iterable
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+REF_LIB = REPO_ROOT / "reference-library"
+SOURCES = REF_LIB / "sources"
+SITE = REF_LIB / "site"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Platform metadata (curated; not derived from JSON)
@@ -136,20 +139,30 @@ def fmt_disk(kb: int) -> str:
 
 
 def read_index(slug: str) -> list[dict]:
-    p = REPO_ROOT / "sources" / slug / "index.json"
+    p = SOURCES / slug / "index.json"
     if not p.exists():
         return []
     return json.loads(p.read_text())
 
 
-def topnav(active: str) -> str:
+def topnav(active: str, *, on_platform_page: bool = False) -> str:
+    """Navigation links relative to reference-library/site/ or sources/<slug>/."""
+    if on_platform_page:
+        site = "../../site/"
+        src = "../"
+    else:
+        site = ""
+        src = "../sources/"
     items = [
-        ("Overview", "/index.html", "home"),
-        ("HubSpot", "/sources/hubspot/index.html", "hubspot"),
-        ("Egnyte", "/sources/egnyte/index.html", "egnyte"),
-        ("DocSend", "/sources/docsend/index.html", "docsend"),
-        ("Vera", "/sources/vera/index.html", "vera"),
-        ("Compare", "/compare.html", "compare"),
+        ("Overview", f"{site}index.html", "home"),
+        ("HubSpot", f"{src}hubspot/index.html", "hubspot"),
+        ("Egnyte", f"{src}egnyte/index.html", "egnyte"),
+        ("DocSend", f"{src}docsend/index.html", "docsend"),
+        ("Vera", f"{src}vera/index.html", "vera"),
+        ("Compare", f"{site}compare.html", "compare"),
+        ("Virtru", f"{src}virtru/index.html", "virtru"),
+        ("KB", "../../kb/index.html", "kb"),
+        ("SpecterX", f"{site}specterx.html", "specterx"),
     ]
     links_html = "".join(
         f'<a class="{"is-active" if key == active else ""}" href="{esc(href)}">{esc(label)}</a>'
@@ -191,16 +204,16 @@ def build_master() -> None:
     indices = {p.slug: read_index(p.slug) for p in PLATFORMS}
     total_pages = sum(len(rows) for rows in indices.values())
     total_assets = sum(int(r.get("asset_count", 0)) for rows in indices.values() for r in rows)
-    total_kb = sum(dir_size_kb(REPO_ROOT / "sources" / p.slug) for p in PLATFORMS)
+    total_kb = sum(dir_size_kb(SOURCES / p.slug) for p in PLATFORMS)
 
     cards_html = []
     for p in PLATFORMS:
         rows = indices[p.slug]
         pages = len(rows)
         assets = sum(int(r.get("asset_count", 0)) for r in rows)
-        size = fmt_disk(dir_size_kb(REPO_ROOT / "sources" / p.slug))
+        size = fmt_disk(dir_size_kb(SOURCES / p.slug))
         cards_html.append(f"""
-<a class="card card-{p.accent_class}" href="sources/{p.slug}/index.html">
+<a class="card card-{p.accent_class}" href="../sources/{p.slug}/index.html">
   <div class="card-head">
     <h3>{esc(p.name)}</h3>
     <span class="card-tag card-tag-{p.accent_class}">{esc(p.tag)}</span>
@@ -341,11 +354,12 @@ def build_master() -> None:
 
     # Render markdown-style links in body manually (since we wrote them in markdown shape).
     body = body.replace("[<strong>HubSpot first</strong>](sources/hubspot/index.html)",
-                        '<a href="sources/hubspot/index.html"><strong>HubSpot first</strong></a>')
+                        '<a href="../sources/hubspot/index.html"><strong>HubSpot first</strong></a>')
     body = body.replace("[<strong>Compare</strong>](compare.html)",
                         '<a href="compare.html"><strong>Compare</strong></a>')
 
-    (REPO_ROOT / "index.html").write_text(html_doc("SpecterX Docs — reference library", body, css_relative_path="site.css"))
+    SITE.mkdir(parents=True, exist_ok=True)
+    (SITE / "index.html").write_text(html_doc("SpecterX Docs — reference library", body, css_relative_path="site.css"))
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -357,7 +371,7 @@ def build_platform(p: Platform) -> None:
     rows = read_index(p.slug)
     pages_count = len(rows)
     assets_total = sum(int(r.get("asset_count", 0)) for r in rows)
-    size_label = fmt_disk(dir_size_kb(REPO_ROOT / "sources" / p.slug))
+    size_label = fmt_disk(dir_size_kb(SOURCES / p.slug))
 
     # Sort rows: highest asset count first so screenshot-heavy pages bubble up
     rows_sorted = sorted(rows, key=lambda r: (-int(r.get("asset_count", 0)), r.get("title", "")))
@@ -398,7 +412,7 @@ def build_platform(p: Platform) -> None:
     takeaways_html = "\n".join(f"<li>{esc(t)}</li>" for t in p.key_takeaways)
 
     body = f"""
-{topnav(p.slug)}
+{topnav(p.slug, on_platform_page=True)}
 <main class="page">
   <header class="hero">
     <div class="card-tag card-tag-{p.accent_class}" style="margin-bottom: 12px;">{esc(p.tag)}</div>
@@ -436,13 +450,13 @@ def build_platform(p: Platform) -> None:
   </div>
 
   <div class="callout">
-    <strong>Tip:</strong> if "View offline" links don't load images in your browser, you're opening files via <code>file://</code> instead of HTTP. Run <code>python3 -m http.server 8765</code> from the repo root and use <a href="http://localhost:8765/sources/{p.slug}/index.html">http://localhost:8765/sources/{p.slug}/index.html</a> instead.
+    <strong>Tip:</strong> if "View offline" links don't load images in your browser, you're opening files via <code>file://</code> instead of HTTP. Run <code>python3 -m http.server 8765</code> from the repo root and use <a href="http://localhost:8765/reference-library/sources/{p.slug}/index.html">http://localhost:8765/reference-library/sources/{p.slug}/index.html</a> instead.
   </div>
 </main>
 """.strip()
 
-    out = REPO_ROOT / "sources" / p.slug / "index.html"
-    out.write_text(html_doc(f"{p.short_name} — SpecterX Docs", body, css_relative_path="../../site.css"))
+    out = SOURCES / p.slug / "index.html"
+    out.write_text(html_doc(f"{p.short_name} — SpecterX Docs", body, css_relative_path="../../site/site.css"))
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -649,7 +663,7 @@ def build_compare() -> None:
 </main>
 """.strip()
 
-    (REPO_ROOT / "compare.html").write_text(html_doc("Compare — SpecterX Docs", body, css_relative_path="site.css"))
+    (SITE / "compare.html").write_text(html_doc("Compare — SpecterX Docs", body, css_relative_path="site.css"))
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -663,10 +677,10 @@ def main() -> int:
         build_platform(p)
     build_compare()
     print("Built:")
-    print("  index.html")
-    print("  compare.html")
+    print("  reference-library/site/index.html")
+    print("  reference-library/site/compare.html")
     for p in PLATFORMS:
-        print(f"  sources/{p.slug}/index.html")
+        print(f"  reference-library/sources/{p.slug}/index.html")
     return 0
 
 

@@ -1,7 +1,7 @@
 name: docsend
 display_name: Dropbox DocSend Help
 base_url: https://help.dropbox.com
-output_dir: sources/docsend
+output_dir: reference-library/sources/docsend
 
 phase: 1
 max_pages: 15

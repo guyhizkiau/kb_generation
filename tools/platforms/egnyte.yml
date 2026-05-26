@@ -1,7 +1,7 @@
 name: egnyte
 display_name: Egnyte Help Center
 base_url: https://helpdesk.egnyte.com
-output_dir: sources/egnyte
+output_dir: reference-library/sources/egnyte
 
 phase: 1
 max_pages: 15

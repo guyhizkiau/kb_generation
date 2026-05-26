@@ -1,7 +1,7 @@
 name: hubspot
 display_name: HubSpot Knowledge Base
 base_url: https://knowledge.hubspot.com
-output_dir: sources/hubspot
+output_dir: reference-library/sources/hubspot
 
 phase: 1
 max_pages: 20
