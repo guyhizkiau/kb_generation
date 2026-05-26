@@ -14,7 +14,7 @@
 ## 1. The big picture
 
 You are producing 109 knowledge-base articles across 11 sections, listed
-in `ARTICLES_PLAN_V2.md` (already in this repo). Each article is the
+in `editorial/ARTICLES_PLAN.md` (already in this repo). Each article is the
 output of a 5-stage pipeline:
 
 ```
@@ -50,7 +50,8 @@ specterx-knowledge-base/
 ├── WORKFLOW.md                      # this document (copy from bootstrap)
 ├── CLAUDE.md                        # short workflow rules for any
 │                                    # Claude Code session
-├── ARTICLES_PLAN_V2.md              # the queue (already exists)
+├── editorial/
+│   └── ARTICLES_PLAN.md             # the queue (already exists)
 │
 ├── canon/                           # the growing house style
 │   ├── STYLE_GUIDE.md               # empty until article 5
@@ -122,7 +123,8 @@ specterx-knowledge-base/
 ├── orchestrator/                    # the polling loop
 ├── writer/                          # claude -p wrappers
 ├── tester/                          # Playwright + computer-use
-├── prompts/                         # the prompts you call
+├── pipeline/
+│   └── prompts/                     # the prompts you call
 └── infra/                           # systemd, cron, scripts
 ```
 
@@ -277,7 +279,7 @@ to addresses via `.env` at runtime.
 
 ### 4.3 Cluster plan
 
-Generate `clusters/PLAN.md`. Read the full `ARTICLES_PLAN_V2.md` and
+Generate `clusters/PLAN.md`. Read the full `editorial/ARTICLES_PLAN.md` and
 group articles into clusters following these rules:
 
 1. **Hard cap of 5 articles per cluster.**
@@ -700,7 +702,7 @@ Skip this stage entirely for articles flagged `validation: skipped`
 ### 8.1 Generate `test-plan.json` from `draft-1.md`
 
 Convert the draft into a machine-executable plan. See
-`prompts/02-test-plan.md` for the schema and rules.
+`pipeline/prompts/02-test-plan.md` for the schema and rules.
 
 ### 8.2 Execute the plan
 
@@ -750,7 +752,7 @@ shares, etc.) to leave the tenant in the cluster's baseline state.
 
 ### 9.1 Revise → `draft-2.md`
 
-Use `prompts/03-revise-from-test.md`. Reconcile `draft-1.md` with
+Use `pipeline/prompts/03-revise-from-test.md`. Reconcile `draft-1.md` with
 `test-notes.md`. Replace screenshot placeholders with real images
 from `_all/`, copying the chosen ones to `screenshots/` with clean
 filenames.
@@ -811,7 +813,7 @@ Validated against: SpecterX build <X>, <date>
 ### 9.5 Process review feedback
 
 When the PR gets "Request changes", read the comments, use
-`prompts/04-revise-from-pr-comments.md`. Push updates to the same
+`pipeline/prompts/04-revise-from-pr-comments.md`. Push updates to the same
 branch. Re-request review.
 
 ### 9.6 After merge
@@ -834,7 +836,7 @@ This is the key moment for canon growth:
 
 ## 10. Style extraction (every 5 approved articles)
 
-Run via `prompts/05-extract-style.md`. The bot reads every approved
+Run via `pipeline/prompts/05-extract-style.md`. The bot reads every approved
 `final.md`, extracts patterns, writes/updates `canon/STYLE_GUIDE.md`.
 
 Pattern categories to extract:

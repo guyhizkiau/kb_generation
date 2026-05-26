@@ -13,7 +13,7 @@ This repository hosts two related but separate code paths:
    `AGENTS.md`. Touches `tools/`, `kb/`, `sources/`, `articles/*.html`,
    `index.html`, `compare.html`, `specterx.html`, `site.css`.
 2. **KB article pipeline** (new). This file. Touches `orchestrator/`,
-   `writer/`, `tester/`, `prompts/`, `infra/`, `workspace/`, and adds
+   `writer/`, `tester/`, `pipeline/prompts/`, `infra/`, `workspace/`, and adds
    article drafts under `workspace/articles/NN-slug/`.
 
 Do not let work in one path silently mutate the other. The static-site

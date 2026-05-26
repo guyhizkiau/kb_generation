@@ -6,7 +6,7 @@ read. The drafter (prompt 03) consumes everything you produce.
 
 ## Inputs
 
-- The article's plan entry in `ARTICLES_PLAN_V2.md` (find by title)
+- The article's plan entry in `editorial/ARTICLES_PLAN.md` (find by title)
 - The cluster scenario file `clusters/<cluster-id>/SCENARIO.md`
 - Read access to `references/internal/`, `references/competitors/`,
   `~/specterx-codebase/`, and `canon/`

@@ -12,8 +12,6 @@ __pycache__/
 .scrape-state/
 .playwright-cache/
 
-Copy of My statement on workflows*.docx
-
 # Pipeline runtime artifacts
 workspace/articles/*/screenshots/_flagged/
 workspace/articles/*/.tmp/

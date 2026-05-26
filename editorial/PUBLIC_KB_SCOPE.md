@@ -385,7 +385,7 @@ If all three checks pass — yes-to-customer-utility, yes-to-SpecterX-specific, 
 
 ## 6. Practical exposure inventory for SpecterX
 
-Mapping the categories above against the 53 platform components in [`all-compontents.txt`](all-compontents.txt) and the [`ARTICLES_PLAN.md`](ARTICLES_PLAN.md) outline, the public KB should expose:
+Mapping the categories above against the 53 platform components in [`components-inventory.txt`](../product/components-inventory.txt) and the [`ARTICLES_PLAN.md`](ARTICLES_PLAN.md) outline, the public KB should expose:
 
 ### Always public (every component)
 

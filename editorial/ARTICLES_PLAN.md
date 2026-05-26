@@ -1,4 +1,4 @@
-# SpecterX Knowledge Base — Article Plan V3
+# SpecterX Knowledge Base — Article Plan
 
 **112 articles across 11 sections** · all planned (📋)
 

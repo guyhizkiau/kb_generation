@@ -81,7 +81,7 @@ When the orchestrator processes an article step, classify it:
 
 ## When to activate
 
-Open `ARTICLES_PLAN_V2.md`, find the first article that requires Outlook
+Open `editorial/ARTICLES_PLAN.md`, find the first article that requires Outlook
 or the desktop client, and tackle the Windows wiring then. Until that
 point, keep the Windows VM **stopped** to avoid cost.
 
