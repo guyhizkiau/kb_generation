@@ -5,7 +5,7 @@ whose path matches a given prefix. Used to build accurate seed lists when
 guessed URL slugs return 404s.
 
 Example:
-    python tools/discover_links.py https://help.dropbox.com/docsend \\
+    python tools/scrape/discover_links.py https://help.dropbox.com/docsend \\
         --include /share/dropbox-docsend
 """
 

@@ -1,6 +1,6 @@
 # What to Expose in a Public Product Knowledge Base
 
-A synthesis of the five reference KBs we crawled (HubSpot, Egnyte, Dropbox DocSend, Vera/Tricentis, Virtru) and the cross-cutting patterns in [`compare.html`](compare.html). The question this answers, in detail:
+A synthesis of the five reference KBs we crawled (HubSpot, Egnyte, Dropbox DocSend, Vera/Tricentis, Virtru) and the cross-cutting patterns in [`compare.html`](../reference-library/site/compare.html). The question this answers, in detail:
 
 > **What kinds of information should be exposed to the public in a product KB?**
 
@@ -38,7 +38,7 @@ Every connector landing, every feature page, and every section index opens with 
 
 For any **installable surface** (browser extension, mail-client add-in, desktop app), every KB publishes a full lifecycle of pages — not a single mega-page.
 
-- **HubSpot Sales Chrome extension** publishes 10 lifecycle pages: get-started, install, customize, track/log, sales tools, across-the-web, meetings, contact profiles, troubleshoot, uninstall (see [`sources/hubspot/README.md`](sources/hubspot/README.md) §0).
+- **HubSpot Sales Chrome extension** publishes 10 lifecycle pages: get-started, install, customize, track/log, sales tools, across-the-web, meetings, contact profiles, troubleshoot, uninstall (see [`sources/hubspot/README.md`](../reference-library/sources/hubspot/README.md) §0).
 - **Virtru** mirrors this for Outlook 365 Add-in, Outlook Desktop Extension, Gmail Plugin, Drive Extension, Mobile, Secure Share — and isolates the deployable infrastructure (Gateway, Keystore, Toolkit) into its own "Advanced Products" section with a consistent 5-article skeleton (About → Prerequisites → Install → Post-install → Reference).
 - **Egnyte** splits the Outlook add-in into an explicit **User Guide** and **Configuration Guide** by audience.
 
@@ -104,7 +104,7 @@ When a feature is gated behind a plan or add-on, every KB publishes that fact at
 
 ### 1.8 Step-by-step instructions with screenshots
 
-Universal. The exact density differs (DocSend ~7 per page uniform; HubSpot 20–76; Egnyte 11–88; Vera 0–3; Virtru 2–5 estimated) — see [`compare.html`](compare.html) "Screenshot density".
+Universal. The exact density differs (DocSend ~7 per page uniform; HubSpot 20–76; Egnyte 11–88; Vera 0–3; Virtru 2–5 estimated) — see [`compare.html`](../reference-library/site/compare.html) "Screenshot density".
 
 A public KB exposes:
 
@@ -614,12 +614,12 @@ The reverse test catches a different mistake: **would a competitor learn somethi
 
 ### Per-platform analyses (the primary evidence base)
 
-- [`sources/hubspot/README.md`](sources/hubspot/README.md) — connector lifecycle (§0), permissions inline (§7), "Before you get started" universal H2 (§2), assumed knowledge (§6)
-- [`sources/egnyte/README.md`](sources/egnyte/README.md) — audience splits, prerequisites, known limitations, supported configurations (§§3, 6)
-- [`sources/docsend/README.md`](sources/docsend/README.md) — one feature / one page, plan-gate banner, Visitor experience H2, "Things to consider" (§§2, 3, 6)
-- [`sources/vera/README.md`](sources/vera/README.md) — User/Admin/Configuration guide split, dedicated Constraints section, release notes, formal admin register (§§1, 6)
-- [`sources/virtru/README.md`](sources/virtru/README.md) — Recipient as a top-level audience, disambiguation FAQ, Advanced Products skeleton, per-framework compliance pages (§§1, 6)
-- [`compare.html`](compare.html) — side-by-side comparison of voice, page anatomy, screenshot density, cross-reference patterns, page-scope rules
+- [`sources/hubspot/README.md`](../reference-library/sources/hubspot/README.md) — connector lifecycle (§0), permissions inline (§7), "Before you get started" universal H2 (§2), assumed knowledge (§6)
+- [`sources/egnyte/README.md`](../reference-library/sources/egnyte/README.md) — audience splits, prerequisites, known limitations, supported configurations (§§3, 6)
+- [`sources/docsend/README.md`](../reference-library/sources/docsend/README.md) — one feature / one page, plan-gate banner, Visitor experience H2, "Things to consider" (§§2, 3, 6)
+- [`sources/vera/README.md`](../reference-library/sources/vera/README.md) — User/Admin/Configuration guide split, dedicated Constraints section, release notes, formal admin register (§§1, 6)
+- [`sources/virtru/README.md`](../reference-library/sources/virtru/README.md) — Recipient as a top-level audience, disambiguation FAQ, Advanced Products skeleton, per-framework compliance pages (§§1, 6)
+- [`compare.html`](../reference-library/site/compare.html) — side-by-side comparison of voice, page anatomy, screenshot density, cross-reference patterns, page-scope rules
 
 ### External frameworks and 2026 industry write-ups (synthesised in §§7–10)
 

@@ -2,15 +2,15 @@
 """
 SpecterX documentation reference crawler.
 
-Reads a per-platform YAML config (tools/platforms/<name>.yml), fetches each
+Reads a per-platform YAML config (tools/scrape/platforms/<name>.yml), fetches each
 seed URL with a headless Chromium browser (so JS-rendered help centres work),
 downloads referenced images/assets, rewrites the HTML so the page renders
 offline, and writes an index.json catalog for later analysis.
 
 Usage:
-    python tools/scrape.py <platform>             # incremental
-    python tools/scrape.py <platform> --force     # ignore state, re-fetch all
-    python tools/scrape.py <platform> --list      # show what will be fetched
+    python tools/scrape/scrape.py <platform>             # incremental
+    python tools/scrape/scrape.py <platform> --force     # ignore state, re-fetch all
+    python tools/scrape/scrape.py <platform> --list      # show what will be fetched
 
 This is research tooling: it is intentionally simple, single-threaded, polite,
 and deterministic. It does NOT follow links beyond the seed list in Phase 1.
@@ -38,8 +38,8 @@ from playwright.sync_api import Page, sync_playwright
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-PLATFORMS_DIR = REPO_ROOT / "tools" / "platforms"
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+PLATFORMS_DIR = Path(__file__).resolve().parent / "platforms"
 STATE_DIR = REPO_ROOT / ".scrape-state"
 
 

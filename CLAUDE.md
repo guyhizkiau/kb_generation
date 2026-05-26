@@ -3,21 +3,20 @@
 > Rules for any future Claude Code session operating the article pipeline
 > in this repo. (See `AGENTS.md` for rules covering the reference-library
 > scraper and static-site tooling — that lives in `tools/`, `kb/`,
-> `sources/`, and the root HTML files, and is a separate concern.)
+> `reference-library/`, and is a separate concern.)
 
 ## Two projects, one repo
 
 This repository hosts two related but separate code paths:
 
 1. **Reference library + static site** (existing). Documented in
-   `AGENTS.md`. Touches `tools/`, `kb/`, `sources/`, `articles/*.html`,
-   `index.html`, `compare.html`, `specterx.html`, `site.css`.
+   `AGENTS.md`. Touches `tools/`, `kb/`, `reference-library/`.
 2. **KB article pipeline** (new). This file. Touches `orchestrator/`,
    `writer/`, `tester/`, `pipeline/prompts/`, `infra/`, `workspace/`, and adds
    article drafts under `workspace/articles/NN-slug/`.
 
 Do not let work in one path silently mutate the other. The static-site
-build output lives in `articles/*.html` and `kb/`; pipeline articles
+build output lives in `kb/` (stubs from `tools/kb-site/`); pipeline articles
 live in `workspace/articles/NN-slug/` until they are promoted.
 
 ## Branches & commits

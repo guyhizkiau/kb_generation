@@ -7,7 +7,7 @@ You are writing the first draft of a SpecterX knowledge-base article.
 You have these inputs (read them before writing):
 
 1. The article entry in `editorial/ARTICLES_PLAN.md` — title, intent, scope
-2. Any reference docs listed under `sources/` that the plan entry
+2. Any reference docs listed under `reference-library/sources/` that the plan entry
    references
 3. Any prior articles in `articles/` that touch the same product area
    (read at least their `final.md` to match voice and structure)

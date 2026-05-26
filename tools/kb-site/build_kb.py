@@ -3,8 +3,8 @@
 build_kb.py — generates the SpecterX Zendesk-style KB pages from kb/articles.json.
 
 Outputs:
-  kb/categories/<cat-slug>.html   — 11 category landing pages
-  kb/articles/<article-slug>.html — ~100 stub article pages (POC pages are hand-written, skipped)
+  kb/categories/<cat-slug>.html   — category landing pages
+  kb/articles/<article-slug>.html — stub article pages from kb/articles.json
 """
 
 import json
@@ -13,7 +13,7 @@ import re
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 KB   = ROOT / "kb"
 DATA = KB / "articles.json"
 
@@ -75,7 +75,7 @@ def footer(depth: int = 1) -> str:
       <ul>
         <li><a href="{prefix}kb/index.html">Help Center Home</a></li>
         <li><a href="{prefix}kb/sitemap.html">Sitemap</a></li>
-        <li><a href="{prefix}specterx.html">KB IA reference</a></li>
+        <li><a href="{prefix}reference-library/site/specterx.html">KB IA reference</a></li>
       </ul>
     </div>
     <div>
@@ -89,9 +89,9 @@ def footer(depth: int = 1) -> str:
     <div>
       <h4>Reference library</h4>
       <ul>
-        <li><a href="{prefix}index.html">Overview</a></li>
-        <li><a href="{prefix}sources/virtru/index.html">Virtru analysis</a></li>
-        <li><a href="{prefix}compare.html">Compare KBs</a></li>
+        <li><a href="{prefix}reference-library/site/index.html">Reference library</a></li>
+        <li><a href="{prefix}reference-library/sources/virtru/index.html">Virtru analysis</a></li>
+        <li><a href="{prefix}reference-library/site/compare.html">Compare KBs</a></li>
       </ul>
     </div>
   </div>
@@ -339,7 +339,7 @@ def build_home(data: dict) -> str:
       <ul>
         <li><a href="index.html">Help Center Home</a></li>
         <li><a href="sitemap.html">Sitemap</a></li>
-        <li><a href="../specterx.html">KB IA reference</a></li>
+        <li><a href="../reference-library/site/specterx.html">KB IA reference</a></li>
       </ul>
     </div>
     <div>
@@ -353,9 +353,9 @@ def build_home(data: dict) -> str:
     <div>
       <h4>Reference library</h4>
       <ul>
-        <li><a href="../index.html">Overview</a></li>
-        <li><a href="../sources/virtru/index.html">Virtru analysis</a></li>
-        <li><a href="../compare.html">Compare KBs</a></li>
+        <li><a href="../reference-library/site/index.html">Overview</a></li>
+        <li><a href="../reference-library/sources/virtru/index.html">Virtru analysis</a></li>
+        <li><a href="../reference-library/site/compare.html">Compare KBs</a></li>
       </ul>
     </div>
   </div>
@@ -415,7 +415,7 @@ def build_sitemap(data: dict) -> str:
     </a>
     <div class="kb-topbar-actions" style="margin-left:auto;">
       <a href="index.html">← Help Center</a>
-      <a href="../specterx.html">KB IA reference</a>
+      <a href="../reference-library/site/specterx.html">KB IA reference</a>
     </div>
   </div>
 </nav>

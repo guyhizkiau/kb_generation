@@ -1,94 +1,63 @@
-# SpecterX Documentation — Reference Library & Guidelines
+# SpecterX Documentation
 
-This repository is the source-of-truth for SpecterX documentation standards. It contains:
-
-1. A curated, offline reference library of four well-regarded product knowledge bases (HubSpot, Egnyte, Dropbox DocSend, Vera/Tricentis).
-2. Per-platform analyses extracting how each one structures hierarchy, page anatomy, cross-references, screenshots, voice, and scope decisions.
-3. SpecterX house guidelines synthesized from those analyses.
-
-The end goal is a small, opinionated set of rules and templates that anyone at SpecterX can use to write a new documentation page that feels consistent with the rest.
-
-## Status
-
-**Phase 1 — Prototype: complete, ready for checkpoint review.**
-
-| Platform | Pages | Assets | Disk | Analysis |
-| --- | --- | --- | --- | --- |
-| HubSpot (primary — connectors) | 17 | 482 | 25M | [`sources/hubspot/README.md`](sources/hubspot/README.md) |
-| Egnyte | 15 | 207 | 24M | [`sources/egnyte/README.md`](sources/egnyte/README.md) |
-| Dropbox DocSend | 15 | 147 | 12M | [`sources/docsend/README.md`](sources/docsend/README.md) |
-| Vera / Tricentis | 12 | 27 | 828K | [`sources/vera/README.md`](sources/vera/README.md) |
-| **Total** | **59** | **863** | **62M** | |
-
-**Phase 2 — Full crawl + synthesis (pending Phase 1 checkpoint).** Expands the crawl to ~80–150 pages per platform and produces the synthesis guidelines (`guidelines/STYLE_GUIDE.md`, `PAGE_TEMPLATE.md`, `SCREENSHOT_GUIDELINES.md`, `INFORMATION_ARCHITECTURE.md`).
+This repository holds SpecterX product knowledge, KB editorial planning, competitor reference research, and the tooling to author and preview help content.
 
 ## Repository layout
 
-```
-sources/
-  hubspot/      # PRIMARY: connector / integration documentation playbook
-  egnyte/       # Secure content collaboration
-  docsend/      # Secure document sharing + viewer analytics
-  vera/         # Validation management platform
-  <platform>/
-    pages/              # Saved HTML, one file per source page
-    pages/assets/       # Per-page images (PNG/JPG/WebP/AVIF/GIF, content-SVG)
-    index.json          # url → local file, title, breadcrumb, asset count
-    README.md           # Analysis of this platform's documentation patterns
+| Path | Purpose |
+|------|---------|
+| [`editorial/`](editorial/) | Article plan ([`ARTICLES_PLAN.md`](editorial/ARTICLES_PLAN.md)), public KB scope research |
+| [`product/`](product/) | Component taxonomy, flat inventory, workflow source statement |
+| [`pipeline/`](pipeline/) | VM plan, pipeline stage prompts |
+| [`component-records/`](component-records/) | Internal PRDs and product records by platform area |
+| [`legacy-manuals/`](legacy-manuals/) | Historical customer/operator `.docx` manuals (source material) |
+| [`reference-library/`](reference-library/) | Crawled competitor KBs + generated research site |
+| [`kb/`](kb/) | SpecterX help center scaffold (`articles.json`, CSS, preview pages) |
+| [`tools/`](tools/) | Scrape, reference-site, and KB-site builders |
+| [`WORKFLOW.md`](WORKFLOW.md) | Authoritative KB article pipeline spec (repo root) |
+| [`orchestrator/`](orchestrator/), [`writer/`](writer/), [`tester/`](tester/), [`infra/`](infra/), [`workspace/`](workspace/) | Pipeline runtime (see WORKFLOW) |
 
-guidelines/             # Phase 2 deliverable — SpecterX house rules
-  STYLE_GUIDE.md
-  PAGE_TEMPLATE.md
-  SCREENSHOT_GUIDELINES.md
-  INFORMATION_ARCHITECTURE.md
-
-tools/
-  scrape.py             # Playwright-based crawler (shared across platforms)
-  platforms/*.yml       # Per-platform crawl config: seeds, allow/deny, max pages
-```
-
-## How to run the scraper
+## Quick start
 
 ```bash
-python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
-playwright install chromium
+pip install -r requirements.txt   # first time
+playwright install chromium      # first time, for scraper only
 
-python tools/scrape.py egnyte
-python tools/scrape.py docsend
-python tools/scrape.py hubspot
-python tools/scrape.py vera
+python tools/reference-site/build_site.py
+python tools/kb-site/build_kb.py
+
+python3 -m http.server 8765
+# open http://localhost:8765/index.html
 ```
 
-Each platform has a YAML config under `tools/platforms/`. The crawler is incremental — already-fetched URLs are skipped unless you pass `--force`. To discover real article URLs for a platform (used to build seed lists before scraping), use `tools/discover_links.py`.
+## Reference library (competitor research)
 
-## How to browse this library
+Offline snapshots of HubSpot, Egnyte, Dropbox DocSend, Vera/Tricentis, and Virtru help centers, with per-platform pattern analyses.
 
-There's a generated navigation site at the repo root (`index.html`, `compare.html`, and per-platform `sources/<slug>/index.html`). Because browsers block image loads from `file://` URLs for security reasons, serve the directory with a local HTTP server:
+| Platform | Analysis |
+|----------|----------|
+| HubSpot | [`reference-library/sources/hubspot/README.md`](reference-library/sources/hubspot/README.md) |
+| Egnyte | [`reference-library/sources/egnyte/README.md`](reference-library/sources/egnyte/README.md) |
+| DocSend | [`reference-library/sources/docsend/README.md`](reference-library/sources/docsend/README.md) |
+| Vera | [`reference-library/sources/vera/README.md`](reference-library/sources/vera/README.md) |
+| Virtru | [`reference-library/sources/virtru/README.md`](reference-library/sources/virtru/README.md) |
+
+Browse via [`reference-library/site/index.html`](reference-library/site/index.html) or [`compare.html`](reference-library/site/compare.html).
+
+To refresh crawled content (requires network):
 
 ```bash
-cd "/Users/hizki/Workspace/SpecterX Documentation"
-python3 -m http.server 8765
-# then open http://localhost:8765/index.html
+python tools/scrape/scrape.py hubspot
+python tools/reference-site/build_site.py
 ```
 
-From the master page you can:
-- Open any of the four platform pages — each shows stats, key takeaways, and a sortable table of every saved page with "View offline" and "Live ↗" links per row.
-- Open `compare.html` for side-by-side voice samples, page-anatomy comparison, screenshot-density table, and cross-reference patterns.
-- Open any saved knowledge-base page — they render with full original layout, styling, and screenshots.
+See [`tools/scrape/README.md`](tools/scrape/README.md) and [`AGENTS.md`](AGENTS.md).
 
-To regenerate the site after a new crawl: `python tools/build_site.py`.
+## Knowledge base
 
-## Why these four platforms
-
-| Platform | Why it's in the set |
-| --- | --- |
-| **HubSpot** | Best-in-class documentation of product connectors that live inside Gmail, Outlook, and Chrome — a direct model for SpecterX's Gmail and Outlook connectors. |
-| **Egnyte** | Closest functional analog to SpecterX: secure content collaboration with permissions, governance, classification, and admin tooling. |
-| **Dropbox DocSend** | Closest analog for SpecterX's secure-share use case (link-based sharing, watermarks, viewer analytics, NDAs). |
-| **Vera (Tricentis)** | Enterprise, policy-heavy admin documentation — useful as a contrast point to the consumer-friendlier style of the other three. |
+The editorial plan lists **112 articles** in [`editorial/ARTICLES_PLAN.md`](editorial/ARTICLES_PLAN.md). The pipeline in [`WORKFLOW.md`](WORKFLOW.md) produces real articles under `workspace/articles/`; `tools/kb-site/build_kb.py` generates HTML stubs from [`kb/articles.json`](kb/articles.json) for preview only.
 
 ## Disclaimer
 
-The contents of `sources/` are downloaded copies of public help-center pages, stored locally for research and reference only. They are not republished. Each saved page records the original URL it came from in `index.json` so it can always be cited back to the source.
+Contents of `reference-library/sources/` are downloaded copies of public help-center pages for internal research only. Each saved page records its source URL in `index.json`.

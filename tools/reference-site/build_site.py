@@ -4,7 +4,7 @@ Generate the navigation site (index.html + per-platform pages + compare page)
 from the saved index.json files. Re-run after every scrape.
 
 Usage:
-    python tools/build_site.py
+    python tools/reference-site/build_site.py
 """
 
 from __future__ import annotations
@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 REF_LIB = REPO_ROOT / "reference-library"
 SOURCES = REF_LIB / "sources"
 SITE = REF_LIB / "site"
