@@ -17,13 +17,6 @@ ROOT = Path(__file__).parent.parent
 KB   = ROOT / "kb"
 DATA = KB / "articles.json"
 
-# Articles handled by hand (not overwritten by this script)
-HAND_WRITTEN = {
-    "securely-share-a-file-from-the-web-platform",
-    "configure-a-security-policy",
-    "review-audit-logs-and-usage-dashboards",
-}
-
 ICONS = {
     "rocket": "🚀", "share": "📤", "inbox": "📥", "folder": "📁",
     "email": "✉️", "connect": "🔗", "shield": "🛡️", "org": "🏢",
@@ -487,19 +480,14 @@ def main():
 
     # Stub article pages
     written = 0
-    skipped = 0
     for a in articles:
-        if a["slug"] in HAND_WRITTEN:
-            print(f"  (skip hand-written) kb/articles/{a['slug']}.html")
-            skipped += 1
-            continue
         cat = cats_by_slug[a["category"]]
         html = build_stub(a, cat, articles)
         path = KB / "articles" / f"{a['slug']}.html"
         path.write_text(html)
         written += 1
 
-    print(f"\n✓ {written} stub articles written, {skipped} hand-written articles skipped")
+    print(f"\n✓ {written} stub articles written")
     print(f"✓ Total: {len(articles)} articles, {len(data['categories'])} categories")
 
 
