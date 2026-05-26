@@ -17,6 +17,11 @@ Copy of My statement on workflows*.docx
 # Pipeline runtime artifacts
 workspace/articles/*/screenshots/_flagged/
 workspace/articles/*/.tmp/
+workspace/articles/*/.writer-logs/
 workspace/articles/*/claude-trace.log
 .pipeline-locks/
+
+# Throwaway smoke-test article directories
+workspace/articles/00-test/
+workspace/articles/00-*/
 
