@@ -21,6 +21,13 @@ workspace/articles/*/.writer-logs/
 workspace/articles/*/claude-trace.log
 .pipeline-locks/
 
+# Pipeline runtime artifacts (new articles/ layout)
+articles/*/screenshots/_flagged/
+articles/*/screenshots/_all/
+articles/*/.tmp/
+articles/*/.writer-logs/
+articles/*/claude-trace.log
+
 # Throwaway smoke-test article directories
 workspace/articles/00-test/
 workspace/articles/00-*/

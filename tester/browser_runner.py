@@ -222,7 +222,17 @@ class BrowserRunner:
             target.click(timeout=timeout)
         elif kind == "fill":
             target = self._locate(action, timeout=timeout)
-            target.fill(action["value"], timeout=timeout)
+            value = action.get("value")
+            if value is None and action.get("value_env"):
+                env_name = action["value_env"]
+                value = os.environ.get(env_name)
+                if value is None:
+                    raise ValueError(
+                        f"fill: env var {env_name!r} not set; export it before running"
+                    )
+            if value is None:
+                raise ValueError("fill action requires 'value' or 'value_env'")
+            target.fill(value, timeout=timeout)
         elif kind == "press":
             page.keyboard.press(action["key"])
         elif kind == "wait_for":

@@ -1,0 +1,11 @@
+[
+  {
+    "vendor": "egnyte",
+    "slug": "log-in",
+    "source_url": "https://helpdesk.egnyte.com/hc/en-us/articles/33892293265421-Two-Step-Login-Verification-User-Guide",
+    "title": "Two Step Login Verification - User Guide",
+    "captured": "2026-05-26",
+    "topics": ["login", "sign in", "two-step verification", "MFA", "TFA", "authenticator app"],
+    "file": "egnyte/log-in.md"
+  }
+]

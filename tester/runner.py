@@ -36,6 +36,16 @@ log = logging.getLogger("tester.runner")
 
 
 def article_dir(slug: str) -> Path:
+    """Find the article directory.
+
+    Newer pipeline articles live in `articles/<slug>/`; legacy
+    prototype work lived under `workspace/articles/<slug>/`. Prefer the
+    new layout; fall back to the legacy one only if the new path does
+    not exist.
+    """
+    new_path = REPO_ROOT / "articles" / slug
+    if new_path.exists():
+        return new_path
     return REPO_ROOT / "workspace" / "articles" / slug
 
 
