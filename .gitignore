@@ -13,3 +13,10 @@ __pycache__/
 .playwright-cache/
 
 Copy of My statement on workflows*.docx
+
+# Pipeline runtime artifacts
+workspace/articles/*/screenshots/_flagged/
+workspace/articles/*/.tmp/
+workspace/articles/*/claude-trace.log
+.pipeline-locks/
+
