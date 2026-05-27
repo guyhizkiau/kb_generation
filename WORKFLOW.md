@@ -886,10 +886,44 @@ The "## Before you start" section in the article body is the only place
 prerequisites appear for the reader. Do not include a prerequisites field
 in the YAML front matter - it causes accidental duplication when rendered.
 
+### 9.3b ZenDesk export (`article-zendesk.html`)
+
+ZenDesk strips the `<head>` and `<style>` blocks when articles are
+imported. The standalone `article.html` (for preview) therefore renders
+unstyled inside ZenDesk.
+
+After generating `article.html`, always generate a second file:
+**`article-zendesk.html`** — body-only, inline-styled, ZenDesk-compatible.
+
+```bash
+python3 pipeline/make_zendesk_html.py articles/<NN-slug>/
+```
+
+What the script produces (from `article.html`):
+- No `<!doctype html>`, `<html>`, `<head>`, or `<style>` wrapper — only
+  the content that was inside `<main>`.
+- All CSS classes converted to equivalent inline `style=` attributes:
+  - `.meta` div → `style="font-size:0.875em;color:#57606a;…"`
+  - `figure.screenshot` → `style="margin:1.5rem 0;…"`
+  - `<img>` → `style="max-width:100%;border:1px solid #d0d7de;…"`
+  - `<blockquote>` → `style="border-left:4px solid #d0d7de;…"`
+- `<p>---</p>` separator → `<hr style="…">` (literal "---" text avoided)
+- Any remaining `class=` attributes stripped.
+
+**What to paste into ZenDesk:** the contents of `article-zendesk.html`
+directly into ZenDesk's HTML source editor.
+
+Anti-patterns:
+- Do not paste `article.html` into ZenDesk (unstyled result).
+- Do not manually add `<style>` blocks inside ZenDesk's HTML editor
+  (they will be stripped on save).
+
 ### 9.4 Open PR
 
 Create branch `article/<NN-slug>`, commit:
 - `articles/<NN-slug>/final.md`
+- `articles/<NN-slug>/article.html` — standalone preview (full page with CSS)
+- `articles/<NN-slug>/article-zendesk.html` — ZenDesk import (body-only, inline-styled)
 - `articles/<NN-slug>/screenshots/*.png` (only chosen ones, not `_all/`)
 - `articles/<NN-slug>/test-notes.md` (for the reviewer)
 
