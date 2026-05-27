@@ -414,6 +414,8 @@ Do not add screenshots for every single click if the text is enough.
 
 ### What to include in a screenshot
 
+**Rule:** Every screenshot committed to an article must be cropped to the relevant region. Full-page or full-viewport captures are not acceptable in published articles — they force the reader to hunt for the element the step is about and they pollute the page with chrome, footers, and empty whitespace. If the capture step produced a full-viewport image, crop it before committing the article. See **Cropping** below for the mechanics.
+
 A screenshot should show only the part of the UI the step refers to, plus just enough surrounding context for the reader to locate it on the real page.
 
 Include:

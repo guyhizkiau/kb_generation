@@ -14,6 +14,35 @@ next interactive sign-in fail. The test therefore covers the
 post-submit screens. Step-2 UI strings are sourced from the codebase
 (see `research/codebase-findings.md`).
 
+### Why the end-to-end flow was not captured (re PR#4 review)
+
+The blocker is the single shared test account (`SPECTERX_USERNAME` in
+`~/.config/specterx-kb/.env`). Submitting **Reset** against that
+account would:
+
+1. Invalidate Guy's current password on the live production tenant.
+2. Send the verification code to Guy's real inbox, where the pipeline
+   has no programmatic read access — capturing the code requires a
+   human to open the mail.
+3. Force the next person who needs the test account (this article's
+   future revalidation, article 03's drafting, etc.) to perform an
+   interactive sign-in with a new password.
+
+To capture the **Create New Password** screen and the post-submit
+success state in a real session, the pipeline needs **either**:
+
+- A dedicated disposable test account on a non-production tenant whose
+  password can be reset freely, with mailbox access the pipeline can
+  read (IMAP or a forwarder), **or**
+- One-off written consent from Guy to reset his account's password as
+  part of this article's capture pass.
+
+Until one of those is available, step-2 UI strings continue to come
+from the codebase (`general.json:22-29` for password rules and submit
+button label; `EnterCode` and `CreateNewPassword` components for the
+field structure) and `research/codebase-findings.md` for the success
+toast text.
+
 ## Steps executed
 
 ### Step 01 — Navigate to the sign-in page

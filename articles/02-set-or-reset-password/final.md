@@ -18,7 +18,7 @@ You need:
 
 - A SpecterX account. Your administrator creates the account; self-service sign-up is not available. If you have not been invited yet, SpecterX shows "You must be invited before you can sign in" and the procedure below will not work.
 - Access to the inbox of the email address your administrator registered. The code goes to that address.
-- Your organization's SpecterX sign-in URL. Most users go to `https://app.specterx.com`; some organizations use a tenant-specific subdomain such as `https://yourorg.specterx.com`.
+- Your organization's SpecterX sign-in URL. Every tenant has its own URL on the `specterx.com` domain, such as `https://yourorg.specterx.com`. If your administrator gave you a different URL, use that one. (`app.specterx.com` is the URL for one specific tenant and is not the default for everyone.)
 
 ## Steps
 
