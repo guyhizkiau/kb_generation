@@ -629,8 +629,6 @@ audience: <end-user | admin | recipient | developer>
 last-validated: <ISO date>
 specterx-build: <build from UI recon>
 estimated-reading-time: <N min>
-prerequisites:
-  - <prereq>
 ---
 
 # <Title>
@@ -826,6 +824,27 @@ this and use existing screenshots.
 Stamp the front matter with `last-validated: <ISO date>` and
 `specterx-build: <build>`. Add the closing line `*Last validated
 against SpecterX build <X> on <date>.*` at the very bottom.
+
+
+### 9.3a HTML rendering rules (article.html)
+
+When rendering `final.md` to `article.html`, follow this exact layout order inside `<main>`:
+
+1. `<h1>` - the article title (FIRST element after `<main>`, before the meta bar)
+2. `<div class="meta">` - one line only: Audience and reading time.
+   Do NOT render prerequisites in this bar. The meta bar must only contain
+   audience and reading time. Prerequisites belong exclusively in the
+   "## Before you start" body section.
+3. The article body (intro paragraph, then sections in order).
+
+Anti-patterns to avoid:
+- Meta bar before the title
+- Prerequisites listed in the meta bar
+- Duplicating "Before you start" content anywhere above the h1
+
+The "## Before you start" section in the article body is the only place
+prerequisites appear for the reader. Do not include a prerequisites field
+in the YAML front matter - it causes accidental duplication when rendered.
 
 ### 9.4 Open PR
 

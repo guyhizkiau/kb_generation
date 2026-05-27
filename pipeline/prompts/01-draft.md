@@ -22,9 +22,6 @@ first form. Structure:
 title: <Article title>
 audience: <admin | end-user | developer>
 estimated-reading-time: <N min>
-prerequisites:
-  - <prereq 1>
-  - <prereq 2>
 ---
 
 # <Article title>

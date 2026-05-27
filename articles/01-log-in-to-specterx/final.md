@@ -4,9 +4,6 @@ audience: end-user
 estimated-reading-time: 2 min
 last-validated: 2026-05-26
 specterx-build: live production tenant at app.specterx.com (no public build identifier exposed in the UI as of capture)
-prerequisites:
-  - A SpecterX account created by your administrator
-  - Your organization's SpecterX sign-in URL
 ---
 
 # Sign in to SpecterX
