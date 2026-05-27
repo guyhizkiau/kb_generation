@@ -412,6 +412,49 @@ Use screenshots when they help the user recognize:
 
 Do not add screenshots for every single click if the text is enough.
 
+### What to include in a screenshot
+
+A screenshot should show only the part of the UI the step refers to, plus just enough surrounding context for the reader to locate it on the real page.
+
+Include:
+
+- The UI element the step is about (button, field, dialog, menu, table, etc.).
+- Enough adjacent context that the reader can place it — typically the page heading, the section heading, or the panel the element lives in.
+- For a "successful final state" screenshot, include the cues that prove success: the page heading, the signed-in identity, or the row/item that confirms the action completed.
+
+Exclude:
+
+- Empty whitespace above, below, or beside the relevant region.
+- Browser chrome (address bar, tabs, bookmarks bar). Capture the rendered page, not the browser window.
+- The OS taskbar, dock, or desktop.
+- Unrelated navigation, footers, language pickers, support widgets, cookie banners, and other chrome that is not part of the step.
+- Anything outside the article's scope — do not capture three features in one screenshot just because they were visible on screen.
+
+If the relevant region is only a small part of the page, crop tightly to that region. The reader should not have to hunt across a full-page screenshot to find the element the step mentions.
+
+### How to capture a screenshot
+
+- Capture at a desktop viewport width of 1280 px or larger. Use the same width across screenshots in the same article so the UI scale is consistent.
+- Use the default product theme unless the article is specifically about a theme variation.
+- Use a clean test tenant. The visible data must not contain real customer names, real file names, real email addresses other than the test account, or any other PII. See the sensitive-terms list under `tester/sensitive-terms.txt` and the rule in `CLAUDE.md` about `screenshots/_flagged/`.
+- Sign in as the role the article is written for (end user, administrator, etc.). Do not capture an admin view to illustrate an end-user step.
+- Dismiss unrelated overlays (tour bubbles, "what's new" popups, cookie banners, browser notification prompts) before capturing, unless the overlay is the subject of the step.
+- Save as PNG. Use the file name pattern `NN-short-description.png` (for example `01-login-page.png`, `02-dashboard.png`) and store under `workspace/articles/NN-slug/screenshots/`.
+
+### Cropping
+
+After capture, crop to the relevant region:
+
+- For a single dialog or form, crop to the dialog or form plus a thin margin (roughly 20–40 px of surrounding whitespace).
+- For a page-level "you are now here" screenshot, keep the page header (so the page name and signed-in account are visible) and the top of the main content area. Drop the footer and any long scroll region below the fold.
+- For a table or list, keep the column headers and the first few rows. Do not include the entire list unless the length itself is the point.
+- Do not stretch or rescale the cropped image to fill a larger frame. Save the crop at its natural pixel dimensions.
+
+### Annotations and redaction
+
+- Use annotations only when necessary (see "Annotations" below).
+- If a screenshot must include data that could identify a real customer, user, or file, redact it before committing. Solid-fill redaction boxes are preferred over blur. If redaction would obscure most of the screenshot, recapture in the clean test tenant instead.
+
 ### Screenshot density
 
 For a short procedural article, 1–3 screenshots is usually enough.
