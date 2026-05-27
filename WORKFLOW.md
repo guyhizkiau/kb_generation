@@ -445,33 +445,48 @@ never in `draft-1.md`. Before any commit, run the pre-commit hook
 that scans for likely code leaks (regex: lines containing both `=>`
 and at least one paren — common signal of pasted JS).
 
-### 6.3 Competitor scan, cache-first → `research/competitor-coverage.md`
+### 6.3 Competitor scan → `research/competitor-coverage.md`
 
-For each of these 5 reference KBs:
+**This is a mandatory gate. You may not start the draft until at least
+three competitor articles on the same topic have been located, read,
+and summarised in `research/competitor-coverage.md`.** If you cannot
+find three across all vendors below, log the attempt (search URLs
+tried, queries used) and ask Guy before proceeding — do not silently
+skip.
+
+Reference KBs to search:
 
 | Vendor | Base URL | What they're good at |
 |---|---|---|
-| HubSpot | https://knowledge.hubspot.com/ | General KB structure; how to write for non-technical end users |
+| HubSpot | https://knowledge.hubspot.com/ | General KB structure; how to write for non-technical end users; account / login flows |
 | Egnyte | https://helpdesk.egnyte.com/hc/en-us/ | File sharing UX; closest direct competitor on share flows |
 | Vera | https://docs.tricentis.com/vera-latest/content/home.htm | Rights management; policy-related articles |
-| Dropbox DocSend | https://help.dropbox.com/share/ | Recipient-side UX; viewer/watermark articles |
-| Virtru | https://support.virtru.com/hc/en-us | Email protection; Outlook/Gmail integration |
+| Dropbox (incl. Sign / DocSend) | https://help.dropbox.com/ | Account access, recipient-side UX, viewer/watermark articles |
+| Virtru | https://support.virtru.com/hc/en-us | Email protection; Outlook/Gmail integration; account login |
 
-**Cache-first procedure:**
+For the login / account-access cluster specifically, these are known
+to be good reads (add to `references/competitors/` on first scan):
+- https://support.virtru.com/hc/en-us/articles/8743129851031-How-to-login-to-the-Virtru-Secure-Share-for-Zendesk
+- https://help.dropbox.com/account-access/how-to-access-your-dropbox-sign-account
+- https://knowledge.hubspot.com/account-management/log-in-to-hubspot
+
+**Procedure:**
 
 1. Check `references/competitors/INDEX.json` for cached articles
-   matching this topic. Match by keyword (e.g. "watermark", "share
-   folder", "verify recipient").
+   matching this topic. Match by keyword (e.g. "log in", "watermark",
+   "share folder", "verify recipient", "reset password").
 
-2. If 2+ cached matches across vendors exist: skip the online scrape,
-   use the cached versions.
+2. If fewer than 3 strong cached matches exist across vendors, **you
+   must go online and scrape more**. An empty or thin cache is never a
+   reason to skip — it means the work hasn't been done yet.
 
-3. If you need to go online, **use the Browser Tab tool in the VM
-   Chrome** (not curl, not requests). Reason: many KBs require JS
-   rendering and lazy-load content. Procedure per vendor:
+3. To go online, **use the Browser Tab tool in the VM Chrome** (not
+   curl, not requests). Reason: many KBs require JS rendering and
+   lazy-load content. Procedure per vendor:
    - Navigate to the base URL
-   - Use the site's own search for the article topic
-   - Open the top 1–2 results
+   - Use the site's own search for the article topic, plus 1–2
+     synonym queries (e.g. "log in", "sign in", "access my account")
+   - Open the top 2–3 results
    - Wait for the page to fully render
    - Use the tester's "save current page" function to dump:
      - `references/competitors/<vendor>/<slug>.html` — raw HTML
@@ -480,40 +495,72 @@ For each of these 5 reference KBs:
      - Stamp with date in the front matter
    - Update `references/competitors/INDEX.json` with the new entry
 
-4. Extract a coverage checklist from what you cached:
+4. **Read each cached article end to end** before writing the
+   checklist. Skimming titles is not enough — wordiness, screenshot
+   density, and cross-reference patterns are only visible from a full
+   read.
+
+5. Extract a coverage checklist *and a shape budget* from what you
+   read:
 
 ```markdown
 # Competitor coverage checklist — <article title>
 
-## What they thought worth covering
+## Articles read
+- Virtru — "How to login to the Virtru Secure Share for Zendesk"
+  (cached 2026-05-26, ~180 words, 2 screenshots)
+- Dropbox — "How to access your Dropbox Sign account"
+  (cached 2026-05-26, ~240 words, 1 screenshot)
+- HubSpot — "Log in to HubSpot"
+  (cached 2026-05-26, ~320 words, 3 screenshots)
 
-From HubSpot's "..." article (cached 2026-05-26):
+## Shape budget (derived from above)
+- Target length: **<word-count band>** (e.g. 200–350 words for a
+  login article). If our draft is materially longer, it is too wordy
+  — cut.
+- Target screenshot count: **<N>** (median of the competitor set,
+  rounded). Don't pad with screenshots that show nothing the prose
+  doesn't already say.
+- Intro length: **<N sentences>**, matching the competitor median.
+
+## What they thought worth covering
+From <vendor>'s "..." article:
 - [ ] Prerequisite check (who can do this)
-- [ ] Step-by-step with one screenshot per step
+- [ ] Step-by-step with N screenshots
 - [ ] What happens after (the "expected outcome" section)
 - [ ] Troubleshooting
 
-From Egnyte's "..." article (cached 2026-05-20):
-- [ ] Permissions table at the top
-- [ ] Note about how inheritance works
-- [ ] "Note" callouts for security implications
+## Related topics they reference inline
+List every adjacent flow the competitors link to *from inside the
+body* of the article (not just at the bottom). For a login article
+these typically include:
+- Forgot / reset password
+- Sign up / create an account
+- SSO / single sign-on
+- Two-factor authentication
+- Switching accounts / logging out
 
-From DocSend's "..." article (cached 2026-04-18):
-- [ ] Use case framing at the top (when you'd want this)
-- [ ] Visual emphasis on the security control
+Each of these is a candidate cross-reference for our article. If our
+plan entry doesn't cover it, it still belongs as an inline link at
+the point of friction (e.g. "If you've forgotten your password, see
+[Reset your password]") — **not buried in "What this article doesn't
+cover".** That section is for true out-of-scope items, not for
+common adjacent tasks the reader will plausibly need next.
 
 ## Coverage gaps in our plan entry
-- Egnyte mentions inheritance behaviour; our plan entry doesn't.
-  Worth adding?
+- <vendor> covers X; our plan entry doesn't. Worth adding?
 
 ## Patterns NOT to copy
 - HubSpot uses heavy marketing voice ("Empower your team to ..."); we
   don't.
+- <vendor> screenshots every dropdown; we only screenshot when the
+  screenshot adds information.
 ```
 
-**The output is a checklist, not a template.** Do not copy competitor
-wording. Use the checklist as a prompt: "Did we cover this? Should we?"
-The answer is sometimes no.
+**The output is a checklist and a shape budget, not a template.** Do
+not copy competitor wording. Use the checklist as a prompt: "Did we
+cover this? Should we?" Use the shape budget as a sanity check on
+length and screenshot count before the draft is considered done.
 
 ### 6.4 UI reconnaissance → `research/ui-snapshot/`
 
@@ -582,8 +629,6 @@ audience: <end-user | admin | recipient | developer>
 last-validated: <ISO date>
 specterx-build: <build from UI recon>
 estimated-reading-time: <N min>
-prerequisites:
-  - <prereq>
 ---
 
 # <Title>
@@ -681,6 +726,17 @@ specterx-build: <build>
 - **Apply the competitor coverage checklist** — for each item, decide
   in or out. Note your decisions briefly in the draft as `<!-- coverage
   decision: yes/no, reason -->` comments. These get stripped before PR.
+- **Respect the shape budget** from `competitor-coverage.md`. If the
+  draft is materially longer or has more screenshots than the
+  competitor median, cut before submitting. Login-style articles in
+  particular should be short.
+- **Cross-reference adjacent flows inline.** Every related task the
+  reader plausibly needs next (e.g. "Reset your password" from a login
+  article, "Revoke access" from a share article) must appear as an
+  inline link at the point of friction in the body — not only in
+  "Related articles" or "What this article doesn't cover". The
+  "doesn't cover" section is for genuinely out-of-scope topics, not
+  for the next thing the user is going to ask about.
 
 ### 7.3 After writing the draft
 
@@ -692,6 +748,46 @@ NEXT_ACTION=generate test-plan.json from draft-1.md
 ```
 
 ---
+
+### 7.2 Cross-linking pass
+
+Before finalising any draft, scan every previously approved article
+(`articles/*/final.md`) for two opportunities:
+
+**A. Back-link this article from previous articles**
+
+For each approved article, check:
+1. Does its **Related articles** section already list or obviously need
+   this new article? If yes, add the link.
+2. Does its body text mention the topic covered by this article by name
+   (e.g. "reset your password", "sign in", "share a file") without a
+   hyperlink? If yes, convert the first such mention per article to a
+   hyperlink pointing to the new article.
+
+Make the edits directly in the relevant `articles/*/final.md` files and
+re-render the corresponding `articles/*/NN-slug.html` (run
+`python3 pipeline/render_html.py articles/NN-slug/`). Commit these
+back-link changes in the same PR as the new article, under the message
+prefix `cross-link:`.
+
+**B. Forward-link from this article to previous articles**
+
+In the new article's **Related articles** section, list every approved
+article that is directly relevant to the reader's next task. In body
+prose, hyperlink the first mention of any topic covered by an approved
+article.
+
+**Scope of back-linking**
+
+- Check only approved (merged) articles under `articles/*/`. Drafts
+  in progress are out of scope.
+- Link the first occurrence per article only — do not hyperlink every
+  mention of a term.
+- Do not force a link where the mention is incidental or the context
+  would not benefit the reader.
+- If no back-link opportunity exists, note that explicitly in the PR
+  description under "Cross-linking: none needed."
+
 
 ## 8. Stage 4 — Validate
 
@@ -769,12 +865,63 @@ Stamp the front matter with `last-validated: <ISO date>` and
 `specterx-build: <build>`. Add the closing line `*Last validated
 against SpecterX build <X> on <date>.*` at the very bottom.
 
+
+### 9.3a HTML rendering rules
+
+**Render command** (one step generates both output files):
+
+```bash
+python3 pipeline/render_html.py articles/<NN-slug>/
+```
+
+This writes:
+- `articles/<NN-slug>/<NN-slug>.html` — standalone preview (full page with CSS)
+- `articles/<NN-slug>/<NN-slug>-zendesk.html` — ZenDesk import (body-only, inline-styled)
+
+Output filenames use the directory slug so every article has a unique,
+recognisable file name instead of a generic `article.html`.
+
+**Layout order inside `<main>`** (enforced by `render_html.py`):
+
+1. `<h1>` — the article title — FIRST, before the meta bar
+2. `<div class="meta">` — audience and reading time only; no prerequisites
+3. The article body
+
+Anti-patterns the renderer avoids for you (do not re-introduce manually):
+- `<title>` tag in the `<head>` — ZenDesk re-injects it and causes duplicates
+- Meta bar before the title
+- Prerequisites in the meta bar (they belong in "## Before you start" only)
+- `prerequisites:` in YAML front matter — causes duplication when rendered
+
+### 9.3b ZenDesk export (`<slug>-zendesk.html`)
+
+ZenDesk strips `<head>` and `<style>` on import, so the standalone
+preview file renders unstyled there. `pipeline/render_html.py` produces
+the ZenDesk file automatically alongside the preview.
+
+The ZenDesk file contains only the content that was inside `<main>`:
+- No HTML/head/style wrapper
+- CSS classes replaced with inline `style=` attributes (`.meta`, `figure`,
+  `img`, `blockquote`)
+- `<hr>` tags styled inline; `<p>---</p>` converted to `<hr>`
+- All `class=` attributes stripped
+
+**What to paste into ZenDesk:** the full contents of `<NN-slug>-zendesk.html`
+into ZenDesk's HTML source editor.
+
+Anti-patterns:
+- Do not paste the preview `.html` into ZenDesk (it will render unstyled).
+- Do not add `<style>` blocks inside ZenDesk's editor (stripped on save).
+
 ### 9.4 Open PR
 
 Create branch `article/<NN-slug>`, commit:
 - `articles/<NN-slug>/final.md`
+- `articles/<NN-slug>/<NN-slug>.html` — standalone preview (run `pipeline/render_html.py`)
+- `articles/<NN-slug>/<NN-slug>-zendesk.html` — ZenDesk import (auto-generated by same script)
 - `articles/<NN-slug>/screenshots/*.png` (only chosen ones, not `_all/`)
 - `articles/<NN-slug>/test-notes.md` (for the reviewer)
+- `articles/index.html` — regenerated by `python3 pipeline/build_index.py`
 
 PR body template:
 
@@ -830,6 +977,18 @@ This is the key moment for canon growth:
    identified.
 5. **Update `references/competitors/INDEX.json`** if new vendor pages
    were scraped during this article's research.
+6. **Back-link previous articles.** If the cross-linking pass in §7.2
+   was not completed during drafting (e.g. the article was the first in
+   a cluster), do it now: scan all approved `articles/*/final.md` files,
+   update Related articles sections and inline hyperlinks where needed,
+   re-render affected articles (`python3 pipeline/render_html.py articles/NN-slug/`),
+   and open a fast-track PR titled `cross-link: NN-slug back-links`.
+7. **Rebuild the article index:**
+   ```bash
+   python3 pipeline/build_index.py
+   ```
+   Commit `articles/index.html` on the same branch (or the cross-link PR).
+   This keeps the overview page current for the nginx preview server.
 
 ---
 
@@ -909,6 +1068,12 @@ These are non-negotiable. Treat any conflict with them as a stop-and-ask.
    approval from Guy on the first STYLE_GUIDE.md.
 8. **Never make assumptions about cost.** If a single article costs
    more than $5 in API tokens, stop, log, and surface to Guy.
+9. **Never start the draft without competitor research.** §6.3 is a
+   gate: at least three competitor articles on the same topic must be
+   cached, read end to end, and summarised in
+   `research/competitor-coverage.md` (with a shape budget) before
+   `draft-1.md` is created. If three can't be found, stop and ask Guy
+   rather than skipping.
 
 ---
 

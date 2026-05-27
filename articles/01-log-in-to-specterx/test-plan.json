@@ -1,0 +1,99 @@
+{
+  "article_id": "01-log-in-to-specterx",
+  "preconditions": [
+    {
+      "kind": "browser_logged_out",
+      "url": "https://app.specterx.com",
+      "note": "Local Playwright launches a fresh Chromium context with no cookies, so logged-out state is automatic."
+    },
+    {
+      "kind": "credentials_available",
+      "env_vars": ["SPECTERX_USERNAME", "SPECTERX_PASSWORD"],
+      "source": "~/.config/specterx-kb/.env"
+    }
+  ],
+  "steps": [
+    {
+      "id": "01-navigate",
+      "description": "Navigate to https://app.specterx.com; expect a redirect to /signIn and the sign-in page to render.",
+      "backend": "browser",
+      "action": {
+        "type": "goto",
+        "url": "https://app.specterx.com",
+        "wait_until": "domcontentloaded"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "01-login-page.png",
+        "focus": "full sign-in page: Sign in with Google button, 'or sign in with' divider, email/password fields, Sign In button, Reset password link"
+      },
+      "verify": "Sign In"
+    },
+    {
+      "id": "02-fill-email",
+      "description": "Fill the email field with the SpecterX account email.",
+      "backend": "browser",
+      "action": {
+        "type": "fill",
+        "placeholder": "Enter your email",
+        "value_env": "SPECTERX_USERNAME"
+      },
+      "screenshot": {
+        "after": false
+      },
+      "verify": ""
+    },
+    {
+      "id": "03-fill-password",
+      "description": "Fill the password field with the SpecterX account password.",
+      "backend": "browser",
+      "action": {
+        "type": "fill",
+        "placeholder": "Enter your password",
+        "value_env": "SPECTERX_PASSWORD"
+      },
+      "screenshot": {
+        "after": false
+      },
+      "verify": ""
+    },
+    {
+      "id": "04-click-signin",
+      "description": "Click the Sign In button.",
+      "backend": "browser",
+      "action": {
+        "type": "click",
+        "role": "button",
+        "name": "Sign In",
+        "selector_hint": "the primary 'Sign In' button below the email and password fields (not 'Sign in with Google')"
+      },
+      "screenshot": {
+        "after": false
+      },
+      "verify": ""
+    },
+    {
+      "id": "05-dashboard",
+      "description": "Wait for the My Files dashboard to load after a successful sign-in.",
+      "backend": "browser",
+      "action": {
+        "type": "wait_for",
+        "selector_hint": "My Files heading on the dashboard",
+        "name": "My Files",
+        "state": "visible"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "02-dashboard.png",
+        "focus": "the My Files dashboard heading and the signed-in email in the top-right"
+      },
+      "verify": "My Files"
+    }
+  ],
+  "postconditions": [
+    {
+      "kind": "cleanup",
+      "description": "No state created in the tenant during this test — sign-in does not produce shared artifacts. Closing the browser context discards the session."
+    }
+  ]
+}
