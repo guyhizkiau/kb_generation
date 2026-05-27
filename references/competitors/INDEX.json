@@ -7,5 +7,23 @@
     "captured": "2026-05-26",
     "topics": ["login", "sign in", "two-step verification", "MFA", "TFA", "authenticator app"],
     "file": "egnyte/log-in.md"
+  },
+  {
+    "vendor": "virtru",
+    "slug": "log-in",
+    "source_url": "https://support.virtru.com/hc/en-us/articles/360041187653-Using-Single-Sign-On-SSO-with-Virtru",
+    "title": "Using Single Sign-On (SSO) with Virtru",
+    "captured": "2026-05-27",
+    "topics": ["login", "sign in", "SSO", "SAML", "Control Center", "Secure Reader"],
+    "file": "virtru/log-in.md"
+  },
+  {
+    "vendor": "dropbox",
+    "slug": "log-in",
+    "source_url": "https://help.dropbox.com/account-access/sign-in-out",
+    "title": "How to log into or out of your Dropbox account",
+    "captured": "2026-05-27",
+    "topics": ["login", "sign in", "log out", "Google sign-in", "Apple sign-in", "linked accounts", "desktop app", "mobile app"],
+    "file": "dropbox/log-in.md"
   }
 ]
