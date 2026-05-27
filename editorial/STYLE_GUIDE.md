@@ -651,6 +651,41 @@ Avoid generic AI-polish words unless they are necessary and accurate.
 
 ---
 
+## 13a. Punctuation
+
+### No em dashes (long dashes)
+
+Do not use em dashes (—) in article prose.
+
+Em dashes are heavy punctuation that reads as informal or rushed. Break the sentence instead.
+
+Avoid:
+
+> Your administrator must create your account — self-service sign-up is not available.
+
+Prefer:
+
+> Your administrator must create your account. Self-service sign-up is not available.
+
+Or restructure:
+
+> Self-service sign-up is not available. Your administrator creates all accounts.
+
+Em dashes are also ambiguous when copied into CMS platforms like ZenDesk, which may render the Unicode character inconsistently.
+
+### En dashes and hyphens
+
+Use a hyphen (-) for compound modifiers: `tenant-specific URL`, `self-service sign-up`.
+
+Use an en dash (–) only in numeric ranges in reference tables: `3–5 screenshots`. Not in prose.
+
+### Other punctuation
+
+- Oxford comma: always use it.
+- Parentheses: use sparingly. If the parenthetical matters, make it a sentence.
+- Semicolons: avoid in step prose. Use two sentences instead.
+
+
 ## 14. Anti-patterns
 
 ### AI-polish anti-patterns
