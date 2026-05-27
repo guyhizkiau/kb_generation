@@ -25,5 +25,32 @@
     "captured": "2026-05-27",
     "topics": ["login", "sign in", "log out", "Google sign-in", "Apple sign-in", "linked accounts", "desktop app", "mobile app"],
     "file": "dropbox/log-in.md"
+  },
+  {
+    "vendor": "egnyte",
+    "slug": "reset-password",
+    "source_url": "https://helpdesk.egnyte.com/hc/en-us/articles/201637054-Forgot-Password",
+    "title": "Forgot Password",
+    "captured": "2026-05-27",
+    "topics": ["password reset", "forgot password", "Change Password email", "SSO", "Active Directory"],
+    "file": "egnyte/reset-password.md"
+  },
+  {
+    "vendor": "dropbox",
+    "slug": "reset-password",
+    "source_url": "https://help.dropbox.com/security/password-reset",
+    "title": "How to change or reset your Dropbox password",
+    "captured": "2026-05-27",
+    "topics": ["password reset", "forgot password", "change password", "expired password", "team admin", "spam folder", "no-reply email"],
+    "file": "dropbox/reset-password.md"
+  },
+  {
+    "vendor": "hubspot",
+    "slug": "reset-password",
+    "source_url": "https://knowledge.hubspot.com/account-security/reset-user-passwords",
+    "title": "Reset user passwords",
+    "captured": "2026-05-27",
+    "topics": ["password reset", "forgot password", "admin-driven reset", "leaked password check", "lockout after failed attempts", "Super Admin"],
+    "file": "hubspot/reset-password.md"
   }
 ]
