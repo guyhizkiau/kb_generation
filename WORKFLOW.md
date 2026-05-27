@@ -749,6 +749,45 @@ NEXT_ACTION=generate test-plan.json from draft-1.md
 
 ---
 
+### 7.2 Cross-linking pass
+
+Before finalising any draft, scan every previously approved article
+(`articles/*/final.md`) for two opportunities:
+
+**A. Back-link this article from previous articles**
+
+For each approved article, check:
+1. Does its **Related articles** section already list or obviously need
+   this new article? If yes, add the link.
+2. Does its body text mention the topic covered by this article by name
+   (e.g. "reset your password", "sign in", "share a file") without a
+   hyperlink? If yes, convert the first such mention per article to a
+   hyperlink pointing to the new article.
+
+Make the edits directly in the relevant `articles/*/final.md` files and
+re-render the corresponding `articles/*/article.html`. Commit these
+back-link changes in the same PR as the new article, under the message
+prefix `cross-link:`.
+
+**B. Forward-link from this article to previous articles**
+
+In the new article's **Related articles** section, list every approved
+article that is directly relevant to the reader's next task. In body
+prose, hyperlink the first mention of any topic covered by an approved
+article.
+
+**Scope of back-linking**
+
+- Check only approved (merged) articles under `articles/*/`. Drafts
+  in progress are out of scope.
+- Link the first occurrence per article only — do not hyperlink every
+  mention of a term.
+- Do not force a link where the mention is incidental or the context
+  would not benefit the reader.
+- If no back-link opportunity exists, note that explicitly in the PR
+  description under "Cross-linking: none needed."
+
+
 ## 8. Stage 4 — Validate
 
 Skip this stage entirely for articles flagged `validation: skipped`
@@ -908,6 +947,12 @@ This is the key moment for canon growth:
    identified.
 5. **Update `references/competitors/INDEX.json`** if new vendor pages
    were scraped during this article's research.
+6. **Back-link previous articles.** If the cross-linking pass in §7.2
+   was not completed during drafting (e.g. the article was the first in
+   a cluster), do it now: scan all approved `articles/*/final.md` files,
+   update Related articles sections and inline hyperlinks where needed,
+   re-render affected `article.html` files, and open a fast-track PR
+   titled `cross-link: NN-slug back-links`.
 
 ---
 
