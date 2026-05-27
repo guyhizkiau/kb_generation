@@ -838,6 +838,7 @@ When rendering `final.md` to `article.html`, follow this exact layout order insi
 3. The article body (intro paragraph, then sections in order).
 
 Anti-patterns to avoid:
+- `<title>` tag in the `<head>` — omit it entirely (ZenDesk and other CMS platforms re-inject it and the duplicate causes rendering issues)
 - Meta bar before the title
 - Prerequisites listed in the meta bar
 - Duplicating "Before you start" content anywhere above the h1
