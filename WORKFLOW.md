@@ -765,7 +765,8 @@ For each approved article, check:
    hyperlink pointing to the new article.
 
 Make the edits directly in the relevant `articles/*/final.md` files and
-re-render the corresponding `articles/*/article.html`. Commit these
+re-render the corresponding `articles/*/NN-slug.html` (run
+`python3 pipeline/render_html.py articles/NN-slug/`). Commit these
 back-link changes in the same PR as the new article, under the message
 prefix `cross-link:`.
 
@@ -865,67 +866,62 @@ Stamp the front matter with `last-validated: <ISO date>` and
 against SpecterX build <X> on <date>.*` at the very bottom.
 
 
-### 9.3a HTML rendering rules (article.html)
+### 9.3a HTML rendering rules
 
-When rendering `final.md` to `article.html`, follow this exact layout order inside `<main>`:
-
-1. `<h1>` - the article title (FIRST element after `<main>`, before the meta bar)
-2. `<div class="meta">` - one line only: Audience and reading time.
-   Do NOT render prerequisites in this bar. The meta bar must only contain
-   audience and reading time. Prerequisites belong exclusively in the
-   "## Before you start" body section.
-3. The article body (intro paragraph, then sections in order).
-
-Anti-patterns to avoid:
-- `<title>` tag in the `<head>` — omit it entirely (ZenDesk and other CMS platforms re-inject it and the duplicate causes rendering issues)
-- Meta bar before the title
-- Prerequisites listed in the meta bar
-- Duplicating "Before you start" content anywhere above the h1
-
-The "## Before you start" section in the article body is the only place
-prerequisites appear for the reader. Do not include a prerequisites field
-in the YAML front matter - it causes accidental duplication when rendered.
-
-### 9.3b ZenDesk export (`article-zendesk.html`)
-
-ZenDesk strips the `<head>` and `<style>` blocks when articles are
-imported. The standalone `article.html` (for preview) therefore renders
-unstyled inside ZenDesk.
-
-After generating `article.html`, always generate a second file:
-**`article-zendesk.html`** — body-only, inline-styled, ZenDesk-compatible.
+**Render command** (one step generates both output files):
 
 ```bash
-python3 pipeline/make_zendesk_html.py articles/<NN-slug>/
+python3 pipeline/render_html.py articles/<NN-slug>/
 ```
 
-What the script produces (from `article.html`):
-- No `<!doctype html>`, `<html>`, `<head>`, or `<style>` wrapper — only
-  the content that was inside `<main>`.
-- All CSS classes converted to equivalent inline `style=` attributes:
-  - `.meta` div → `style="font-size:0.875em;color:#57606a;…"`
-  - `figure.screenshot` → `style="margin:1.5rem 0;…"`
-  - `<img>` → `style="max-width:100%;border:1px solid #d0d7de;…"`
-  - `<blockquote>` → `style="border-left:4px solid #d0d7de;…"`
-- `<p>---</p>` separator → `<hr style="…">` (literal "---" text avoided)
-- Any remaining `class=` attributes stripped.
+This writes:
+- `articles/<NN-slug>/<NN-slug>.html` — standalone preview (full page with CSS)
+- `articles/<NN-slug>/<NN-slug>-zendesk.html` — ZenDesk import (body-only, inline-styled)
 
-**What to paste into ZenDesk:** the contents of `article-zendesk.html`
-directly into ZenDesk's HTML source editor.
+Output filenames use the directory slug so every article has a unique,
+recognisable file name instead of a generic `article.html`.
+
+**Layout order inside `<main>`** (enforced by `render_html.py`):
+
+1. `<h1>` — the article title — FIRST, before the meta bar
+2. `<div class="meta">` — audience and reading time only; no prerequisites
+3. The article body
+
+Anti-patterns the renderer avoids for you (do not re-introduce manually):
+- `<title>` tag in the `<head>` — ZenDesk re-injects it and causes duplicates
+- Meta bar before the title
+- Prerequisites in the meta bar (they belong in "## Before you start" only)
+- `prerequisites:` in YAML front matter — causes duplication when rendered
+
+### 9.3b ZenDesk export (`<slug>-zendesk.html`)
+
+ZenDesk strips `<head>` and `<style>` on import, so the standalone
+preview file renders unstyled there. `pipeline/render_html.py` produces
+the ZenDesk file automatically alongside the preview.
+
+The ZenDesk file contains only the content that was inside `<main>`:
+- No HTML/head/style wrapper
+- CSS classes replaced with inline `style=` attributes (`.meta`, `figure`,
+  `img`, `blockquote`)
+- `<hr>` tags styled inline; `<p>---</p>` converted to `<hr>`
+- All `class=` attributes stripped
+
+**What to paste into ZenDesk:** the full contents of `<NN-slug>-zendesk.html`
+into ZenDesk's HTML source editor.
 
 Anti-patterns:
-- Do not paste `article.html` into ZenDesk (unstyled result).
-- Do not manually add `<style>` blocks inside ZenDesk's HTML editor
-  (they will be stripped on save).
+- Do not paste the preview `.html` into ZenDesk (it will render unstyled).
+- Do not add `<style>` blocks inside ZenDesk's editor (stripped on save).
 
 ### 9.4 Open PR
 
 Create branch `article/<NN-slug>`, commit:
 - `articles/<NN-slug>/final.md`
-- `articles/<NN-slug>/article.html` — standalone preview (full page with CSS)
-- `articles/<NN-slug>/article-zendesk.html` — ZenDesk import (body-only, inline-styled)
+- `articles/<NN-slug>/<NN-slug>.html` — standalone preview (run `pipeline/render_html.py`)
+- `articles/<NN-slug>/<NN-slug>-zendesk.html` — ZenDesk import (auto-generated by same script)
 - `articles/<NN-slug>/screenshots/*.png` (only chosen ones, not `_all/`)
 - `articles/<NN-slug>/test-notes.md` (for the reviewer)
+- `articles/index.html` — regenerated by `python3 pipeline/build_index.py`
 
 PR body template:
 
@@ -985,8 +981,14 @@ This is the key moment for canon growth:
    was not completed during drafting (e.g. the article was the first in
    a cluster), do it now: scan all approved `articles/*/final.md` files,
    update Related articles sections and inline hyperlinks where needed,
-   re-render affected `article.html` files, and open a fast-track PR
-   titled `cross-link: NN-slug back-links`.
+   re-render affected articles (`python3 pipeline/render_html.py articles/NN-slug/`),
+   and open a fast-track PR titled `cross-link: NN-slug back-links`.
+7. **Rebuild the article index:**
+   ```bash
+   python3 pipeline/build_index.py
+   ```
+   Commit `articles/index.html` on the same branch (or the cross-link PR).
+   This keeps the overview page current for the nginx preview server.
 
 ---
 

@@ -1,13 +1,18 @@
 """
 pipeline/make_zendesk_html.py
-Convert article.html → article-zendesk.html (body-only, inline-styled).
+Convert {slug}.html → {slug}-zendesk.html (body-only, inline-styled).
 
 ZenDesk strips <head> and <style> blocks on import, so articles need a
 second export that carries all styling via inline style= attributes.
 
 Usage:
     python3 pipeline/make_zendesk_html.py articles/NN-slug/
-    # writes articles/NN-slug/article-zendesk.html
+    # reads  articles/NN-slug/NN-slug.html
+    # writes articles/NN-slug/NN-slug-zendesk.html
+
+NOTE: pipeline/render_html.py generates both files in one step.
+This script exists for standalone re-export when only the ZenDesk
+file needs to be regenerated.
 
 See WORKFLOW.md §9.3b for the full specification.
 """
@@ -52,8 +57,9 @@ HR_STYLE = "border:none;border-top:1px solid #d0d7de;margin:2rem 0;"
 
 
 def make_zendesk(article_dir: str) -> None:
-    src  = os.path.join(article_dir, "article.html")
-    dest = os.path.join(article_dir, "article-zendesk.html")
+    slug = os.path.basename(os.path.normpath(article_dir))
+    src  = os.path.join(article_dir, f"{slug}.html")
+    dest = os.path.join(article_dir, f"{slug}-zendesk.html")
 
     with open(src, "r", encoding="utf-8") as f:
         raw = f.read()
