@@ -14,31 +14,34 @@ next interactive sign-in fail. The test therefore covers the
 post-submit screens. Step-2 UI strings are sourced from the codebase
 (see `research/codebase-findings.md`).
 
-### Why the end-to-end flow was not captured (re PR#4 review)
+### Why the end-to-end flow was not captured in this run (re PR#4 review)
 
-The blocker is the single shared test account (`SPECTERX_USERNAME` in
-`~/.config/specterx-kb/.env`). Submitting **Reset** against that
-account would:
+The blocker was the single shared test account (`SPECTERX_USERNAME`).
+Submitting **Reset** against that account would have invalidated Guy's
+current password on the live production tenant and sent the
+verification code to an inbox the pipeline could not read.
 
-1. Invalidate Guy's current password on the live production tenant.
-2. Send the verification code to Guy's real inbox, where the pipeline
-   has no programmatic read access — capturing the code requires a
-   human to open the mail.
-3. Force the next person who needs the test account (this article's
-   future revalidation, article 03's drafting, etc.) to perform an
-   interactive sign-in with a new password.
+**Unblocked on the next pass.** PR #4 review introduced a dedicated
+test account — `TEST_RECIPIENT_EMAIL` (`davidch@specterx.com`) — whose
+Gmail mailbox the pipeline can log into directly using
+`TEST_RECIPIENT_GMAIL_PASSWORD`. See `tester/TEST_RESOURCES.md` for the
+full record.
 
-To capture the **Create New Password** screen and the post-submit
-success state in a real session, the pipeline needs **either**:
+A future re-capture pass for this article should:
 
-- A dedicated disposable test account on a non-production tenant whose
-  password can be reset freely, with mailbox access the pipeline can
-  read (IMAP or a forwarder), **or**
-- One-off written consent from Guy to reset his account's password as
-  part of this article's capture pass.
+1. Run the test plan against `TEST_RECIPIENT_EMAIL`, not
+   `SPECTERX_USERNAME`.
+2. After submitting **Reset**, log into Gmail with the test account,
+   read the most recent SpecterX verification email, extract the
+   6-digit code.
+3. Capture the **Create New Password** screen with the code entered,
+   then capture the post-submit success state.
+4. Promote the new captures into `screenshots/` and update the article
+   only if any UI string drifted from the codebase-derived text
+   currently in `final.md`.
 
-Until one of those is available, step-2 UI strings continue to come
-from the codebase (`general.json:22-29` for password rules and submit
+Until that re-capture happens, step-2 UI strings remain sourced from
+the codebase (`general.json:22-29` for password rules and submit
 button label; `EnterCode` and `CreateNewPassword` components for the
 field structure) and `research/codebase-findings.md` for the success
 toast text.
