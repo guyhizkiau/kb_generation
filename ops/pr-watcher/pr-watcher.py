@@ -89,6 +89,19 @@ _runtime: dict = {
     "last_task_duration_secs": None,
 }
 
+# Cache of the latest write_status args so resolve_comment() can flush mid-task
+_status_cache: dict = {}   # keys: state, iteration, next_poll_at
+
+
+def flush_status():
+    """Write status.json immediately using the latest cached poll args."""
+    if _status_cache:
+        write_status(
+            _status_cache["state"],
+            _status_cache["iteration"],
+            _status_cache["next_poll_at"],
+        )
+
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -291,6 +304,7 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
         "step": current_step[0],
         "started_at": _now_iso(),
     }
+    flush_status()  # push to dashboard immediately so it shows active task
 
     try:
         proc = subprocess.Popen(
@@ -328,6 +342,7 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
                     "step": step,
                 }
                 log(f"    → {line_s}")
+                flush_status()  # update dashboard with new step name
 
     reader = threading.Thread(target=_reader, daemon=True)
     reader.start()
@@ -359,6 +374,7 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
     elapsed = round(time.time() - task_started)
     _runtime["current_task"] = None
     _runtime["last_task_duration_secs"] = elapsed
+    flush_status()  # clear active task from dashboard
 
     output = "\n".join(output_lines).strip()
     lines = output_lines
@@ -848,6 +864,7 @@ def main():
         iteration += 1
         log(f"--- Poll #{iteration} ---")
         next_poll_at = time.time() + POLL_INTERVAL
+        _status_cache.update({"state": state, "iteration": iteration, "next_poll_at": next_poll_at})
         try:
             # Check merged PRs first (triggers next article)
             check_merged_prs(state)
