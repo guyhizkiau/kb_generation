@@ -70,6 +70,13 @@ header .repo-link { font-size: 12px; color: var(--text-muted); margin-left: auto
 .hero.down     .hero-text h2 { color: var(--red);   }
 .hero.loading  .hero-text h2 { color: var(--text-muted); }
 .hero-sub { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+.hero-actions { margin-left: auto; flex-shrink: 0; }
+.poll-btn { background: rgba(255,255,255,.07); border: 1px solid var(--border);
+  color: var(--text); border-radius: 6px; padding: 7px 14px; font-size: 13px;
+  cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.poll-btn:hover:not(:disabled) { background: rgba(255,255,255,.13); border-color: var(--text-muted); }
+.poll-btn:disabled { opacity: .45; cursor: default; }
+.poll-btn.firing { border-color: var(--green); color: var(--green); }
 
 /* ── widget grid ─────────────────────────────────────────────────────────── */
 .widgets { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -192,6 +199,11 @@ footer { margin-top: 32px; text-align: center; font-size: 11px; color: var(--tex
     <div class="hero-text">
       <h2 id="hero-label">Connecting…</h2>
       <div class="hero-sub" id="hero-sub"></div>
+    </div>
+    <div class="hero-actions">
+      <button class="poll-btn" id="poll-btn" onclick="pollNow()" title="Trigger an immediate poll">
+        <span id="poll-btn-icon">↻</span> Poll now
+      </button>
     </div>
   </div>
 
@@ -370,7 +382,7 @@ function renderHero() {
     !health ? 'Connecting…' :
     !active ? '✕ DOWN' :
     stale   ? '⚠ STALE' :
-              '● HEALTHY';
+              'HEALTHY';
 
   const parts = [];
   if (status?.last_poll_at)   parts.push('Last poll ' + fmtAgo(status.last_poll_at));
@@ -569,6 +581,34 @@ async function loadFullLog() {
     paintLog();
   } catch(e) {
     alert('Could not load full log: ' + e.message);
+  }
+}
+
+// ── poll-now button ──────────────────────────────────────────────────────────
+async function pollNow() {
+  const btn  = document.getElementById('poll-btn');
+  const icon = document.getElementById('poll-btn-icon');
+  btn.disabled = true;
+  btn.classList.add('firing');
+  icon.style.display = 'inline-block';
+  icon.style.animation = 'spin 0.7s linear infinite';
+  try {
+    const res = await fetch('/poll-now', { method: 'POST' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    icon.style.animation = '';
+    icon.textContent = '✓';
+    setTimeout(() => {
+      icon.textContent = '↻';
+      btn.classList.remove('firing');
+      btn.disabled = false;
+    }, 2000);
+    // refresh status sooner
+    setTimeout(fetchAll, 1500);
+  } catch(e) {
+    icon.style.animation = '';
+    icon.textContent = '✕';
+    btn.classList.remove('firing');
+    setTimeout(() => { icon.textContent = '↻'; btn.disabled = false; }, 2000);
   }
 }
 

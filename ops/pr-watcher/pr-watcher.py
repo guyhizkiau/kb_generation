@@ -7,6 +7,7 @@ human, runs VM-Claude to resolve it, commits the fix, and posts a contextual
 reply. Also monitors recently-merged article PRs and triggers the next article.
 """
 import subprocess, json, os, time, re, threading, tempfile
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from datetime import datetime, timezone
 
@@ -23,6 +24,10 @@ PREVIEW_BASE  = "http://18.192.122.48"   # nginx article browser (port 80)
 # Timeouts for Claude invocations
 TASK_TIMEOUT_SECS = 3600  # 1-hour hard cap per Claude invocation
 STEP_TIMEOUT_SECS = 120   # kill if no output for 2 minutes (step stalled)
+CONTROL_PORT      = 9191  # localhost-only HTTP control plane
+
+# Event set by the control plane to trigger an immediate poll
+_poll_now = threading.Event()
 
 # Cluster 1 article sequence (WORKFLOW.md §5.1 — one at a time, review pause after all 3)
 CLUSTER_1_ARTICLES = [
@@ -721,6 +726,46 @@ def process_pr(pr_number: int, branch: str, state: dict):
         save_state(state)
 
 
+# ── control plane (localhost:9191) ────────────────────────────────────────────
+
+class _ControlHandler(BaseHTTPRequestHandler):
+    def log_message(self, *args):
+        pass  # silence default access log
+
+    def do_POST(self):
+        if self.path == "/poll-now":
+            _poll_now.set()
+            log("Control: poll-now requested via HTTP")
+            self._respond(200, '{"ok":true}')
+        else:
+            self._respond(404, '{"error":"not found"}')
+
+    def do_OPTIONS(self):
+        self.send_response(204)
+        self._cors_headers()
+        self.end_headers()
+
+    def _respond(self, code, body):
+        data = body.encode()
+        self.send_response(code)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(data)))
+        self._cors_headers()
+        self.end_headers()
+        self.wfile.write(data)
+
+    def _cors_headers(self):
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
+
+
+def _start_control_server():
+    srv = HTTPServer(("127.0.0.1", CONTROL_PORT), _ControlHandler)
+    t = threading.Thread(target=srv.serve_forever, daemon=True, name="control-http")
+    t.start()
+    log(f"Control plane listening on 127.0.0.1:{CONTROL_PORT}")
+
+
 # ── main ──────────────────────────────────────────────────────────────────────
 
 def main():
@@ -734,6 +779,7 @@ def main():
     log(f"Timeouts: step={STEP_TIMEOUT_SECS}s  task={TASK_TIMEOUT_SECS}s")
     log("=" * 60)
 
+    _start_control_server()
     git("fetch", "--all", check=False)
     state = load_state()
     iteration = 0
@@ -764,8 +810,10 @@ def main():
             _runtime["last_error"] = {"message": str(exc), "at": _now_iso()}
 
         write_status(state, iteration, next_poll_at)
-        log(f"Sleeping {POLL_INTERVAL}s...")
-        time.sleep(POLL_INTERVAL)
+        triggered = _poll_now.wait(timeout=POLL_INTERVAL)
+        _poll_now.clear()
+        if triggered:
+            log("Poll triggered on demand — skipping scheduled wait")
 
 
 if __name__ == "__main__":
