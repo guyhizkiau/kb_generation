@@ -1,0 +1,8 @@
+[Unit]
+Description=SpecterX KB pr-watcher health snapshot writer
+After=pr-watcher.service
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/home/ubuntu/write_health.sh

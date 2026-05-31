@@ -1,0 +1,11 @@
+[Unit]
+Description=Write pr-watcher health.json every 60 seconds
+After=pr-watcher.service
+
+[Timer]
+OnBootSec=30s
+OnUnitActiveSec=60s
+Unit=pr-watcher-health.service
+
+[Install]
+WantedBy=timers.target

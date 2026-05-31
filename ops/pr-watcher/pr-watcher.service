@@ -1,0 +1,18 @@
+[Unit]
+Description=SpecterX KB pr-watcher daemon
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+ExecStart=/home/ubuntu/start-pr-watcher.sh
+Restart=always
+RestartSec=10
+# stdout/stderr go to systemd journal (journalctl -u pr-watcher)
+# pr-watcher.py also writes its own poll log to /home/ubuntu/pr-watcher.log
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

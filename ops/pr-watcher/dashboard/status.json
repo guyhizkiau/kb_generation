@@ -1,0 +1,45 @@
+{
+  "daemon": {
+    "started_at": "2026-05-28T10:48:50Z",
+    "pid": 28451,
+    "poll_interval": 300
+  },
+  "last_poll_at": "2026-05-31T18:02:08Z",
+  "poll_number": 1194,
+  "next_poll_at": "2026-05-31T18:07:08Z",
+  "open_prs": [
+    {
+      "number": 4,
+      "branch": "article/02-set-or-reset-password"
+    }
+  ],
+  "current_task": {
+    "pr_number": 4,
+    "comment_id": 4587405575,
+    "step": "search Gmail inbox for reset email",
+    "started_at": "2026-05-31T18:01:27Z"
+  },
+  "last_error": null,
+  "last_task_duration_secs": 217,
+  "counters": {
+    "comments_resolved": 15,
+    "articles_triggered": 2,
+    "merges_handled": 2,
+    "previews_posted": 4
+  },
+  "recent_log": [
+    "[2026-05-31T17:42:10Z] --- Poll #1193 ---",
+    "[2026-05-31T17:42:11Z] Open PRs: [4]",
+    "[2026-05-31T17:42:11Z]   Checking PR#4 (branch: article/02-set-or-reset-password)",
+    "[2026-05-31T17:42:12Z]   New issue comment 4587405575 from guyhizkiau",
+    "[2026-05-31T17:42:12Z]     Body: Now rerun the reset password flow...",
+    "[2026-05-31T17:42:12Z] STEP: open SpecterX in browser",
+    "[2026-05-31T17:42:18Z] STEP: navigate to reset password page",
+    "[2026-05-31T17:42:24Z] STEP: fill email and submit",
+    "[2026-05-31T17:42:30Z] STEP: open Gmail inbox",
+    "[2026-05-31T17:42:38Z] STEP: search Gmail inbox for reset email",
+    "[2026-05-31T17:47:10Z] --- Poll #1194 ---",
+    "[2026-05-31T17:47:11Z] Open PRs: [4]",
+    "[2026-05-31T17:47:11Z]   Checking PR#4 (branch: article/02-set-or-reset-password)"
+  ]
+}
