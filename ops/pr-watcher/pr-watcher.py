@@ -15,6 +15,7 @@ REPO          = "guyhizkiau/kb_generation"
 REPO_PATH     = Path("/home/ubuntu/kb_generation")
 STATE_FILE    = Path("/home/ubuntu/pr-watcher-state.json")
 LOG_FILE      = Path("/home/ubuntu/pr-watcher.log")
+TASK_LOG_FILE = Path("/home/ubuntu/pr-watcher-task.log")   # live Claude output, overwritten per task
 STATUS_DIR    = Path("/home/ubuntu/pr-watcher-web")
 POLL_INTERVAL = 300   # seconds between polls
 BOT_MARKER    = "<!-- pr-watcher-bot -->"
@@ -279,6 +280,9 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
     kill_reason: list[str] = []   # mutable container so threads can write it
     current_step: list[str] = ["(starting)"]
 
+    # Truncate task log so the dashboard starts fresh for this task
+    TASK_LOG_FILE.write_text("")
+
     # Track task in runtime state for dashboard
     task_started = time.time()
     _runtime["current_task"] = {
@@ -304,10 +308,15 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
     step_deadline: list[float] = [time.time() + INITIAL_TIMEOUT_SECS]
     first_output = [False]
 
+    _task_log_fh = TASK_LOG_FILE.open("a")
+
     def _reader():
         for raw_line in proc.stdout:
             line_s = raw_line.rstrip()
             output_lines.append(line_s)
+            # Stream every line to the task log (dashboard live view)
+            _task_log_fh.write(line_s + "\n")
+            _task_log_fh.flush()
             if not first_output[0]:
                 first_output[0] = True
             step_deadline[0] = time.time() + STEP_TIMEOUT_SECS  # reset step clock
@@ -345,6 +354,7 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
     proc.wait()
     reader.join(timeout=2)
     watchdog.join(timeout=2)
+    _task_log_fh.close()
 
     elapsed = round(time.time() - task_started)
     _runtime["current_task"] = None
