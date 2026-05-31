@@ -22,8 +22,9 @@ CLAUDE_BIN    = "/usr/local/bin/claude"
 PREVIEW_BASE  = "http://18.192.122.48"   # nginx article browser (port 80)
 
 # Timeouts for Claude invocations
-TASK_TIMEOUT_SECS = 3600  # 1-hour hard cap per Claude invocation
-STEP_TIMEOUT_SECS = 120   # kill if no output for 2 minutes (step stalled)
+TASK_TIMEOUT_SECS    = 3600  # 1-hour hard cap per Claude invocation
+STEP_TIMEOUT_SECS    = 120   # kill if no output for 2 minutes (step stalled)
+INITIAL_TIMEOUT_SECS = 300   # longer grace period for Claude cold-start (first output)
 CONTROL_PORT      = 9191  # localhost-only HTTP control plane
 
 # Event set by the control plane to trigger an immediate poll
@@ -298,12 +299,17 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
         return "ERROR", str(exc), ""
 
     # ── reader thread: collect output, reset step timer on every line ─────────
-    step_deadline: list[float] = [time.time() + STEP_TIMEOUT_SECS]
+    # Initial deadline is longer to allow for Claude cold-start; drops to
+    # STEP_TIMEOUT_SECS after the first line of output arrives.
+    step_deadline: list[float] = [time.time() + INITIAL_TIMEOUT_SECS]
+    first_output = [False]
 
     def _reader():
         for raw_line in proc.stdout:
             line_s = raw_line.rstrip()
             output_lines.append(line_s)
+            if not first_output[0]:
+                first_output[0] = True
             step_deadline[0] = time.time() + STEP_TIMEOUT_SECS  # reset step clock
             if line_s.startswith("STEP:"):
                 step = line_s[5:].strip()
@@ -351,8 +357,12 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
     if kill_reason:
         reason = kill_reason[0]
         if reason == "step_timeout":
-            msg = (f"step stalled — no output for {STEP_TIMEOUT_SECS}s "
-                   f"(last step: '{current_step[0]}')")
+            if not first_output[0]:
+                msg = (f"no output within {INITIAL_TIMEOUT_SECS}s of launch "
+                       f"(Claude cold-start timeout)")
+            else:
+                msg = (f"step stalled — no output for {STEP_TIMEOUT_SECS}s "
+                       f"(last step: '{current_step[0]}')")
             log(f"    WATCHDOG: {msg}")
             return "STEP_TIMEOUT", msg, ""
         else:
