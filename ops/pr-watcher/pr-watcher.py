@@ -66,8 +66,10 @@ def gh_post(path: str, **fields) -> dict:
 
 def load_state() -> dict:
     if STATE_FILE.exists():
-        return json.loads(STATE_FILE.read_text())
-    return {"handled": []}
+        d = json.loads(STATE_FILE.read_text())
+        d.setdefault("failed_comments", {})
+        return d
+    return {"handled": [], "failed_comments": {}}
 
 
 def save_state(state: dict):
@@ -108,6 +110,7 @@ def write_status(state: dict, iteration: int, next_poll_at: float) -> None:
         "current_task": _runtime["current_task"],
         "last_error": _runtime["last_error"],
         "last_task_duration_secs": _runtime["last_task_duration_secs"],
+        "failed_comments": list(state.get("failed_comments", {}).values()),
         "counters": {
             "comments_resolved":  sum(1 for h in handled if h.startswith("issue-")),
             "articles_triggered": sum(1 for h in handled if h.startswith("article-triggered-")),
@@ -120,6 +123,20 @@ def write_status(state: dict, iteration: int, next_poll_at: float) -> None:
     tmp = dest.with_suffix(".tmp")
     tmp.write_text(json.dumps(payload, indent=2))
     os.replace(tmp, dest)
+
+
+def _record_failure(state: dict, cid: str, pr_number: int, body: str, status: str):
+    state.setdefault("failed_comments", {})[cid] = {
+        "comment_id": cid,
+        "pr_number": pr_number,
+        "body_preview": body[:200],
+        "failure": status,
+        "failed_at": _now_iso(),
+    }
+
+
+def _clear_failure(state: dict, cid: str):
+    state.setdefault("failed_comments", {}).pop(cid, None)
 
 
 def _tail_log(n: int) -> list[str]:
@@ -680,8 +697,11 @@ def process_pr(pr_number: int, branch: str, state: dict):
 
         reply_inline(pr_number, c["id"], build_reply(status, sha, context))
 
-        if status == "ERROR":
+        if status in ("STEP_TIMEOUT", "TOTAL_TIMEOUT", "ERROR"):
             log(f"    Output tail: {output[-400:]}")
+            _record_failure(state, cid, pr_number, c["body"], status)
+        else:
+            _clear_failure(state, cid)
 
         state["handled"].append(cid)
         save_state(state)
@@ -719,8 +739,11 @@ def process_pr(pr_number: int, branch: str, state: dict):
 
         reply_issue(pr_number, build_reply(status, sha, context))
 
-        if status == "ERROR":
+        if status in ("STEP_TIMEOUT", "TOTAL_TIMEOUT", "ERROR"):
             log(f"    Output tail: {output[-400:]}")
+            _record_failure(state, cid, pr_number, c["body"], status)
+        else:
+            _clear_failure(state, cid)
 
         state["handled"].append(cid)
         save_state(state)
@@ -737,6 +760,22 @@ class _ControlHandler(BaseHTTPRequestHandler):
             _poll_now.set()
             log("Control: poll-now requested via HTTP")
             self._respond(200, '{"ok":true}')
+        elif self.path == "/retry":
+            length = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(length) if length else b""
+            try:
+                data = json.loads(body)
+                cid = data["comment_id"]
+                state = load_state()
+                if cid in state["handled"]:
+                    state["handled"].remove(cid)
+                _clear_failure(state, cid)
+                save_state(state)
+                _poll_now.set()
+                log(f"Control: retry requested for {cid}")
+                self._respond(200, '{"ok":true}')
+            except Exception as exc:
+                self._respond(400, json.dumps({"error": str(exc)}))
         else:
             self._respond(404, '{"error":"not found"}')
 
@@ -744,6 +783,11 @@ class _ControlHandler(BaseHTTPRequestHandler):
         self.send_response(204)
         self._cors_headers()
         self.end_headers()
+
+    def _cors_headers(self):
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
 
     def _respond(self, code, body):
         data = body.encode()
@@ -753,10 +797,6 @@ class _ControlHandler(BaseHTTPRequestHandler):
         self._cors_headers()
         self.end_headers()
         self.wfile.write(data)
-
-    def _cors_headers(self):
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
 
 
 def _start_control_server():

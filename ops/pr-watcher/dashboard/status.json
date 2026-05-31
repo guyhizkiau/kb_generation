@@ -19,6 +19,15 @@
     "step": "search Gmail inbox for reset email",
     "started_at": "2026-05-31T18:01:27Z"
   },
+  "failed_comments": [
+    {
+      "comment_id": "issue-4587405575",
+      "pr_number": 4,
+      "body_preview": "Now rerun the reset password flow, completing it end to end including fetching the reset code from the mailbox.",
+      "failure": "STEP_TIMEOUT",
+      "failed_at": "2026-05-31T17:44:58Z"
+    }
+  ],
   "last_error": null,
   "last_task_duration_secs": 217,
   "counters": {
