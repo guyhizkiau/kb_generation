@@ -672,9 +672,13 @@ Avoid generic AI-polish words unless they are necessary and accurate.
 
 ## 13a. Punctuation
 
-### No em dashes (long dashes)
+### Reduce dashes overall
 
-Do not use em dashes (—) in article prose.
+Dashes of any kind add visual noise and often signal a sentence that should have been split. Reach for a period or a comma first. Reserve dashes for cases where they carry meaning that other punctuation cannot.
+
+### Never use em dashes (long dashes)
+
+Do not use em dashes (`—`, U+2014) anywhere in article prose, headings, captions, alt text, or published HTML. This rule is absolute. There is no acceptable use of an em dash in a SpecterX KB article.
 
 Em dashes are heavy punctuation that reads as informal or rushed. Break the sentence instead.
 
@@ -692,11 +696,13 @@ Or restructure:
 
 Em dashes are also ambiguous when copied into CMS platforms like ZenDesk, which may render the Unicode character inconsistently.
 
+Before committing, grep the article for `—` (U+2014) and remove every occurrence.
+
 ### En dashes and hyphens
 
-Use a hyphen (-) for compound modifiers: `tenant-specific URL`, `self-service sign-up`.
+Use a hyphen (`-`) for compound modifiers: `tenant-specific URL`, `self-service sign-up`.
 
-Use an en dash (–) only in numeric ranges in reference tables: `3–5 screenshots`. Not in prose.
+Use an en dash (`–`, U+2013) only in numeric ranges in reference tables: `3–5 screenshots`. Not in prose. Prefer the word `to` when a range appears mid-sentence (`3 to 5 screenshots`).
 
 ### Other punctuation
 
