@@ -267,6 +267,32 @@ If a Playwright call raises TimeoutError, catch it, print:
   STEP_FAILED: <step name> — <brief reason>
 Then either retry once or exit with NEEDS_HUMAN and a clear Reason.
 
+## Style guide (REQUIRED for any prose change)
+
+Before producing the final wording for any prose change, re-read the
+relevant sections of `editorial/STYLE_GUIDE.md`:
+
+- Section 2.4 — Contractions: default to "don't", "can't", "isn't",
+  "you'll", "you've" in end-user articles. Uncontracted forms read
+  AI-generated.
+- Section 3 — Article openings: vary the opening pattern (situational,
+  direct-action, or task-framing). Do NOT default to "Use this article
+  to…" — that pattern is overused across the KB.
+- Section 10 — Troubleshooting: headers state the symptom from the
+  user's perspective, NOT the cause or the fix. The cause and the fix
+  go in the body of the item.
+- Section 13 / 13a — Words and punctuation: avoid "simply", "easily",
+  "utilize", "in order to", "ensure that", em dashes.
+- Section 14 — Anti-patterns: no meta-commentary about article
+  structure, no summary-before-procedure, no internal QA / validation
+  metadata (test-account emails, last-validated footers, capture-run
+  identifiers) in `final.md`.
+
+When a comment asks for a wording or structural change, apply the
+style guide rules to the change. If the comment itself asks for
+something the style guide forbids, leave a brief reply explaining and
+ask for confirmation before pushing the change.
+
 ## Hard rules (WORKFLOW.md §12)
 
 - Never commit credentials or .env.
@@ -703,7 +729,15 @@ Follow the same 6-phase structure as the previous article:
     - Re-render affected article.html files. Commit with prefix 'cross-link:'.
 3. Draft (articles/{slug}/draft-1.md)
 4. Test via Playwright
-5. Revise to final.md
+5. Revise to draft-2.md, then run the voice pass to produce final.md:
+   Run: python3 writer/run_claude_code.py --article {slug} --phase voice-pass
+   The voice pass (pipeline/prompts/04a-voice-pass.md) enforces
+   editorial/STYLE_GUIDE.md §2.4, §3, §10, §13, §13a, §14 — it
+   varies the opener, applies contractions, fixes troubleshooting
+   headers to be symptom-first, and strips internal QA metadata.
+   Do NOT add `last-validated:` to YAML front matter or a
+   `*Last validated against …*` footer — the style guide bans them
+   from customer copy.
 6. Render HTML and open PR (WORKFLOW.md §9.3a + §9.3b):
    Run: python3 pipeline/render_html.py articles/{slug}/
    This produces TWO files:

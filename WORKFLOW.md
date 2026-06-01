@@ -859,11 +859,36 @@ to capture final screenshots in the new order. If the revisions were
 minor (wording, ordering of steps that don't affect screenshots), skip
 this and use existing screenshots.
 
+### 9.2a Voice pass → final.md
+
+Use `pipeline/prompts/04a-voice-pass.md`. Run with:
+
+```bash
+python writer/run_claude_code.py --article NN-slug --phase voice-pass
+```
+
+The voice pass rewrites the prose against `editorial/STYLE_GUIDE.md`
+(Sections 2.4, 3, 10, 13, 13a, 14). It must not change facts, screenshot
+paths, UI labels, or the structure of the article. It only changes how
+the prose reads: opener, contractions, troubleshooting headers,
+parentheticals, and AI-tells. It also strips internal QA metadata from
+`final.md` (test-account emails, validation-date footers, capture-run
+identifiers) — that metadata stays in `test-notes.md`.
+
+After the voice pass runs, read the resulting `final.md` cold. If the
+opener still triggers an "AI-generated" reaction, iterate on the
+**prompt** (`pipeline/prompts/04a-voice-pass.md`), not the article —
+the goal is for the pass to be reliable across all 109 articles.
+
 ### 9.3 Produce `final.md`
 
-Stamp the front matter with `last-validated: <ISO date>` and
-`specterx-build: <build>`. Add the closing line `*Last validated
-against SpecterX build <X> on <date>.*` at the very bottom.
+The voice pass (9.2a) writes the published `final.md` directly. Do NOT
+add a `last-validated:` field or `specterx-build:` field to the YAML
+front matter, and do NOT add a closing `*Last validated against …*`
+footer — those are internal QA artifacts that belong in
+`test-notes.md`. The style guide explicitly bans them from customer
+copy (Section 14, anti-pattern: *No internal QA / validation metadata
+in customer copy*).
 
 
 ### 9.3a HTML rendering rules

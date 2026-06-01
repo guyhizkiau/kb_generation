@@ -79,18 +79,28 @@ Prefer:
 
 ### Contractions
 
-Use contractions naturally in end-user articles.
+**Default to contractions in end-user articles.** Use "don't", "can't", "isn't", "you'll", "you've", "we'll", "doesn't", "won't" where they read natural. Prose without contractions reads stiff and is one of the strongest tells that an article was AI-generated.
 
 Good:
 
-> If you don’t know which login method to use, check the sign-in page.
+> If you don't know which login method to use, check the sign-in page.
 
-Avoid contractions in:
+Good:
+
+> If you've forgotten your password, you can request a new one from the sign-in page.
+
+Avoid:
+
+> If you do not know which login method to use, check the sign-in page.
+
+Avoid contractions only in:
 
 - Legal notes
 - Security warnings
 - Formal admin documentation
 - Error-message explanations where precision matters
+
+In every other context, prefer the contracted form.
 
 ---
 
@@ -104,25 +114,39 @@ The intro should answer:
 - Who is it for?
 - What must be true before the user can do it?
 
+### Vary the opening pattern across the KB
+
+Do not open every article with the same construction. If every article in the KB starts with "Use this article to…", the corpus reads like a single AI-generated batch. Pick the pattern that fits the article's situation, and rotate. If you've drafted three consecutive articles in the same pattern, switch.
+
+**Pattern 1 — Situational** (preferred when the reader arrives with a problem). Start from what the user is trying to do or what they're seeing.
+
+Good:
+
+> If you've forgotten your SpecterX password, or you're setting one for the first time after an admin invites you, follow the steps below.
+
+**Pattern 2 — Direct action** (preferred when the article is short and the task is unambiguous). Lead with the verb.
+
+Good:
+
+> To reset your SpecterX password, request a code from the sign-in page, enter it, and pick a new password.
+
+**Pattern 3 — Task framing** (acceptable when the article covers a named task and the reader already knows what they're doing). The "Use this article to…" form. Use it, but not for every article.
+
 Good:
 
 > Use this article to sign in to SpecterX from a browser. Your administrator must create your account before you can sign in.
 
-Good:
+### Avoid
 
-> Use this article to reset your SpecterX password if you forgot it or need to create one for the first time.
-
-Avoid:
-
-> This article walks you through the process of signing in to SpecterX. By the end, you’ll have an active session and be ready to upload, share, and manage protected files.
+> This article walks you through the process of signing in to SpecterX. By the end, you'll have an active session and be ready to upload, share, and manage protected files.
 
 Do not start routine procedural articles with:
 
-- “By the end of this article…”
-- “This guide will walk you through…”
-- “In this article, we’ll show you how to…”
-- “You can easily…”
-- “SpecterX makes it simple to…”
+- "By the end of this article…"
+- "This guide will walk you through…"
+- "In this article, we'll show you how to…"
+- "You can easily…"
+- "SpecterX makes it simple to…"
 
 These phrases are not always wrong, but they often create generic, AI-polished prose.
 
@@ -562,6 +586,36 @@ Your browser may be blocking cookies for SpecterX. Allow cookies for your Specte
 
 Avoid long paragraphs that mix multiple symptoms, causes, and fixes.
 
+### Header rule: state the symptom, not the cause or the fix
+
+The reader scans troubleshooting headers looking for what they're experiencing. Headers must describe the symptom from the reader's perspective. Do not phrase the header as the cause (an internal diagnosis) or as the fix (an action). Those go in the body of the item.
+
+Avoid (cause-phrased header):
+
+> ### Your administrator has disabled self-service reset
+
+The reader does not know yet whether self-service reset is disabled. They came here because something visible to them isn't working.
+
+Avoid (fix-phrased header):
+
+> ### Allow cookies for SpecterX
+
+That is the resolution, not what the reader is seeing.
+
+Prefer (symptom-phrased header):
+
+> ### The Reset password link is missing or doesn't respond
+>
+> Some organizations require an administrator to reset passwords for users. If the Reset password link doesn't appear on your sign-in page, or clicking it does nothing, contact your administrator and ask them to reset your password.
+
+Prefer (symptom-phrased header):
+
+> ### The sign-in page keeps reloading
+>
+> Your browser may be blocking cookies for SpecterX. Allow cookies for your SpecterX domain and try again.
+
+When the symptom is a quoted error message the user can see verbatim, the quoted message is acceptable as the header. Otherwise describe the symptom in the user's own terms.
+
 ### Troubleshooting tone
 
 Be direct. Do not blame the user.
@@ -717,13 +771,13 @@ Use an en dash (`–`, U+2013) only in numeric ranges in reference tables: `3–
 
 Do not:
 
-- Start routine procedural articles with “By the end of this article…”
+- Start routine procedural articles with "By the end of this article…"
 - Describe the full UI when a screenshot already shows it.
 - Repeat the same explanation in the intro, steps, and troubleshooting.
 - Include generic benefit statements unless they help the user make a decision.
 - Quote error messages unless verified in the product.
 - List every possible tenant configuration in the main flow.
-- Add a “What this article doesn’t cover” section unless the boundary prevents real confusion.
+- Add a "What this article doesn't cover" section unless the boundary prevents real confusion.
 - Use long, symmetrical examples that restate the obvious.
 
 Bad:
@@ -733,6 +787,62 @@ Bad:
 Better:
 
 > SpecterX shows the login method configured for your account.
+
+### No meta-commentary about article structure
+
+The reader does not need to be told how the article is organized. Do not narrate the structure inline. Just write the article — the reader can see the headings and the steps.
+
+Bad:
+
+> The procedure is the same in both cases: you trigger an email, enter the code, and choose a new password.
+
+The sentence summarizes what the steps below already show. It exists to telegraph completeness, not to help the reader. Delete it.
+
+Bad:
+
+> This article will cover account setup, then password reset, then SSO.
+
+The headings already say this.
+
+Bad:
+
+> First we will request the code, then we will enter it, then we will set the new password.
+
+Just write the steps.
+
+### No summary-before-procedure
+
+If the steps appear below, do not also list them in prose in the intro. Pick one place to describe the procedure.
+
+Bad (intro):
+
+> Use this article to reset your password. The procedure is: request a code, open the email, enter the code, and choose a new password.
+>
+> ## Steps
+>
+> 1. Request the code.
+> 2. Open the email.
+> 3. Enter the code.
+> 4. Choose a new password.
+
+The intro and the steps say the same thing. Either drop the procedure summary from the intro, or drop the headings and write a single short paragraph if the task is genuinely that simple.
+
+### No internal QA / validation metadata in customer copy
+
+Information used by the test pipeline is not for the published article. Specifically, do not include in `final.md`:
+
+- Test-account email addresses or usernames (e.g. `davidch@specterx.com`).
+- "Last validated end-to-end on YYYY-MM-DD against the live production tenant" footers.
+- Tenant IDs, capture session IDs, pipeline build identifiers, or v13/v14 capture-run labels.
+- Notes about which test recipient was used, which Playwright script captured a screenshot, or which capture run is canonical.
+
+Bad:
+
+> *Last validated end-to-end against the live SpecterX production tenant at `app.specterx.com` on 2026-06-01, using the admin-provisioned test recipient `davidch@specterx.com`.*
+
+This belongs in `test-notes.md`, which is internal to the pipeline. Delete it from `final.md` before opening the PR.
+
+If validation provenance matters for the article, surface it as a short sentence that helps the reader — for example "Verified on the SpecterX web platform, December 2025." — without leaking internal account or capture-run identifiers.
 
 ### Over-documentation anti-patterns
 
@@ -1003,8 +1113,12 @@ Prefer:
 Before approving an article, check the following:
 
 - The intro is short and task-focused.
-- The article uses “you” consistently.
+- The intro opener varies from the last few articles in the KB (not all "Use this article to…").
+- The intro does not summarize the procedure that the steps below already cover.
+- The article uses "you" consistently.
+- The article uses contractions where natural (don't, can't, isn't, you'll, you've).
 - The article uses present tense for product behavior.
+- The article does not narrate its own structure ("the procedure is the same in both cases", "first we will…").
 - Each step has one primary action.
 - UI labels match the product exactly.
 - URLs and redirects are verified.
@@ -1013,10 +1127,12 @@ Before approving an article, check the following:
 - Screenshot captions are short.
 - Edge cases are not overloaded into the main flow.
 - Troubleshooting is organized by symptom.
+- Troubleshooting headers state the symptom, not the cause or the fix.
 - Related articles are relevant and not used as filler.
 - Generic benefit language has been removed.
 - The article does not sound like marketing copy.
 - The article does not sound like an AI-generated generic SaaS guide.
+- The article does not include internal QA metadata (test-account emails, validation-date footers, capture-run identifiers).
 
 ---
 
