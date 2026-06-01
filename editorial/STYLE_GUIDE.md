@@ -443,6 +443,17 @@ If the relevant region is only a small part of the page, crop tightly to that re
 - Dismiss unrelated overlays (tour bubbles, "what's new" popups, cookie banners, browser notification prompts) before capturing, unless the overlay is the subject of the step.
 - Save as PNG. Use the file name pattern `NN-short-description.png` (for example `01-login-page.png`, `02-dashboard.png`) and store under `workspace/articles/NN-slug/screenshots/`.
 
+#### Pre-capture cleanup checklist
+
+Before pressing the shutter on any screenshot, walk through this list. The goal is a frame that contains only the UI the step refers to — not the chrome of the surrounding app or third-party host (Gmail, Outlook, etc.).
+
+- **Dismiss promotional / onboarding popups.** Examples seen in practice: Gmail's "Start a chat" tour bubble (close with the **X** in the top-right corner of the bubble), Google Workspace "what's new" cards, browser update banners. None of these are part of the SpecterX flow and they cover the area the reader needs to see.
+- **Clear "this message is spam" / "Report not spam" banners.** If the verification email landed in spam and Gmail (or any other mail client) is showing a yellow/grey "Why is this message in spam?" banner with a **Report not spam** / **Not spam** button, click that button before capturing. The banner moves the email back to the inbox and disappears, leaving a clean message body.
+- **Avoid thread collation in mailbox screenshots.** Mail clients group messages with the same subject into a single thread. If a previous test run already left a verification or reset email in the mailbox, the new email collates with it and the screenshot shows two stacked rows instead of one. Before triggering a new email, delete (or permanently delete from Spam) any prior emails from the same sender / with the same subject, so the new capture shows a single, fresh row.
+- **Close any unrelated browser dialogs.** Password-save prompts, translate-this-page bars, autofill prompts.
+
+If any of these are still visible when you press the shutter, recapture — do not commit the dirty frame.
+
 ### Cropping
 
 After capture, crop to the relevant region:
@@ -451,6 +462,12 @@ After capture, crop to the relevant region:
 - For a page-level "you are now here" screenshot, keep the page header (so the page name and signed-in account are visible) and the top of the main content area. Drop the footer and any long scroll region below the fold.
 - For a table or list, keep the column headers and the first few rows. Do not include the entire list unless the length itself is the point.
 - Do not stretch or rescale the cropped image to fill a larger frame. Save the crop at its natural pixel dimensions.
+
+**Special cases — screenshots that almost always need a tight crop:**
+
+- **Email inbox listings (Gmail, Outlook, etc.).** Crop to the row(s) of interest plus the column headers / "1 of N" counter that places them on the page. Drop the left-hand label nav, the right-hand Google-Apps sidebar, the footer, and any empty space below the rows.
+- **Email message bodies.** Crop to the sender line, the subject, and the message body itself. Drop everything outside the open-message panel (label nav, sidebars, the empty area below the message).
+- **Toast / banner notifications.** These appear briefly at the top or corner of the screen. Crop to the toast plus enough of the surrounding page to identify *where* the toast appeared (e.g., for a post-reset confirmation, keep enough of the sign-in page header to show the user is back on the sign-in page). A toast floating on top of an otherwise full-viewport screenshot is not acceptable — the reader's eye has to hunt for a 36 px-tall element in a 900 px frame.
 
 ### Annotations and redaction
 
