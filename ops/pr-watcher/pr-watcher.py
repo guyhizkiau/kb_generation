@@ -6,7 +6,7 @@ Polls open PRs every 5 minutes. For each new review/issue comment from a
 human, runs VM-Claude to resolve it, commits the fix, and posts a contextual
 reply. Also monitors recently-merged article PRs and triggers the next article.
 """
-import subprocess, json, os, time, re, threading, tempfile
+import subprocess, json, os, pty, time, re, threading, tempfile
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from datetime import datetime, timezone
@@ -296,13 +296,8 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
     kill_reason: list[str] = []   # mutable container so threads can write it
     current_step: list[str] = ["(starting)"]
 
-    # Truncate task log — claude will write stdout directly to this file.
-    # Using a file (not a pipe) because Claude Code suppresses output when
-    # stdout is a pipe (non-TTY). Writing to a regular file matches the
-    # original working behaviour where stdout was inherited from the nohup
-    # shell and went to pr-watcher.log.
+    # Truncate task log. Reader thread will populate it.
     TASK_LOG_FILE.write_text("")
-    _task_log_fh = TASK_LOG_FILE.open("w")
 
     # Track task in runtime state for dashboard
     task_started = time.time()
@@ -314,43 +309,45 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
     }
     flush_status()  # push to dashboard immediately so it shows active task
 
+    # Allocate a PTY. Claude/Node sees its stdout as a TTY and switches to
+    # line buffering, so each \n flushes immediately and we can stream
+    # output to the dashboard. Without this, Node block-buffers ~16 KB and
+    # we see nothing until process exit.
+    master_fd, slave_fd = pty.openpty()
+
+    # Env: keep ANTHROPIC_API_KEY etc, but suppress colors / animations
+    # that would otherwise be triggered by the TTY detection.
+    claude_env = os.environ.copy()
+    claude_env["TERM"] = "dumb"
+    claude_env["NO_COLOR"] = "1"
+    claude_env["FORCE_COLOR"] = "0"
+    claude_env["CI"] = "1"   # most CLIs suppress TUI when CI=1
+
     try:
         proc = subprocess.Popen(
             [CLAUDE_BIN, "--dangerously-skip-permissions", "-p", prompt],
-            stdout=_task_log_fh,   # write directly to file — avoids pipe suppression
-            stderr=_task_log_fh,   # stderr too
+            stdout=slave_fd,
+            stderr=slave_fd,
             stdin=subprocess.DEVNULL,
-            text=True, env=os.environ.copy(), cwd=str(REPO_PATH),
+            env=claude_env, cwd=str(REPO_PATH),
             preexec_fn=os.setpgrp, # new process group for killpg
+            close_fds=True,
         )
     except Exception as exc:
-        _task_log_fh.close()
+        os.close(master_fd)
+        os.close(slave_fd)
         _runtime["current_task"] = None
         return "ERROR", str(exc), ""
 
-    # Parent no longer needs the write end — close so the file can be read
-    _task_log_fh.close()
+    # Parent no longer needs the slave end — close it so the master read
+    # returns EOF when claude exits.
+    os.close(slave_fd)
 
-    # ── reader thread: tail the task log file, reset step timer on every line ──
+    # ── reader thread: stream PTY output → task log + dashboard ──────────────
     # Initial deadline is longer to allow for Claude cold-start; drops to
     # STEP_TIMEOUT_SECS after the first line of output arrives.
     step_deadline: list[float] = [time.time() + INITIAL_TIMEOUT_SECS]
     first_output = [False]
-
-    def _reader():
-        with TASK_LOG_FILE.open("r", errors="replace") as fh:
-            while True:
-                line = fh.readline()
-                if not line:
-                    # No new data yet — check if process has exited
-                    if proc.poll() is not None:
-                        # Drain any last lines before exiting
-                        for line in fh:
-                            _process_line(line.rstrip())
-                        break
-                    time.sleep(0.1)
-                    continue
-                _process_line(line.rstrip())
 
     def _process_line(line_s: str):
         output_lines.append(line_s)
@@ -366,6 +363,34 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
             }
             log(f"    → {line_s}")
             flush_status()  # update dashboard with new step name
+
+    def _reader():
+        buf = b""
+        try:
+            with TASK_LOG_FILE.open("ab") as fh:
+                while True:
+                    try:
+                        chunk = os.read(master_fd, 4096)
+                    except OSError:
+                        break  # PTY closed (claude exited)
+                    if not chunk:
+                        break
+                    fh.write(chunk)
+                    fh.flush()
+                    buf += chunk
+                    while b"\n" in buf:
+                        line, _, buf = buf.partition(b"\n")
+                        _process_line(
+                            line.decode("utf-8", errors="replace").rstrip("\r")
+                        )
+                # Drain trailing partial line, if any
+                if buf:
+                    _process_line(buf.decode("utf-8", errors="replace").rstrip("\r"))
+        finally:
+            try:
+                os.close(master_fd)
+            except OSError:
+                pass
 
     reader = threading.Thread(target=_reader, daemon=True)
     reader.start()
