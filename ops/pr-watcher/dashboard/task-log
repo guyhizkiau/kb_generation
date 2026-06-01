@@ -1,0 +1,18 @@
+STEP: open SpecterX in browser
+Navigating to https://app.specterx.com/login
+Tool: browser_navigate(url="https://app.specterx.com/login")
+Page loaded: SpecterX – Log in
+STEP: navigate to reset password page
+Tool: browser_click(selector="Forgot password")
+Tool: browser_navigate — reset password form loaded
+STEP: fill email and submit
+Tool: browser_type(selector="#email", text="davidch@specterx.com")
+Tool: browser_click(selector="Send reset link")
+Submitted. Waiting for confirmation message.
+STEP: open Gmail inbox
+Tool: browser_navigate(url="https://mail.google.com")
+Gmail loaded. Logged in as test account.
+STEP: search Gmail inbox for reset email
+Tool: browser_type(selector="[aria-label='Search mail']", text="SpecterX password reset")
+Tool: browser_click(selector="[aria-label='Search Mail']")
+Waiting for results...
