@@ -8,6 +8,19 @@
 > WSL2 Ubuntu. You have hands on: the SpecterX web tenant (via Chromium
 > with CDP), the SpecterX desktop apps (via computer-use), git, gh,
 > Bitbucket repos, and the local filesystem.
+>
+> Also read before starting:
+>
+> - [`docs/LESSONS_LEARNED.md`](docs/LESSONS_LEARNED.md) — durable
+>   "we hit this wall once" notes. Saves rediscovering the same bugs.
+> - [`ops/pr-watcher/README.md`](ops/pr-watcher/README.md) — operational
+>   runbook for the autonomous bot that drives this pipeline when an
+>   article PR is open.
+> - [`editorial/STYLE_GUIDE.md`](editorial/STYLE_GUIDE.md) — the voice,
+>   structure, and anti-patterns canon. Updated continuously from
+>   approved articles.
+> - [`tester/TEST_RESOURCES.md`](tester/TEST_RESOURCES.md) — credentials
+>   and provisioning notes for shared test accounts.
 
 ---
 

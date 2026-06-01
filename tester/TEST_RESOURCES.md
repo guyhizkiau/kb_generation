@@ -31,6 +31,31 @@ needs to:
 Resetting `davidch@specterx.com` does **not** lock out Guy's working
 account.
 
+### Provisioning prerequisite (learned the hard way on PR #4)
+
+A Google Workspace mailbox at `davidch@specterx.com` is **not enough**.
+The address must also be invited as an active SpecterX user in the
+target tenant before the password-reset flow will work end-to-end.
+SpecterX is no-enumeration: if you click **Reset password** for an
+address that has a mailbox but no SpecterX user, the UI silently looks
+identical to a successful submission and no verification email is
+ever sent.
+
+When introducing a new test recipient:
+
+1. Ask the admin to invite the address in the SpecterX admin portal
+   (Users → invite).
+2. Wait for the activation email to arrive in that mailbox.
+3. Click the activation link, set the initial password, and verify
+   sign-in works once before kicking off the E2E test plan.
+4. Only then can the test runner trigger **Reset password** end-to-end
+   and expect a verification email.
+
+If a future article's E2E run produces zero reset emails for the
+recipient and the SpecterX UI looks normal, the most likely cause is
+that the recipient was de-provisioned or never provisioned in the
+target tenant. Re-run step 1 before debugging Playwright or Gmail.
+
 ## Ad-hoc throwaway recipient mailboxes — Mailinator
 
 For one-off external-recipient flows (share-to-external, recipient
