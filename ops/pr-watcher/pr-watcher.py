@@ -315,7 +315,7 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
             stdin=subprocess.DEVNULL,     # prevent auth-prompt hanging on stdin
             text=True, env=os.environ.copy(), cwd=str(REPO_PATH),
-            start_new_session=True,       # new process group → group kill cleans up children
+            preexec_fn=os.setpgrp,         # new process group (not session) → killpg works, stdout unaffected
         )
     except Exception as exc:
         _runtime["current_task"] = None
