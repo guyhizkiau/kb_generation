@@ -37,7 +37,20 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
 def article_dir(slug: str) -> Path:
-    return REPO_ROOT / "workspace" / "articles" / slug
+    """Resolve the article working directory.
+
+    Historically the pipeline used `workspace/articles/<slug>/` but the
+    canonical location moved to `articles/<slug>/`. We prefer the
+    canonical location if it exists; we fall back to the legacy path
+    only if the canonical one is missing AND the legacy one is present.
+    """
+    canonical = REPO_ROOT / "articles" / slug
+    legacy = REPO_ROOT / "workspace" / "articles" / slug
+    if canonical.exists():
+        return canonical
+    if legacy.exists():
+        return legacy
+    return canonical  # create under the canonical path by default
 
 
 def assemble_prompt(slug: str, phase: str) -> str:
@@ -52,9 +65,7 @@ def assemble_prompt(slug: str, phase: str) -> str:
         f"    {article_path}\n\n"
         f"All file paths in the prompt below that use placeholders like\n"
         f"`articles/<NN-slug>/...` or `articles/{slug}/...` refer to this\n"
-        f"working directory (note: pipeline articles live under `workspace/`\n"
-        f"in this repo to avoid colliding with the static-site `articles/`\n"
-        f"directory; the prompts were written before that split, so adapt).\n\n"
+        f"working directory.\n\n"
         f"When you finish, update the `STATE` file in the working\n"
         f"directory as the prompt instructs, and then exit.\n\n"
         f"---\n\n"
