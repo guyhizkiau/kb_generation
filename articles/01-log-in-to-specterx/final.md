@@ -55,7 +55,7 @@ Your browser may be blocking cookies for SpecterX. Allow cookies for your sign-i
 ## Related articles
 
 - [Set or reset your password](../02-set-or-reset-password/02-set-or-reset-password.html)
-- What is SpecterX?
+- [What is SpecterX?](../03-what-is-specterx/03-what-is-specterx.html)
 
 ---
 
