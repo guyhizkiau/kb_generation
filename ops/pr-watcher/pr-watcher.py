@@ -25,7 +25,7 @@ PREVIEW_BASE  = "http://18.192.122.48"   # nginx article browser (port 80)
 # Timeouts for Claude invocations
 TASK_TIMEOUT_SECS    = 3600  # 1-hour hard cap per Claude invocation
 STEP_TIMEOUT_SECS    = 120   # kill if no output for 2 minutes (step stalled)
-INITIAL_TIMEOUT_SECS = 300   # longer grace period for Claude cold-start (first output)
+INITIAL_TIMEOUT_SECS = 3600  # match task cap: first output may not arrive until E2E tool finishes
 CONTROL_PORT      = 9191  # localhost-only HTTP control plane
 
 # Event set by the control plane to trigger an immediate poll
