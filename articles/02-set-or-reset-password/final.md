@@ -6,7 +6,7 @@ estimated-reading-time: 3 min
 
 # Set or reset your password
 
-If you've forgotten your SpecterX password, or you're setting one for the first time after your administrator invites you, follow the steps below to request a code by email and pick a new password.
+If you've forgotten your SpecterX password, or you're setting one for the first time, follow the steps below to request a code by email and pick a new password.
 
 If your organization signs you in to SpecterX through Google Workspace, Microsoft / Entra ID, or Okta, these steps don't apply to you. See **If you sign in with SSO** below.
 
@@ -14,8 +14,8 @@ If your organization signs you in to SpecterX through Google Workspace, Microsof
 
 You need:
 
-- A SpecterX account. Your administrator creates the account; self-service sign-up isn't available. If you haven't been invited yet, SpecterX shows "You must be invited before you can sign in" and the procedure below won't work.
-- Access to the inbox of the email address your administrator registered. That's where the code goes.
+- A SpecterX account. Accounts are created for you when your organization adds you or when someone shares data with you — self-service sign-up isn't available. Without an account, SpecterX shows "You must be invited before you can sign in" and the procedure below won't work.
+- Access to the inbox of the email address linked to your SpecterX account. That's where the code goes.
 - Your organization's SpecterX sign-in URL. Every tenant has its own URL on the `specterx.com` domain, such as `https://yourorg.specterx.com`. If your administrator gave you a different URL, use that one. Don't default to `app.specterx.com`. That's one specific tenant's URL, not a shared address.
 
 ## Steps
