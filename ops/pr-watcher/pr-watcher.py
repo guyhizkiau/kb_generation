@@ -293,6 +293,7 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
     )
 
     output_lines: list[str] = []
+    assistant_text_lines: list[str] = []   # only plain assistant text (for RESOLVED/NEEDS_HUMAN scan)
     kill_reason: list[str] = []   # mutable container so threads can write it
     current_step: list[str] = ["(starting)"]
 
@@ -324,8 +325,17 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
     claude_env["CI"] = "1"   # most CLIs suppress TUI when CI=1
 
     try:
+        # --output-format=stream-json emits one JSON event per assistant
+        # message delta, tool_use, and tool_result — in real time, as the
+        # model produces them. --verbose is required by claude when -p +
+        # stream-json are combined.
         proc = subprocess.Popen(
-            [CLAUDE_BIN, "--dangerously-skip-permissions", "-p", prompt],
+            [
+                CLAUDE_BIN, "--dangerously-skip-permissions",
+                "--output-format", "stream-json",
+                "--verbose",
+                "-p", prompt,
+            ],
             stdout=slave_fd,
             stderr=slave_fd,
             stdin=subprocess.DEVNULL,
@@ -349,43 +359,106 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
     step_deadline: list[float] = [time.time() + INITIAL_TIMEOUT_SECS]
     first_output = [False]
 
-    def _process_line(line_s: str):
-        output_lines.append(line_s)
+    def _set_step(step: str):
+        current_step[0] = step
+        _runtime["current_task"] = {**_runtime["current_task"], "step": step}
+        log(f"    → STEP: {step}")
+        flush_status()
+
+    def _format_event(evt: dict) -> list[str]:
+        """Turn a stream-json event into human-readable log lines."""
+        lines: list[str] = []
+        et = evt.get("type")
+        if et == "system" and evt.get("subtype") == "init":
+            tools = evt.get("tools") or []
+            lines.append(f"[system] init · {len(tools)} tools available")
+        elif et == "assistant":
+            for block in evt.get("message", {}).get("content", []):
+                btype = block.get("type")
+                if btype == "text":
+                    text = (block.get("text") or "").rstrip()
+                    if not text:
+                        continue
+                    for sub in text.splitlines():
+                        lines.append(sub)
+                        assistant_text_lines.append(sub)
+                        if sub.startswith("STEP:"):
+                            _set_step(sub[5:].strip())
+                elif btype == "tool_use":
+                    name = block.get("name", "?")
+                    inp = block.get("input") or {}
+                    summary = ""
+                    if name == "Bash":
+                        cmd = (inp.get("command") or "").splitlines()
+                        summary = cmd[0][:200] if cmd else ""
+                    elif name in ("Read", "Edit", "Write"):
+                        summary = str(inp.get("file_path", ""))[:200]
+                    elif name == "Grep":
+                        summary = f"{inp.get('pattern','')!r} in {inp.get('path','.')}"
+                    elif name == "Glob":
+                        summary = inp.get("pattern", "")
+                    else:
+                        summary = json.dumps(inp)[:200]
+                    lines.append(f"→ {name}: {summary}")
+                    _set_step(f"{name}: {summary[:80]}")
+        elif et == "user":
+            # tool_result echo from previous tool_use
+            for block in evt.get("message", {}).get("content", []):
+                if block.get("type") == "tool_result":
+                    content = block.get("content")
+                    if isinstance(content, list):
+                        content = "".join(
+                            c.get("text", "") for c in content if c.get("type") == "text"
+                        )
+                    if not isinstance(content, str):
+                        content = json.dumps(content)[:200]
+                    tail = content.strip().splitlines()[-3:] if content else []
+                    for t in tail:
+                        lines.append(f"  {t[:240]}")
+        elif et == "result":
+            sub = evt.get("subtype", "")
+            cost = evt.get("total_cost_usd")
+            dur = evt.get("duration_ms")
+            lines.append(f"[result] {sub} · {dur}ms · ${cost}")
+        return lines
+
+    def _process_line(raw: str):
+        """Receive one line of PTY output (should be one JSON event)."""
         if not first_output[0]:
             first_output[0] = True
-        step_deadline[0] = time.time() + STEP_TIMEOUT_SECS  # reset step clock
-        if line_s.startswith("STEP:"):
-            step = line_s[5:].strip()
-            current_step[0] = step
-            _runtime["current_task"] = {
-                **_runtime["current_task"],
-                "step": step,
-            }
-            log(f"    → {line_s}")
-            flush_status()  # update dashboard with new step name
+        step_deadline[0] = time.time() + STEP_TIMEOUT_SECS
+        if not raw.strip():
+            return
+        output_lines.append(raw)  # keep raw for RESOLVED/NEEDS_HUMAN parsing
+        try:
+            evt = json.loads(raw)
+        except Exception:
+            # Not JSON — pass through (claude warnings, login prompts, etc.)
+            with TASK_LOG_FILE.open("a") as fh:
+                fh.write(raw + "\n")
+            return
+        formatted = _format_event(evt)
+        if formatted:
+            with TASK_LOG_FILE.open("a") as fh:
+                for ln in formatted:
+                    fh.write(ln + "\n")
 
     def _reader():
         buf = b""
         try:
-            with TASK_LOG_FILE.open("ab") as fh:
-                while True:
-                    try:
-                        chunk = os.read(master_fd, 4096)
-                    except OSError:
-                        break  # PTY closed (claude exited)
-                    if not chunk:
-                        break
-                    fh.write(chunk)
-                    fh.flush()
-                    buf += chunk
-                    while b"\n" in buf:
-                        line, _, buf = buf.partition(b"\n")
-                        _process_line(
-                            line.decode("utf-8", errors="replace").rstrip("\r")
-                        )
-                # Drain trailing partial line, if any
-                if buf:
-                    _process_line(buf.decode("utf-8", errors="replace").rstrip("\r"))
+            while True:
+                try:
+                    chunk = os.read(master_fd, 8192)
+                except OSError:
+                    break  # PTY closed (claude exited)
+                if not chunk:
+                    break
+                buf += chunk
+                while b"\n" in buf:
+                    line, _, buf = buf.partition(b"\n")
+                    _process_line(line.decode("utf-8", errors="replace").rstrip("\r"))
+            if buf:
+                _process_line(buf.decode("utf-8", errors="replace").rstrip("\r"))
         finally:
             try:
                 os.close(master_fd)
@@ -432,7 +505,8 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
     flush_status()  # clear active task from dashboard
 
     output = "\n".join(output_lines).strip()
-    lines = output_lines
+    # Scan plain assistant text (not stream-json wrapper) for RESOLVED/NEEDS_HUMAN
+    text_lines = assistant_text_lines
 
     # ── interpret kill reason ─────────────────────────────────────────────────
     if kill_reason:
@@ -454,17 +528,17 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
     # ── scan output for RESOLVED / NEEDS_HUMAN ────────────────────────────────
     status = "ERROR"
     context = ""
-    for i, line_text in enumerate(lines[-10:], start=max(0, len(lines) - 10)):
+    for i, line_text in enumerate(text_lines[-20:], start=max(0, len(text_lines) - 20)):
         stripped = line_text.strip()
         if stripped == "RESOLVED":
             status = "RESOLVED"
-            if i + 1 < len(lines) and lines[i + 1].startswith("Context:"):
-                context = lines[i + 1][len("Context:"):].strip()
+            if i + 1 < len(text_lines) and text_lines[i + 1].startswith("Context:"):
+                context = text_lines[i + 1][len("Context:"):].strip()
             break
         elif stripped == "NEEDS_HUMAN":
             status = "NEEDS_HUMAN"
-            if i + 1 < len(lines) and lines[i + 1].startswith("Reason:"):
-                context = lines[i + 1][len("Reason:"):].strip()
+            if i + 1 < len(text_lines) and text_lines[i + 1].startswith("Reason:"):
+                context = text_lines[i + 1][len("Reason:"):].strip()
             break
 
     return status, output, context
