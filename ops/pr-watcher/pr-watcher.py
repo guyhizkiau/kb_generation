@@ -92,6 +92,9 @@ _runtime: dict = {
 # Cache of the latest write_status args so resolve_comment() can flush mid-task
 _status_cache: dict = {}   # keys: state, iteration, next_poll_at
 
+# Comment IDs to re-process even if already in state["handled"] (set by retry endpoint)
+_retry_set: set = set()
+
 
 def flush_status():
     """Write status.json immediately using the latest cached poll args."""
@@ -310,7 +313,9 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
         proc = subprocess.Popen(
             [CLAUDE_BIN, "--dangerously-skip-permissions", "-p", prompt],
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            stdin=subprocess.DEVNULL,     # prevent auth-prompt hanging on stdin
             text=True, env=os.environ.copy(), cwd=str(REPO_PATH),
+            start_new_session=True,       # new process group → group kill cleans up children
         )
     except Exception as exc:
         _runtime["current_task"] = None
@@ -350,16 +355,24 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
     # ── watchdog thread: kill on step stall or total timeout ──────────────────
     task_deadline = time.time() + TASK_TIMEOUT_SECS
 
+    def _kill_group():
+        """Kill the entire process group to clean up claude + any child browsers."""
+        try:
+            import signal
+            os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+        except Exception:
+            proc.kill()  # fallback
+
     def _watchdog():
         while proc.poll() is None:
             now = time.time()
             if now > task_deadline:
                 kill_reason.append("total_timeout")
-                proc.kill()
+                _kill_group()
                 return
             if now > step_deadline[0]:
                 kill_reason.append("step_timeout")
-                proc.kill()
+                _kill_group()
                 return
             time.sleep(1)
 
@@ -713,8 +726,9 @@ def process_pr(pr_number: int, branch: str, state: dict):
 
     for c in inline:
         cid = f"inline-{c['id']}"
-        if cid in state["handled"]:
+        if cid in state["handled"] and cid not in _retry_set:
             continue
+        _retry_set.discard(cid)
         if BOT_MARKER in c["body"]:
             state["handled"].append(cid)
             save_state(state)
@@ -751,8 +765,9 @@ def process_pr(pr_number: int, branch: str, state: dict):
 
     for c in issue_comments:
         cid = f"issue-{c['id']}"
-        if cid in state["handled"]:
+        if cid in state["handled"] and cid not in _retry_set:
             continue
+        _retry_set.discard(cid)
         if BOT_MARKER in c["body"]:
             state["handled"].append(cid)
             save_state(state)
@@ -807,6 +822,7 @@ class _ControlHandler(BaseHTTPRequestHandler):
                     state["handled"].remove(cid)
                 _clear_failure(state, cid)
                 save_state(state)
+                _retry_set.add(cid)   # also bypass in-memory handled check
                 _poll_now.set()
                 log(f"Control: retry requested for {cid}")
                 self._respond(200, '{"ok":true}')
