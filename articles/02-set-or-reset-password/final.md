@@ -103,4 +103,4 @@ Your email address is not associated with an active SpecterX account. Contact wh
 
 ---
 
-*Last validated against the live SpecterX production tenant at `app.specterx.com` on 2026-05-27.*
+*Last validated end-to-end against the live SpecterX production tenant at `app.specterx.com` on 2026-06-01, using the admin-provisioned test recipient `davidch@specterx.com`.*
