@@ -1,0 +1,26 @@
+STEP: Gmail: launch persistent context
+  gmail host after nav: https://mail.google.com/mail/u/0/#inbox
+STEP: SpecterX: open /signIn (fresh profile)
+STEP: SpecterX: click Reset password
+STEP: SpecterX: fill email and submit Reset
+  Reset submitted at t=1780312216.6
+  'Create New Password' visible
+STEP: Gmail: poll Inbox and Spam for the fresh reset code
+  attempt 1 #inbox: rows=3
+    [0] support | You've been invited to use SpecterX |  -  | guy@specterx.com has invited you to start using SpecterX Protect, manage, and share your digital assets ef
+    [1] Gmail Team | Tips for using your new inbox |  -  | Welcome to your inbox Find emails fast With the power of Google Search in your inbox, you can archive all you
+    [2] Gmail Team | Get the official Gmail app |  -  | Get the official Gmail app The best features of SpecterX Mail are only available on your phone and tablet with t
+  attempt 1 #spam: rows=5
+    [0] support, You've been invited to use SpecterX, 8:54 AM, guy@specterx.com has invited you to start using SpecterX Protect, manage, and share your digital assets e
+    [1] Gmail Team, Tips for using your new inbox, May 27, Welcome to your inbox Find emails fast With the power of Google Search in your inbox, you can archive all you
+    [2] Gmail Team, Get the official Gmail app, May 27, Get the official Gmail app The best features of SpecterX Mail are only available on your phone and tablet with t
+    [3] no-reply | 3 | Your verification code |  -  | Your verification code is 001895. |   | 11:10 AM
+    [4] no-reply | SpecterX - Verify your email address |  -  | Please click the link below to verify your email address. Verify Email |   | 9:18 AM
+STEP:   fresh code from #spam row[3]: 00****
+STEP: SpecterX: type code in 'Enter the code' field
+STEP: SpecterX: type new password in 'Create your password'
+  code field redacted
+STEP: SpecterX: click Change Password
+STEP: SpecterX: wait for redirect/success
+  redirected to https://app.specterx.com/forgotPassword/signIn
+  success toast count=1

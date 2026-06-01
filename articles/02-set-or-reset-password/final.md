@@ -2,7 +2,7 @@
 title: Set or reset your password
 audience: end-user
 estimated-reading-time: 3 min
-last-validated: 2026-05-27
+last-validated: 2026-06-01
 specterx-build: live production tenant at app.specterx.com (no public build identifier exposed in the UI as of capture)
 ---
 
@@ -32,9 +32,13 @@ You need:
 
    SpecterX sends a 6-digit verification code to that email address. The code is valid for one hour.
 
-3. Open the email and copy the code. The message comes from an `@specterx.com` sender. If you do not see it within a minute or two, check your spam or junk folder.
+3. Open the email and copy the code. The message comes from an `@specterx.com` sender (you may see it forwarded through a transactional-email provider such as `verificationemail.com`). If you do not see it within a minute or two, check your spam or junk folder.
+
+   ![The verification email showing the 6-digit code in the message body](screenshots/11-reset-code-email-body.png)
 
 4. Back on the SpecterX page, the title changes to **Create New Password**. Type the code in the **Enter the code** field.
+
+   ![The Create New Password page with the Enter the code field and password field below](screenshots/08-create-new-password-empty.png)
 
    If you did not receive the code, click **Didn't get the code? Resend Code**. You can request a new code once every 60 seconds. Each new request invalidates the previous code.
 
@@ -47,6 +51,8 @@ You need:
    - At least 1 special character. Allowed special characters: `! @ # $ % ^ & * ( ) _ ~ -`
 
 6. Click **Change Password**. SpecterX confirms with the message "Your password has been successfully changed" and returns you to the sign-in page. Sign in with your email address and the new password.
+
+   ![The sign-in page after a successful reset, with the 'Your password has been successfully changed' confirmation banner](screenshots/10-password-reset-success.png)
 
 ## If you sign in with SSO
 
