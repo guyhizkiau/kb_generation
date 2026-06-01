@@ -296,8 +296,13 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
     kill_reason: list[str] = []   # mutable container so threads can write it
     current_step: list[str] = ["(starting)"]
 
-    # Truncate task log so the dashboard starts fresh for this task
+    # Truncate task log — claude will write stdout directly to this file.
+    # Using a file (not a pipe) because Claude Code suppresses output when
+    # stdout is a pipe (non-TTY). Writing to a regular file matches the
+    # original working behaviour where stdout was inherited from the nohup
+    # shell and went to pr-watcher.log.
     TASK_LOG_FILE.write_text("")
+    _task_log_fh = TASK_LOG_FILE.open("w")
 
     # Track task in runtime state for dashboard
     task_started = time.time()
@@ -312,42 +317,55 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
     try:
         proc = subprocess.Popen(
             [CLAUDE_BIN, "--dangerously-skip-permissions", "-p", prompt],
-            stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-            stdin=subprocess.DEVNULL,     # prevent auth-prompt hanging on stdin
+            stdout=_task_log_fh,   # write directly to file — avoids pipe suppression
+            stderr=_task_log_fh,   # stderr too
+            stdin=subprocess.DEVNULL,
             text=True, env=os.environ.copy(), cwd=str(REPO_PATH),
-            preexec_fn=os.setpgrp,         # new process group (not session) → killpg works, stdout unaffected
+            preexec_fn=os.setpgrp, # new process group for killpg
         )
     except Exception as exc:
+        _task_log_fh.close()
         _runtime["current_task"] = None
         return "ERROR", str(exc), ""
 
-    # ── reader thread: collect output, reset step timer on every line ─────────
+    # Parent no longer needs the write end — close so the file can be read
+    _task_log_fh.close()
+
+    # ── reader thread: tail the task log file, reset step timer on every line ──
     # Initial deadline is longer to allow for Claude cold-start; drops to
     # STEP_TIMEOUT_SECS after the first line of output arrives.
     step_deadline: list[float] = [time.time() + INITIAL_TIMEOUT_SECS]
     first_output = [False]
 
-    _task_log_fh = TASK_LOG_FILE.open("a")
-
     def _reader():
-        for raw_line in proc.stdout:
-            line_s = raw_line.rstrip()
-            output_lines.append(line_s)
-            # Stream every line to the task log (dashboard live view)
-            _task_log_fh.write(line_s + "\n")
-            _task_log_fh.flush()
-            if not first_output[0]:
-                first_output[0] = True
-            step_deadline[0] = time.time() + STEP_TIMEOUT_SECS  # reset step clock
-            if line_s.startswith("STEP:"):
-                step = line_s[5:].strip()
-                current_step[0] = step
-                _runtime["current_task"] = {
-                    **_runtime["current_task"],
-                    "step": step,
-                }
-                log(f"    → {line_s}")
-                flush_status()  # update dashboard with new step name
+        with TASK_LOG_FILE.open("r", errors="replace") as fh:
+            while True:
+                line = fh.readline()
+                if not line:
+                    # No new data yet — check if process has exited
+                    if proc.poll() is not None:
+                        # Drain any last lines before exiting
+                        for line in fh:
+                            _process_line(line.rstrip())
+                        break
+                    time.sleep(0.1)
+                    continue
+                _process_line(line.rstrip())
+
+    def _process_line(line_s: str):
+        output_lines.append(line_s)
+        if not first_output[0]:
+            first_output[0] = True
+        step_deadline[0] = time.time() + STEP_TIMEOUT_SECS  # reset step clock
+        if line_s.startswith("STEP:"):
+            step = line_s[5:].strip()
+            current_step[0] = step
+            _runtime["current_task"] = {
+                **_runtime["current_task"],
+                "step": step,
+            }
+            log(f"    → {line_s}")
+            flush_status()  # update dashboard with new step name
 
     reader = threading.Thread(target=_reader, daemon=True)
     reader.start()
@@ -380,9 +398,8 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
     watchdog.start()
 
     proc.wait()
-    reader.join(timeout=2)
+    reader.join(timeout=5)
     watchdog.join(timeout=2)
-    _task_log_fh.close()
 
     elapsed = round(time.time() - task_started)
     _runtime["current_task"] = None
