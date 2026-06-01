@@ -24,7 +24,8 @@ PREVIEW_BASE  = "http://18.192.122.48"   # nginx article browser (port 80)
 
 # Timeouts for Claude invocations
 TASK_TIMEOUT_SECS    = 3600  # 1-hour hard cap per Claude invocation
-STEP_TIMEOUT_SECS    = 120   # kill if no output for 2 minutes (step stalled)
+STEP_TIMEOUT_SECS    = 120   # kill if no output for 2 minutes AND claude is not in a tool call
+TOOL_TIMEOUT_SECS    = 1800  # kill if a single tool call exceeds 30 minutes
 INITIAL_TIMEOUT_SECS = 3600  # match task cap: first output may not arrive until E2E tool finishes
 CONTROL_PORT      = 9191  # localhost-only HTTP control plane
 
@@ -246,8 +247,11 @@ Before every distinct action, print a STEP line on its own:
   STEP: git commit and push
   … (one STEP per logical action; keep labels short and descriptive)
 
-The watcher resets its step-stall timer on every line of output.
-If no output is produced for {step_timeout}s the watcher kills the process.
+The watcher uses stream-json events from your output to track progress.
+Tool calls automatically extend the stall timer ({tool_timeout}s per
+individual tool invocation), so long Bash/Playwright runs are fine.
+When no tool is running, the stall timer is {step_timeout}s — print
+a STEP line or any text periodically during pure-thinking pauses.
 The task has a hard {task_timeout}s cap regardless.
 
 ## Playwright timeout rules (REQUIRED)
@@ -290,6 +294,7 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
     prompt = RESOLUTION_PROMPT_TEMPLATE.format(
         branch=branch, pr_number=pr_number, path=path, line=line, body=body,
         step_timeout=STEP_TIMEOUT_SECS, task_timeout=TASK_TIMEOUT_SECS,
+        tool_timeout=TOOL_TIMEOUT_SECS,
     )
 
     output_lines: list[str] = []
@@ -426,7 +431,6 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
         """Receive one line of PTY output (should be one JSON event)."""
         if not first_output[0]:
             first_output[0] = True
-        step_deadline[0] = time.time() + STEP_TIMEOUT_SECS
         if not raw.strip():
             return
         output_lines.append(raw)  # keep raw for RESOLVED/NEEDS_HUMAN parsing
@@ -434,9 +438,28 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
             evt = json.loads(raw)
         except Exception:
             # Not JSON — pass through (claude warnings, login prompts, etc.)
+            step_deadline[0] = time.time() + STEP_TIMEOUT_SECS
             with TASK_LOG_FILE.open("a") as fh:
                 fh.write(raw + "\n")
             return
+
+        # Adjust the watchdog deadline based on event type. The key insight:
+        # between a tool_use event and its tool_result, no stream-json events
+        # are produced — but claude is actively waiting on a real tool, not
+        # hung. So when we see tool_use we extend the deadline to give the
+        # tool time to run. tool_result and assistant text reset to normal.
+        et = evt.get("type")
+        contains_tool_use = False
+        if et == "assistant":
+            for block in evt.get("message", {}).get("content", []):
+                if block.get("type") == "tool_use":
+                    contains_tool_use = True
+                    break
+        if contains_tool_use:
+            step_deadline[0] = time.time() + TOOL_TIMEOUT_SECS
+        else:
+            step_deadline[0] = time.time() + STEP_TIMEOUT_SECS
+
         formatted = _format_event(evt)
         if formatted:
             with TASK_LOG_FILE.open("a") as fh:
