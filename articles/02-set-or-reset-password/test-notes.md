@@ -1,52 +1,106 @@
 # Test notes — Set or reset your password
 
-**Tester:** Playwright headless (Chromium) driven by `/tmp/run_test_reset.py`.
-**Run date:** 2026-05-27.
+**Tester:** Playwright headed Chromium on Xvfb `:99`
+(`/tmp/run_reset_e2e_v7.py`).
+**Run dates:** 2026-05-27 (initial), 2026-06-01 (re-capture pass).
 **Tenant:** `https://app.specterx.com` (production).
-**Account:** Guy's signed-in account (`SPECTERX_USERNAME`).
+**Account used for the reset trigger:** `TEST_RECIPIENT_EMAIL`
+(`davidch@specterx.com`).
 
 ## Limitation acknowledged up front
 
-Per `WORKFLOW.md §5.3`, submitting the **Reset** button on a real
-account would trigger a real password-reset email for Guy and let his
-next interactive sign-in fail. The test therefore covers the
-**user-visible flow up to the email-sending step**, not the
-post-submit screens. Step-2 UI strings are sourced from the codebase
-(see `research/codebase-findings.md`).
+Per `WORKFLOW.md §5.3`, submitting **Reset** against Guy's working
+account (`SPECTERX_USERNAME`) would invalidate his live production
+password. PR #4 introduced a dedicated test recipient
+(`TEST_RECIPIENT_EMAIL`) with a Gmail mailbox the pipeline can read,
+specifically to unblock end-to-end capture for this article. The 2026-06-01
+pass uses that account.
 
-### Why the end-to-end flow was not captured in this run (re PR#4 review)
+## 2026-06-01 re-capture pass — outcome
 
-The blocker was the single shared test account (`SPECTERX_USERNAME`).
-Submitting **Reset** against that account would have invalidated Guy's
-current password on the live production tenant and sent the
-verification code to an inbox the pipeline could not read.
+The pass got past the previous Gmail-login wall but stopped at a new
+blocker: the SpecterX reset request for `TEST_RECIPIENT_EMAIL` does
+**not** deliver a verification email.
 
-**Unblocked on the next pass.** PR #4 review introduced a dedicated
-test account — `TEST_RECIPIENT_EMAIL` (`davidch@specterx.com`) — whose
-Gmail mailbox the pipeline can log into directly using
-`TEST_RECIPIENT_GMAIL_PASSWORD`. See `tester/TEST_RESOURCES.md` for the
-full record.
+### What worked
 
-A future re-capture pass for this article should:
+1. **Env-precedence bug fixed.** The shell that runs the pipeline has
+   a stale `TEST_RECIPIENT_GMAIL_PASSWORD` value (length 6). The real
+   value in `~/.config/specterx-kb/.env` is length 18. Prior takes
+   (v4/v5/v6) used `os.environ.setdefault`, which kept the wrong
+   shell-inherited value and produced "Wrong password" on every Gmail
+   sign-in. v7 force-overrides from the `.env` file and Gmail web
+   login then succeeds:
+   ```
+   STEP: Gmail: wait for mailbox or challenge
+     host transition → accounts.google.com
+     host transition → mail.google.com
+     reached mailbox host=mail.google.com
+   ```
+2. **Inbox access confirmed.** Inbox, All Mail, Spam, and label-scoped
+   searches all load — only the two Gmail-onboarding messages from
+   2026-05-27 are present.
 
-1. Run the test plan against `TEST_RECIPIENT_EMAIL`, not
-   `SPECTERX_USERNAME`.
-2. After submitting **Reset**, log into Gmail with the test account,
-   read the most recent SpecterX verification email, extract the
-   6-digit code.
-3. Capture the **Create New Password** screen with the code entered,
-   then capture the post-submit success state.
-4. Promote the new captures into `screenshots/` and update the article
-   only if any UI string drifted from the codebase-derived text
-   currently in `final.md`.
+### What did not work
 
-Until that re-capture happens, step-2 UI strings remain sourced from
-the codebase (`general.json:22-29` for password rules and submit
-button label; `EnterCode` and `CreateNewPassword` components for the
-field structure) and `research/codebase-findings.md` for the success
-toast text.
+3. **No SpecterX verification email arrives.** After clicking **Reset**
+   on `/forgotPassword` with `davidch@specterx.com`, the UI stays on
+   the same page (Step 2 "Create New Password" never appears) and no
+   email lands in Inbox, All Mail, or Spam within an 8+ minute polling
+   window. Three independent searches confirm this:
+   - `from:specterx.com newer_than:1h` → 0 hits
+   - `cognito` → 0 hits
+   - `from:noreply` → 0 hits (apart from the two Gmail Team welcomes)
+4. **Direct sign-in with `TEST_RECIPIENT_GMAIL_PASSWORD` also fails**
+   on `/signIn` for `davidch@specterx.com` ("Incorrect username or
+   password"). Cognito does not distinguish "user not found" from
+   "wrong password" in this string, so this is ambiguous on its own,
+   but combined with (3) it is consistent with the account not being
+   provisioned in SpecterX's Cognito user pool.
 
-## Steps executed
+### Most likely cause
+
+`davidch@specterx.com` exists as a Google Workspace mailbox (we read
+it directly) but has not been invited into the SpecterX tenant.
+SpecterX's reset endpoint correctly suppresses user enumeration: an
+unregistered email gets the same silent UI response as a real reset,
+and no email is sent. The article already documents this behavior in
+the troubleshooting section ("SpecterX does not tell you whether an
+address is registered; if you enter a typo or an unregistered
+address, the page silently looks the same.").
+
+### What this needs from a human
+
+1. Provision `davidch@specterx.com` in the SpecterX tenant (admin
+   portal → Users → invite). The first-time-setup email will go to
+   the same `davidch@specterx.com` Gmail inbox the pipeline can read,
+   and that single delivery also confirms end-to-end Cognito → SES →
+   inbox plumbing works for this address.
+2. After the account is active, a future pipeline run can rerun
+   `/tmp/run_reset_e2e_v7.py` (or its successor) and capture the
+   verification-email and post-submit screens unattended.
+
+Until then, step-2 UI strings remain sourced from the codebase
+(`general.json:22-29` for password rules and submit button label;
+`EnterCode` and `CreateNewPassword` components for the field
+structure) and `research/codebase-findings.md` for the success-toast
+text — the article body is correct, only the screenshots after the
+"Reset" submit are still missing.
+
+## Captured artifacts (v7)
+
+| File | Content |
+| --- | --- |
+| `screenshots/_all/v7-01-sign-in.png` | SpecterX `/signIn`. |
+| `screenshots/_all/v7-02-forgot-empty.png` | `/forgotPassword`, empty form. |
+| `screenshots/_all/v7-03-forgot-filled-raw.png` | `/forgotPassword`, email filled, pre-Reset. |
+| `screenshots/_all/v7-gmail-inbox.png` | Gmail inbox (redacted), `from:specterx.com newer_than:1h` → no hits. |
+| `screenshots/_all/v7-gmail-email.png` | Gmail "email view" attempt (nothing to open). |
+| `screenshots/_all/v7-mailbox-all-mail.png` | All Mail listing (redacted). |
+| `screenshots/_all/v7-mailbox-spam.png` | Spam listing (redacted). |
+| `research/ui-snapshot/raw-notes-e2e.txt` | Full transcript of the run. |
+
+## Steps executed (2026-05-27 pass, unchanged below)
 
 ### Step 01 — Navigate to the sign-in page
 
@@ -102,12 +156,26 @@ toast text.
 
 ### Step 04 — Step-2 (code + new password)
 
-- Action: **skipped** (would email Guy's account).
-- Result: N/A.
-- Coverage: step-2 UI strings sourced from
-  `research/codebase-findings.md` and from `general.json` lines
-  1089–1130. All five password-rule labels and exact submit-button
+- Action: **attempted** on 2026-06-01 using `TEST_RECIPIENT_EMAIL`;
+  see the re-capture-pass section above. The Step-2 screen did not
+  appear because no email was delivered.
+- Coverage: step-2 UI strings remain sourced from
+  `research/codebase-findings.md` and `general.json` lines
+  1089–1130. All five password-rule labels and the exact submit-button
   text are verbatim from `general.json:22-29`.
+
+## Comparison against public KBs (re PR#4 review)
+
+Re-read `research/competitor-coverage.md` after the re-capture pass.
+Nothing in the captured Egnyte/Dropbox/HubSpot articles describes the
+mailbox/code-fetch step in a way that would change what the article
+already says — all three vendors use a clickable link, not a 6-digit
+code, so SpecterX's prose at step 3 ("Open the email and copy the
+code. The message comes from an `@specterx.com` sender. If you do not
+see it within a minute or two, check your spam or junk folder.") is
+intentionally divergent. No article changes follow from the
+competitor scan; the gap that remains is the end-to-end screenshot
+set, not the wording.
 
 ## Glossary candidates surfaced
 
@@ -120,8 +188,9 @@ toast text.
 
 ## Known limitations
 
-- Step-2 (`/forgotPassword` after submit) and the success toast were
-  not captured because we don't want to actually reset Guy's password.
+- Step-2 (`/forgotPassword` after submit) and the success toast are
+  still not captured — the 2026-06-01 attempt was blocked by the
+  `TEST_RECIPIENT_EMAIL` provisioning gap described above.
 - The activation-email flow for admin-invited new users was not
   captured. The codebase confirms that flow reaches the same
   `/forgotPassword` and `/confirmUser` components.

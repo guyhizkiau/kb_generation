@@ -1,0 +1,98 @@
+  using TEST_RECIPIENT_GMAIL_PASSWORD as the new SpecterX password
+STEP: SpecterX: open sign-in page
+  /signIn title='Login - SpecterX'
+STEP: SpecterX: click Reset password
+  /forgotPassword title='Reset password - SpecterX'
+STEP: SpecterX: type test email and submit Reset
+  Reset submitted at t=1780301878.1088498
+STEP_FAILED: 'Create New Password' did not appear within 30s — continuing
+STEP: Gmail: launch persistent context
+STEP: Gmail: navigate to inbox
+  after nav host=accounts.google.com url=https://accounts.google.com/v3/signin/identifier?continue=https%3A%2F%2Fmail.google.com%2Fmail%2Fu%2F0%2F&dsh=S-853802494%3A1780301908705641
+STEP: Gmail: fill identifier (type, not fill)
+  after identifier host=accounts.google.com url=https://accounts.google.com/v3/signin/challenge/pwd?TL=APouJz4z_DnUF-J68CXXMS4r9tLBG6d1REQ4Hled6CUXy62eQa-VKmwwqqJioiXR&checkConnection=yout
+STEP: Gmail: fill password (keyboard.type, slow)
+STEP: Gmail: wait for mailbox or challenge
+  host transition → accounts.google.com url=https://accounts.google.com/v3/signin/challenge/pwd?TL=APouJz4z_DnUF-J68CXXMS4r9tLBG6d1REQ4Hled6CUXy62eQa-VKmwwqqJioiXR&checkConnection=yout
+  host transition → mail.google.com url=https://mail.google.com/mail/u/0/
+  reached mailbox host=mail.google.com
+STEP: Gmail: navigate to search filtered by SpecterX sender
+  attempt 1: looking for SpecterX rows
+    rows seen: 2
+      row[0]: Click to teach SpecterX Mail this conversation is important.unread, Gmail Team, Tips for using your new inbox, May 27, Welcome to your inbox Find emails fast With the power of Google Search in your in
+      row[1]: Click to teach SpecterX Mail this conversation is important.unread, Gmail Team, Get the official Gmail app, May 27, Get the official Gmail app The best features of SpecterX Mail are only available on 
+STEP:   Gmail: JS-click first SpecterX row (attempt 1)
+    no code yet; sleeping
+  attempt 2: looking for SpecterX rows
+    rows seen: 2
+      row[0]: Click to teach SpecterX Mail this conversation is important.unread, Gmail Team, Tips for using your new inbox, May 27, Welcome to your inbox Find emails fast With the power of Google Search in your in
+      row[1]: Click to teach SpecterX Mail this conversation is important.unread, Gmail Team, Get the official Gmail app, May 27, Get the official Gmail app The best features of SpecterX Mail are only available on 
+STEP:   Gmail: JS-click first SpecterX row (attempt 2)
+    no code yet; sleeping
+  attempt 3: looking for SpecterX rows
+    rows seen: 2
+      row[0]: Click to teach SpecterX Mail this conversation is important.unread, Gmail Team, Tips for using your new inbox, May 27, Welcome to your inbox Find emails fast With the power of Google Search in your in
+      row[1]: Click to teach SpecterX Mail this conversation is important.unread, Gmail Team, Get the official Gmail app, May 27, Get the official Gmail app The best features of SpecterX Mail are only available on 
+STEP:   Gmail: JS-click first SpecterX row (attempt 3)
+    no code yet; sleeping
+  attempt 4: looking for SpecterX rows
+    rows seen: 2
+      row[0]: Click to teach SpecterX Mail this conversation is important.unread, Gmail Team, Tips for using your new inbox, May 27, Welcome to your inbox Find emails fast With the power of Google Search in your in
+      row[1]: Click to teach SpecterX Mail this conversation is important.unread, Gmail Team, Get the official Gmail app, May 27, Get the official Gmail app The best features of SpecterX Mail are only available on 
+STEP:   Gmail: JS-click first SpecterX row (attempt 4)
+    no code yet; sleeping
+  attempt 5: looking for SpecterX rows
+    rows seen: 2
+      row[0]: Click to teach SpecterX Mail this conversation is important.unread, Gmail Team, Tips for using your new inbox, May 27, Welcome to your inbox Find emails fast With the power of Google Search in your in
+      row[1]: Click to teach SpecterX Mail this conversation is important.unread, Gmail Team, Get the official Gmail app, May 27, Get the official Gmail app The best features of SpecterX Mail are only available on 
+STEP:   Gmail: JS-click first SpecterX row (attempt 5)
+    no code yet; sleeping
+  attempt 6: looking for SpecterX rows
+    rows seen: 2
+      row[0]: Click to teach SpecterX Mail this conversation is important.unread, Gmail Team, Tips for using your new inbox, May 27, Welcome to your inbox Find emails fast With the power of Google Search in your in
+      row[1]: Click to teach SpecterX Mail this conversation is important.unread, Gmail Team, Get the official Gmail app, May 27, Get the official Gmail app The best features of SpecterX Mail are only available on 
+STEP:   Gmail: JS-click first SpecterX row (attempt 6)
+    no code yet; sleeping
+  attempt 7: looking for SpecterX rows
+    rows seen: 2
+      row[0]: Click to teach SpecterX Mail this conversation is important.unread, Gmail Team, Tips for using your new inbox, May 27, Welcome to your inbox Find emails fast With the power of Google Search in your in
+      row[1]: Click to teach SpecterX Mail this conversation is important.unread, Gmail Team, Get the official Gmail app, May 27, Get the official Gmail app The best features of SpecterX Mail are only available on 
+STEP:   Gmail: JS-click first SpecterX row (attempt 7)
+    no code yet; sleeping
+  attempt 8: looking for SpecterX rows
+    rows seen: 2
+      row[0]: Click to teach SpecterX Mail this conversation is important.unread, Gmail Team, Tips for using your new inbox, May 27, Welcome to your inbox Find emails fast With the power of Google Search in your in
+      row[1]: Click to teach SpecterX Mail this conversation is important.unread, Gmail Team, Get the official Gmail app, May 27, Get the official Gmail app The best features of SpecterX Mail are only available on 
+STEP:   Gmail: JS-click first SpecterX row (attempt 8)
+    no code yet; sleeping
+  attempt 9: looking for SpecterX rows
+    rows seen: 2
+      row[0]: Click to teach SpecterX Mail this conversation is important.unread, Gmail Team, Tips for using your new inbox, May 27, Welcome to your inbox Find emails fast With the power of Google Search in your in
+      row[1]: Click to teach SpecterX Mail this conversation is important.unread, Gmail Team, Get the official Gmail app, May 27, Get the official Gmail app The best features of SpecterX Mail are only available on 
+STEP:   Gmail: JS-click first SpecterX row (attempt 9)
+    no code yet; sleeping
+  attempt 10: looking for SpecterX rows
+    rows seen: 2
+      row[0]: Click to teach SpecterX Mail this conversation is important.unread, Gmail Team, Tips for using your new inbox, May 27, Welcome to your inbox Find emails fast With the power of Google Search in your in
+      row[1]: Click to teach SpecterX Mail this conversation is important.unread, Gmail Team, Get the official Gmail app, May 27, Get the official Gmail app The best features of SpecterX Mail are only available on 
+STEP:   Gmail: JS-click first SpecterX row (attempt 10)
+    no code yet; sleeping
+  attempt 11: looking for SpecterX rows
+    rows seen: 2
+      row[0]: Click to teach SpecterX Mail this conversation is important.unread, Gmail Team, Tips for using your new inbox, May 27, Welcome to your inbox Find emails fast With the power of Google Search in your in
+      row[1]: Click to teach SpecterX Mail this conversation is important.unread, Gmail Team, Get the official Gmail app, May 27, Get the official Gmail app The best features of SpecterX Mail are only available on 
+STEP:   Gmail: JS-click first SpecterX row (attempt 11)
+    no code yet; sleeping
+  attempt 12: looking for SpecterX rows
+    rows seen: 2
+      row[0]: Click to teach SpecterX Mail this conversation is important.unread, Gmail Team, Tips for using your new inbox, May 27, Welcome to your inbox Find emails fast With the power of Google Search in your in
+      row[1]: Click to teach SpecterX Mail this conversation is important.unread, Gmail Team, Get the official Gmail app, May 27, Get the official Gmail app The best features of SpecterX Mail are only available on 
+STEP:   Gmail: JS-click first SpecterX row (attempt 12)
+    no code yet; sleeping
+  attempt 13: looking for SpecterX rows
+    rows seen: 2
+      row[0]: Click to teach SpecterX Mail this conversation is important.unread, Gmail Team, Tips for using your new inbox, May 27, Welcome to your inbox Find emails fast With the power of Google Search in your in
+      row[1]: Click to teach SpecterX Mail this conversation is important.unread, Gmail Team, Get the official Gmail app, May 27, Get the official Gmail app The best features of SpecterX Mail are only available on 
+STEP:   Gmail: JS-click first SpecterX row (attempt 13)
+    no code yet; sleeping
+STEP_FAILED: Gmail: no code recovered within deadline
