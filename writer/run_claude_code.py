@@ -5,6 +5,7 @@ Usage:
     python writer/run_claude_code.py --article NN-slug --phase draft
     python writer/run_claude_code.py --article NN-slug --phase test-plan
     python writer/run_claude_code.py --article NN-slug --phase revise-from-test
+    python writer/run_claude_code.py --article NN-slug --phase voice-pass
     python writer/run_claude_code.py --article NN-slug --phase revise-from-pr
 
 Each phase corresponds to a prompt file under pipeline/prompts/ and a set of
@@ -28,6 +29,7 @@ PHASE_TO_PROMPT = {
     "draft": "01-draft.md",
     "test-plan": "02-test-plan.md",
     "revise-from-test": "03-revise-from-test.md",
+    "voice-pass": "04a-voice-pass.md",
     "revise-from-pr": "04-revise-from-pr-comments.md",
 }
 
