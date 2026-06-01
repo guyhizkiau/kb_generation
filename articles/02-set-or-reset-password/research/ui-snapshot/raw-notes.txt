@@ -1,0 +1,9 @@
+01-sign-in: title='Login - SpecterX', url=https://app.specterx.com/signIn
+  'Reset password' link visible: True
+03-reset-page-step1: title='Reset password - SpecterX', url=https://app.specterx.com/forgotPassword
+  input[0]: {'placeholder': '', 'type': 'search', 'name': ''}
+  input[1]: {'placeholder': 'Enter your email', 'type': 'text', 'name': ''}
+  button[0]: 'Reset'
+04 step intentionally skipped: submitting the form would trigger a real password-reset email for Guy's production account, which the WORKFLOW.md §5.3 limitation forbids. Step-2 UI strings are taken from the codebase (see research/codebase-findings.md).
+reset-link bounding box: {'x': 390, 'y': 639, 'width': 500, 'height': 20}
+02-reset-link clip: {'x': 210, 'y': 519, 'width': 760, 'height': 220}

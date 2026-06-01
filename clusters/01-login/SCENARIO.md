@@ -46,12 +46,20 @@ sessions expire on their own and no shared state is created.
 
 ### 02-set-or-reset-password
 
-- Guy's real password must not be reset mid-flow. The test plan covers
-  the visible flow only **up to the "reset email sent" confirmation
-  screen** — do not click the link in the email and do not actually
-  change the password.
-- Capture the "Reset password" link on the sign-in page, the reset
-  request form, and the post-submit confirmation screen. Stop there.
+- **Do not run the reset flow against `SPECTERX_USERNAME`** (Guy's
+  working account). Resetting his password mid-flow blocks every other
+  article in the cluster.
+- For runs that need to exercise the end-to-end flow (read the
+  verification code, capture the **Create New Password** screen, and
+  capture the post-submit success state), use the dedicated test
+  account documented in `tester/TEST_RESOURCES.md`
+  (`TEST_RECIPIENT_EMAIL` / `TEST_RECIPIENT_GMAIL_PASSWORD`). The
+  pipeline can log into that account's Gmail to read the verification
+  code without needing Guy to forward it.
+- For lightweight runs that only need the entry-point screens (the
+  sign-in page's **Reset password** link and the `/forgotPassword`
+  request form), capture those only and stop before submit. The
+  current `final.md` was produced this way and remains valid.
 
 ### 03-what-is-specterx
 

@@ -34,7 +34,7 @@ You need:
 
 ### Your email or password is not accepted
 
-Check that you are using the email address your administrator registered. Passwords are case-sensitive. If you have forgotten your password, click **Reset password** below the **Sign In** button.
+Check that you are using the email address your administrator registered. Passwords are case-sensitive. If you have forgotten your password, click **Reset password** below the **Sign In** button. See [Set or reset your password](../02-set-or-reset-password/02-set-or-reset-password.html) for the full procedure.
 
 ### You cannot sign in after SSO
 
@@ -54,7 +54,7 @@ Your browser may be blocking cookies for SpecterX. Allow cookies for your sign-i
 
 ## Related articles
 
-- Set or reset your password
+- [Set or reset your password](../02-set-or-reset-password/02-set-or-reset-password.html)
 - What is SpecterX?
 
 ---

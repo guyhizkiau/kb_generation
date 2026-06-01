@@ -1,0 +1,22 @@
+STEP: Gmail: open inbox to warm session
+  gmail url: https://mail.google.com/mail/u/0/#inbox
+STEP: SpecterX: open /signIn
+STEP: SpecterX: click Reset password
+STEP: SpecterX: fill email and submit Reset
+  Reset submitted at t=1780318109.8
+  'Create New Password' visible
+STEP: Gmail: poll Spam for new verification email
+  attempt 1: spam rows=4
+    [0] support, You've been invited to use SpecterX, 8:54 AM, guy@specterx.com has invited you to start using SpecterX Protect, manage, and share your digital assets e
+    [1] Gmail Team, Tips for using your new inbox, May 27, Welcome to your inbox Find emails fast With the power of Google Search in your inbox, you can archive all you
+    [2] Gmail Team, Get the official Gmail app, May 27, Get the official Gmail app The best features of SpecterX Mail are only available on your phone and tablet with t
+    [3] no-reply | Your verification code |  -  | Your verification code is 080511. |   | 12:48 PM
+  found new code email at row 3, code=08****
+STEP: Gmail: click Not-spam to move email to inbox
+  clicked 'Not spam'
+STEP: Gmail: navigate to Inbox and open moved email
+  inbox rows=4
+  raw -> v15-gmail-email-raw.png
+  src dims: 1280x900
+  cropped -> v15-gmail-email.png: (890, 560)
+  promoted -> /home/ubuntu/kb_generation/articles/02-set-or-reset-password/screenshots/11-reset-code-email-body.png

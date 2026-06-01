@@ -12,13 +12,21 @@ This repository hosts two related but separate code paths:
 1. **Reference library + static site** (existing). Documented in
    `AGENTS.md`. Touches `tools/`, `kb/`, `reference-library/`.
 2. **KB article pipeline** (new). This file. Touches `writer/`,
-   `tester/`, `pipeline/prompts/`, `workspace/`, and adds article drafts
-   under `workspace/articles/NN-slug/`. Phases are run manually or via
-   Cursor — there is no long-running orchestrator service.
+   `tester/`, `pipeline/prompts/`, `editorial/`, `articles/`, and the
+   long-running `ops/pr-watcher/` daemon on the EC2 VM. Phases can be
+   run manually (`python writer/run_claude_code.py --phase …`) OR
+   driven autonomously by the pr-watcher daemon when an article PR is
+   open. The autonomous bot resolves PR comments, watches for merges,
+   and triggers the next article in the cluster. See
+   [`ops/pr-watcher/README.md`](ops/pr-watcher/README.md) for its full
+   operational runbook.
 
 Do not let work in one path silently mutate the other. The static-site
-build output lives in `kb/` (stubs from `tools/kb-site/`); pipeline articles
-live in `workspace/articles/NN-slug/` until they are promoted.
+build output lives in `kb/` (stubs from `tools/kb-site/`); pipeline
+articles live in `articles/NN-slug/` (the canonical location;
+historical docs may still reference the deprecated
+`workspace/articles/NN-slug/` path — `writer/run_claude_code.py`
+resolves both for backward compatibility).
 
 ## Branches & commits
 
@@ -68,7 +76,19 @@ pipeline rules.
 
 Run from the repo root with `.venv` activated (or `VENV_PYTHON` on a VM):
 
-- `python writer/run_claude_code.py --article NN-slug --phase {draft|test-plan|revise-from-test|revise-from-pr}`
+- `python writer/run_claude_code.py --article NN-slug --phase {draft|test-plan|revise-from-test|voice-pass|revise-from-pr}`
 - `python tester/runner.py --article NN-slug`
 
-Follow [WORKFLOW.md](WORKFLOW.md) for phase order and when to open or merge PRs.
+The `voice-pass` phase runs after `revise-from-test` and before the PR
+is opened. It rewrites the prose against `editorial/STYLE_GUIDE.md`
+(Sections 2.4, 3, 10, 13, 13a, 14) and strips internal QA metadata
+from `final.md`. See `pipeline/prompts/04a-voice-pass.md`.
+
+Follow [WORKFLOW.md](WORKFLOW.md) for phase order and when to open or
+merge PRs. When the pipeline is in autonomous mode (an article PR is
+open and the pr-watcher daemon is running on the VM), see
+[`ops/pr-watcher/README.md`](ops/pr-watcher/README.md) for the
+operational runbook — including how the daemon talks to Claude (PTY +
+`--output-format stream-json`), the three timeout dials, the
+dashboard at `http://18.192.122.48/status/`, and the deploy procedure
+via AWS SSM.
