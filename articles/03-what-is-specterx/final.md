@@ -42,11 +42,12 @@ When a recipient clicks a SpecterX link, they land on a verification page. Verif
 
 ## How SpecterX fits with your existing tools
 
-SpecterX sits between your existing identity, storage, and email systems and the people you share with.
+SpecterX sits between your existing identity, storage, email, and security systems and the people you share with.
 
-- **Identity.** Your administrators connect SpecterX to your identity provider, such as Microsoft Entra ID, Google Workspace, or Okta, so signing in uses the credentials you already have. Recipients don't need any of this; they verify per share.
+- **Identity.** Your administrators connect SpecterX to your identity provider, such as Microsoft Entra ID, Google Workspace, or Okta, so signing in uses the credentials you already have. SAML 2.0, OAuth, and LDAP are all supported. Recipients don't need any of this; they verify per share.
 - **Storage.** Workspaces can be backed by Amazon S3, SharePoint, or Google Cloud Storage, in which case files live in your own storage under SpecterX encryption. SpecterX provides its own managed storage as the default.
 - **Mail.** The Outlook and Gmail integrations protect outbound email from inside the mail clients you already use. A separate Mail Protection Server can apply policies at the gateway, automatically and at scale, optionally driven by your DLP classification.
+- **Data classification and DLP.** SpecterX plugs into the security stack your organisation already runs. Policies can trigger a DLP or threat-detection scan when a recipient accesses a file, and policy assignment can be driven by classification signals — Microsoft Purview sensitivity labels, custom DLP headers from Exchange Online, or third-party classifiers — so the right protection is applied automatically as files move.
 - **Deployment.** SpecterX runs in SpecterX's cloud by default, with an On-Prem Gateway option for organisations that need to keep the deployment in their own environment.
 
 ## What SpecterX is NOT
