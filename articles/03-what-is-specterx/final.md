@@ -1,54 +1,58 @@
 ---
 title: What is SpecterX?
 audience: everyone
-estimated-reading-time: 3 min
-last-validated: 2026-06-01
+estimated-reading-time: 4 min
+last-validated: 2026-06-02
 ---
 
 # What is SpecterX?
 
-SpecterX is a platform for sharing files and emails with people outside your organization without losing control of what you send. You attach a security policy to the content. The policy stays with the file, so you decide who opens it, on what terms, and for how long, even after it leaves your inbox or your drive.
-
-The product has two sides. If you work at an organization that uses SpecterX, you're a **sender**: you sign in, share files or protected email, and manage access afterwards. If you receive a SpecterX link from someone else, you're a **recipient**: you click the link, verify who you are, and view or download the file under whatever rules the sender set.
+SpecterX is a data governance and secure collaboration platform. Your organisation uses it to share files, send email, and collaborate with people outside the company while keeping control of what happens next — who opens the content, on what terms, for how long, and whether to revoke access at any time. The protection is built into each file and travels with it across applications, devices, and storage systems, so the rules you set still apply long after the file leaves your inbox, your drive, or your repository.
 
 ## The problem SpecterX solves
 
 Once a file leaves your computer as an attachment or a public link, you've lost track of it. Recipients can forward, save, or post it. Your access logs end at "sent."
 
-SpecterX replaces the attachment with a protected link that stays governed by a policy you control. You can revoke access at any time, and the policy expires the link on schedule.
+SpecterX replaces the attachment with a protected link that stays governed by a policy you control. You can revoke access at any time, see who opened the file from where, and let the policy expire the link on schedule.
+
+## What SpecterX protects
+
+A single policy model applies wherever your organisation shares content:
+
+- **Files shared from the web.** Upload or select a file in the SpecterX web platform, pick a policy, add recipients, and click Share. See [Sign in to SpecterX](../01-log-in-to-specterx/01-log-in-to-specterx.html) for how to reach the web platform.
+- **Email and attachments.** The Outlook Add-in and Gmail Browser Extension add a SpecterX panel to your compose window. From there you apply a policy to attachments, the message body, or both, and set per-recipient permissions before sending. Server-side mail protection can apply policies automatically as messages leave your organisation, driven by your DLP signals.
+- **Workspaces.** A Workspace is a persistent shared space with a parent policy, named members (Owner, Co-Owner, Contributor, Viewer), and a full audit trail. Use it to collaborate continuously with an external partner, request files from outside parties, or store ongoing project documents under policy. Files added to a Workspace inherit its policy. Workspaces are available when your administrator has enabled them for your organisation.
+- **Files in Google Drive and SharePoint.** Share-in-place connectors add SpecterX protection to files that *stay* in their original storage — no upload, no copy, no second source of truth.
+
+Every protected interaction produces an audit trail. From the same interface that sent the file, you can revoke access, change recipient permissions, or expire the link instantly.
 
 ## Core concepts
 
 ### Sender and recipient
 
-A **sender** is a licensed SpecterX user at your organization. A **recipient** is anyone the sender shares with. Recipients don't need a SpecterX account; they're set up automatically when the share is made and verify themselves per share.
+A **sender** is a licensed SpecterX user at your organisation. A **recipient** is anyone the sender shares with. Recipients don't need a SpecterX account; they're set up automatically when the share is made and verify themselves per share. Inside a Workspace, the same relationship becomes a named membership — Owner, Co-Owner, Contributor, or Viewer — that persists for as long as the Workspace does.
 
 ### Security policy
 
-A **security policy** is a named set of rules that controls how a file can be accessed. Your administrators define policies in advance. When you share, you pick one from a dropdown. A policy can require verification, restrict whether recipients can forward the file, block downloads, watermark content, and set how many days the link stays active.
+A **security policy** is a named set of rules that controls how a file can be accessed. Your administrators define policies in advance. When you share, you pick one from a dropdown. A policy can require verification, restrict whether recipients can forward the file, block downloads, watermark content, encrypt files with a password or Rights Management, and set how many days the link stays active.
 
 ### Recipient experience
 
 When a recipient clicks a SpecterX link, they land on a verification page. Verification is usually a 6-digit code sent to their email; depending on the policy, it can also be an SMS code or a personal secret the sender shares out of band. Once verified, the recipient opens the file in the **Secure Viewer**, an in-browser viewer that requires no install. Watermarks, downloads, and forwarding all follow the policy you picked at share time.
 
-## What you can do with SpecterX
+## How SpecterX fits with your existing tools
 
-- **Share a file from the web.** Upload or select a file in the SpecterX web platform, pick a policy, add recipients, and click Share. See [Sign in to SpecterX](../01-log-in-to-specterx/01-log-in-to-specterx.html) for how to reach the web platform.
-- **Send protected email from Outlook or Gmail.** The SpecterX Outlook Add-in and Gmail Extension add a panel to your compose window. From there you can apply a policy to attachments, the message body, or both, and set per-recipient permissions before sending.
-- **Collaborate in a Workspace.** A Workspace is a persistent shared folder with a parent policy, named members, and an audit trail. Files added to a Workspace inherit its policy. Workspaces are available when your administrator has enabled them for your organization.
+SpecterX sits between your existing identity, storage, and email systems and the people you share with.
+
+- **Identity.** Your administrators connect SpecterX to your identity provider — Microsoft Entra ID, Google Workspace, or Okta — so signing in uses the credentials you already have. Recipients don't need any of this; they verify per share.
+- **Storage.** Workspaces can be backed by Amazon S3, SharePoint, or Google Cloud Storage, in which case files live in your own storage under SpecterX encryption. SpecterX provides its own managed storage as the default.
+- **Mail.** The Outlook and Gmail integrations protect outbound email from inside the mail clients you already use. A separate Mail Protection Server can apply policies at the gateway, automatically and at scale, optionally driven by your DLP classification.
+- **Deployment.** SpecterX runs in SpecterX's cloud by default, with an On-Prem Gateway option for organisations that need to keep the deployment in their own environment.
 
 ## What SpecterX is NOT
 
-- **Not a storage product.** SpecterX protects files; it doesn't replace your storage. Workspaces can be backed by your existing Amazon S3, SharePoint, or Google Cloud Storage when an administrator configures it.
-- **Not a file editor.** You view files in the Secure Viewer. You don't edit them inside SpecterX.
-- **Not a signature platform**, except via the standalone **Digital Signature** capability for the specific case of signing a document.
-- **Not a defense against a determined insider.** SpecterX prevents accidental forwarding, unauthorized access, and uncontrolled distribution. It doesn't stop someone who can already see a file from photographing the screen or transcribing it.
-
-## How SpecterX fits with your existing tools
-
-SpecterX sits between your existing identity, storage, and email systems and the people you share with. Your administrators connect it to your identity provider (Microsoft Entra ID, Google Workspace, or Okta) so signing in uses the credentials you already have. They can also connect storage (Amazon S3, SharePoint, or Google Cloud Storage), in which case Workspace files live in your own storage under SpecterX encryption. The Outlook and Gmail integrations protect outbound email from inside the mail clients you already use.
-
-Recipients don't need any of this. Their access goes through the per-share verification step, with no account and no install required.
+- **Not a storage product.** SpecterX is the protection and access-control layer for files; the files themselves can live in SpecterX-managed storage or in your existing Amazon S3, SharePoint, or Google Cloud Storage when an administrator configures it. SpecterX adds governance to the storage you already have.
+- **Not a defence against a determined insider.** SpecterX prevents accidental forwarding, unauthorised access, and uncontrolled distribution from the SpecterX surface. It doesn't stop someone who can already see a file from photographing the screen or transcribing it. Watermarks deter that; they don't block it.
 
 ## Related articles
 
@@ -57,4 +61,4 @@ Recipients don't need any of this. Their access goes through the per-share verif
 
 ---
 
-*Last reviewed 2026-06-01.*
+*Last reviewed 2026-06-02.*
