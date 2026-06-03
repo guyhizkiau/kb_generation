@@ -23,6 +23,8 @@ A single policy model applies wherever your organisation shares content:
 - **Email and attachments.** The Outlook Add-in and Gmail Browser Extension add a SpecterX panel to your compose window. From there you apply a policy to attachments, the message body, or both, and set per-recipient permissions before sending. Server-side mail protection can apply policies automatically as messages leave your organisation, driven by your DLP signals.
 - **Workspaces.** A Workspace is a persistent shared space with a parent policy, named members (Owner, Co-Owner, Contributor, Viewer), and a full audit trail. Use it to collaborate continuously with an external partner, request files from outside parties, or store ongoing project documents under policy. Files added to a Workspace inherit its policy. Workspaces are available when your administrator has enabled them for your organisation.
 - **Files in Google Drive and SharePoint.** Share-in-place connectors add SpecterX protection to files that *stay* in their original storage. No upload, no copy, no second source of truth.
+- **Messages and files in Slack.** The Slack connector lets users send protected content into Slack channels and direct messages under a SpecterX policy, so chat-borne data carries the same governance as anything you'd share by link or email.
+- **Data exported from Salesforce.** A Salesforce browser extension and a reports connector wrap Salesforce report exports in a SpecterX policy, so a CSV pulled out of Salesforce becomes a governed share instead of a loose download.
 
 Every protected interaction produces an audit trail. From the same interface that sent the file, you can revoke access, change recipient permissions, or expire the link instantly.
 
