@@ -55,8 +55,9 @@ This is the bullet list customers see in the intro article. Maps to component ca
 
 ### Storage backing for Workspaces
 
-- Default: SpecterX-managed storage.
-- Customer-supplied storage: Amazon S3, SharePoint, Google Cloud Storage. Files live in the customer's own storage under SpecterX encryption when configured.
+- SpecterX always uses the customer organization's own storage. The admin configures which one tenant-wide: Amazon S3, SharePoint, or Google Cloud Storage.
+- There is no "SpecterX-managed storage" default that competes with customer storage. Don't write copy that suggests SpecterX has its own storage tier that customers opt out of.
+- Don't claim SpecterX adds additional encryption inside the customer's storage, and don't claim it doesn't. Side-step the question in customer-facing copy (see [COMPONENT_TAXONOMY.md §3 Storage Integration](COMPONENT_TAXONOMY.md)).
 - Storage Integrations are admin plumbing (see [COMPONENT_TAXONOMY.md §3 Integration](COMPONENT_TAXONOMY.md)); users do not pick storage at share time.
 
 ### Identity integration
