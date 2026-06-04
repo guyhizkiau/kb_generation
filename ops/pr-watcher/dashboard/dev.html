@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pr-watcher dev controls</title>
+<style>
+  body { font-family: system-ui, sans-serif; background: #0d1117; color: #e6edf3;
+    margin: 0; padding: 24px; max-width: 720px; }
+  h1 { font-size: 18px; margin-bottom: 8px; }
+  p { color: #7d8590; font-size: 14px; }
+  a { color: #58a6ff; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+  button { background: #21262d; border: 1px solid #30363d; color: #e6edf3;
+    border-radius: 6px; padding: 8px 14px; font-size: 13px; cursor: pointer; }
+  button:hover { background: #30363d; }
+  button.primary { border-color: #3fb950; color: #3fb950; }
+  button.warn { border-color: #d29922; color: #d29922; }
+  #state { font-family: ui-monospace, monospace; font-size: 12px;
+    background: #161b22; border: 1px solid #30363d; border-radius: 8px;
+    padding: 12px; white-space: pre-wrap; margin-top: 20px; }
+</style>
+</head>
+<body>
+  <h1>pr-watcher · local simulator</h1>
+  <p>
+    Open the <a href="/" target="dashboard">dashboard</a> in another tab (or window).
+    Start a scenario below; <code>status.json</code> and <code>/task-log</code> update
+    every few seconds so you can watch the UI react.
+  </p>
+
+  <div class="row">
+    <button class="primary" onclick="run('comment_resolution')">▶ Comment resolution (happy path)</button>
+    <button class="warn" onclick="run('step_timeout')">▶ Step timeout (failed panel)</button>
+  </div>
+  <div class="row">
+    <button onclick="run('idle')">Reset to idle</button>
+    <button onclick="post('/dev/pause')">Pause</button>
+    <button onclick="post('/dev/resume')">Resume</button>
+    <button onclick="post('/dev/step')">Step once</button>
+    <button onclick="post('/dev/reset')">Hard reset</button>
+  </div>
+  <div class="row">
+    <button onclick="post('/poll-now')">POST /poll-now</button>
+    <button onclick="retry()">POST /retry (failed comment)</button>
+  </div>
+
+  <div id="state">Loading…</div>
+
+  <script>
+    async function post(path) {
+      await fetch(path, { method: 'POST' });
+      refresh();
+    }
+    async function run(name) {
+      await fetch('/dev/scenario?name=' + encodeURIComponent(name), { method: 'POST' });
+      refresh();
+    }
+    async function retry() {
+      await fetch('/retry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ comment_id: 'issue-dev-9001' }),
+      });
+      refresh();
+    }
+    async function refresh() {
+      try {
+        const r = await fetch('/dev/state');
+        const s = await r.json();
+        document.getElementById('state').textContent = JSON.stringify(s, null, 2);
+      } catch (e) {
+        document.getElementById('state').textContent = String(e);
+      }
+    }
+    setInterval(refresh, 1000);
+    refresh();
+  </script>
+</body>
+</html>
