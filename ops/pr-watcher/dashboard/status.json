@@ -17,6 +17,15 @@
     "pr_number": 4,
     "comment_id": "issue-4587405575",
     "step": "search Gmail inbox for reset email",
+    "phase": 4,
+    "checklist": [
+      {"id": 1, "label": "Read comment and article", "short": "Read", "hint": "Understand the feedback and the current draft", "status": "done"},
+      {"id": 2, "label": "Classify feedback", "short": "Classify", "hint": "Map to canonical file (style guide, glossary, taxonomy, scope, …)", "status": "done"},
+      {"id": 3, "label": "Update canonical source", "short": "Canon", "hint": "docs(...) commit when a rule applies; justify if article-only", "status": "done"},
+      {"id": 4, "label": "Apply fix to article", "short": "Article", "hint": "fix(article) commit from the updated canon", "status": "active"},
+      {"id": 5, "label": "Validate against comment", "short": "Validate", "hint": "Re-check the ask; expand canon and retry if needed (max 2)", "status": "pending"},
+      {"id": 6, "label": "Report outcome", "short": "Report", "hint": "RESOLVED + Context, or NEEDS_HUMAN + Reason", "status": "pending"}
+    ],
     "started_at": "2026-05-31T18:01:27Z"
   },
   "failed_comments": [

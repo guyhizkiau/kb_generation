@@ -29,6 +29,46 @@ TOOL_TIMEOUT_SECS    = 1800  # kill if a single tool call exceeds 30 minutes
 INITIAL_TIMEOUT_SECS = 3600  # match task cap: first output may not arrive until E2E tool finishes
 CONTROL_PORT      = 9191  # localhost-only HTTP control plane
 
+
+def _load_resolution_checklist() -> list[dict]:
+    for path in (
+        REPO_PATH / "ops/pr-watcher/resolution_checklist.json",
+        Path(__file__).resolve().parent / "resolution_checklist.json",
+    ):
+        if path.is_file():
+            return json.loads(path.read_text(encoding="utf-8"))
+    raise FileNotFoundError("resolution_checklist.json not found")
+
+
+RESOLUTION_CHECKLIST: list[dict] = _load_resolution_checklist()
+
+
+def build_resolution_checklist(
+    active_phase: int,
+    *,
+    terminal: str | None = None,
+) -> list[dict]:
+    """Build checklist items with status: pending | active | done | failed."""
+    phase = max(1, min(active_phase, len(RESOLUTION_CHECKLIST)))
+    items: list[dict] = []
+    for step in RESOLUTION_CHECKLIST:
+        sid = step["id"]
+        if terminal == "done":
+            status = "done"
+        elif terminal == "failed" and sid == phase:
+            status = "failed"
+        elif terminal == "failed" and sid < phase:
+            status = "done"
+        elif sid < phase:
+            status = "done"
+        elif sid == phase:
+            status = "active"
+        else:
+            status = "pending"
+        items.append({**step, "status": status})
+    return items
+
+
 # Event set by the control plane to trigger an immediate poll
 _poll_now = threading.Event()
 
@@ -196,30 +236,86 @@ File      : {path}
 Line      : {line}
 Comment   : {body}
 
-## What you must do
+## Phase markers (REQUIRED — dashboard checklist)
 
-1. Read the file(s) relevant to the comment carefully.
-2. Make exactly the changes needed to address the reviewer's feedback.
-   Typical changes for KB articles:
+Before starting each numbered step (1–6) below, print exactly one line on its own:
+  PHASE: <n>
+where <n> is 1, 2, 3, 4, 5, or 6. Do not skip numbers. Granular STEP: lines
+belong in tool output only; phase progress is tracked via PHASE lines.
+
+## What you must do — FIX THE ROOT CAUSE FIRST (WORKFLOW.md §9.5)
+
+Do NOT start by editing the article. Most review feedback reflects a rule
+that should hold for EVERY future article. So you fix the canonical source
+of truth first, then fix this article by APPLYING that updated source. This
+makes the fix global, and turns this article into an immediate test of the
+new rule.
+
+1. Read the comment and the relevant article file carefully.
+
+2. CLASSIFY the comment against this canonical-target map:
+   | Comment is about…                                     | Fix-first file |
+   |-------------------------------------------------------|----------------|
+   | Voice / tone / wording / structure / anti-pattern     | editorial/STYLE_GUIDE.md |
+   | A product term, definition, or canonical phrasing     | canon/GLOSSARY.md |
+   | A component's name or category                        | product/COMPONENT_TAXONOMY.md |
+   | Public-vs-internal scope, audience split              | editorial/PUBLIC_KB_SCOPE.md |
+   | "We shouldn't document this / not shipped"            | canon/DO_NOT_DOCUMENT.md |
+   | Article scope, topics-to-cover, sequencing            | editorial/ARTICLES_PLAN.md |
+   | A process / pipeline-instruction gap                  | the relevant pipeline/prompts/*.md or WORKFLOW.md |
+   | A one-off product fact, blurry screenshot, single fix | none — article-only, with a justification |
+
+3. GENERALIZE WHEN APPLICABLE, ELSE JUSTIFY.
+   - If a canonical file applies: edit THAT FILE FIRST. Then commit it alone:
+       git add <canonical-file>
+       git commit -m "docs(canon): resolve PR#{pr_number} feedback — <summary>"
+       git push origin {branch}
+     (use docs(style)/docs(taxonomy)/docs(scope) as appropriate)
+   - If the comment is genuinely article-specific: do NOT invent a contrived
+     canon edit. Record a one-line justification (you will put it in the reply)
+     and proceed straight to the article fix.
+
+4. APPLY TO THE ARTICLE FROM THE UPDATED CANON.
+   Re-read the canonical file you just edited and fix the article FROM IT
+   (not from memory). Typical article changes:
    - Reword a step for clarity or accuracy
-   - Fix or expand the competitor coverage (if the comment is about research gaps,
-     scrape 2-4 competitor KBs using Playwright headless and update the research files)
+   - Fix or expand competitor coverage (if the comment is about research gaps,
+     scrape 2-4 competitor KBs using Playwright headless and update research files)
    - Add or correct a note, troubleshooting entry, or callout
-   - Fix terminology using canonical labels from ui-glossary.md
-   - Expand the internal sources check: grep BOTH references/internal/ AND
-     the product/ directory (product/COMPONENT_TAXONOMY.md, component-records/, etc.)
-     for relevant content
+   - Fix terminology using the canonical labels you just confirmed/added
+   Then RE-RENDER the HTML previews (ALWAYS — even for prose-only changes):
+       python3 pipeline/render_html.py articles/<NN-slug>/
+   This writes <slug>.html AND <slug>-zendesk.html. Also regenerate the index:
+       python3 pipeline/build_index.py
+   Commit the article AND all rendered files together:
+       git add articles/<NN-slug>/final.md articles/<NN-slug>/<slug>.html \
+               articles/<NN-slug>/<slug>-zendesk.html articles/index.html
+       git commit -m "fix(article): resolve PR#{pr_number} comment — <5-word summary>"
+       git push origin {branch}
 
-3. `git add` only the changed file(s).
-4. `git commit -m "fix(article): resolve PR#{pr_number} comment — <5-word summary>"`
-5. `git push origin {branch}`
+5. VALIDATE AGAINST THE ORIGINAL COMMENT (always — this is the closing step).
+   Re-check the fix against what the reviewer actually asked. Quote the ask
+   and point to the resolved text in the article.
+   - If RESOLVED: continue to step 6.
+   - If NOT resolved: diagnose WHY the generalized rule didn't carry the fix
+     (too vague? wrong target file? rule right but mis-applied?). Then retry
+     more directly — but the canonical edit must EXPAND the existing rule (add
+     a clause, example, or precise label) while PRESERVING the general
+     statement. NEVER delete the general rule and substitute an
+     article-specific instruction — that forgoes generalization for an
+     over-fit. Commit each expansion as its own amended docs(...) commit,
+     re-apply to the article, and re-validate. Bound this loop to 2 retries.
+
 6. On the LAST two lines of your output, print exactly:
    RESOLVED
-   Context: <1-3 sentences explaining specifically what was changed and why>
+   Context: <what canonical file you changed (or the justification for skipping),
+   AND how applying it resolved the article; if the validate loop ran, what you
+   expanded and why>
 
-   Or if you cannot resolve the comment:
+   Or if you could not resolve it within 2 retries:
    NEEDS_HUMAN
-   Reason: <explanation of what human action is needed>
+   Reason: <the diagnosis AND the current state of the expanded rule, so a human
+   can improve the RULE — not just this one article>
 
 ## Competitor research rules (when a comment is about missing competitor coverage)
 
@@ -288,10 +384,15 @@ relevant sections of `editorial/STYLE_GUIDE.md`:
   metadata (test-account emails, last-validated footers, capture-run
   identifiers) in `final.md`.
 
-When a comment asks for a wording or structural change, apply the
-style guide rules to the change. If the comment itself asks for
-something the style guide forbids, leave a brief reply explaining and
-ask for confirmation before pushing the change.
+When a comment asks for a wording or structural change, FIRST check
+whether the style guide already covers it. If the rule is MISSING or
+TOO VAGUE to have prevented the issue, add or sharpen that rule in
+`editorial/STYLE_GUIDE.md` (the docs commit in step 3) and then apply
+it to the article (step 4). If the rule already exists and was simply
+not followed, note that in your reply and just apply the existing rule
+— no canon edit needed. If the comment itself asks for something the
+style guide forbids, leave a brief reply explaining and ask for
+confirmation before pushing the change.
 
 ## Hard rules (WORKFLOW.md §12)
 
@@ -327,6 +428,7 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
     assistant_text_lines: list[str] = []   # only plain assistant text (for RESOLVED/NEEDS_HUMAN scan)
     kill_reason: list[str] = []   # mutable container so threads can write it
     current_step: list[str] = ["(starting)"]
+    current_phase: list[int] = [1]
 
     # Truncate task log. Reader thread will populate it.
     TASK_LOG_FILE.write_text("")
@@ -337,6 +439,8 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
         "pr_number": pr_number,
         "comment_id": comment.get("id"),
         "step": current_step[0],
+        "phase": 1,
+        "checklist": build_resolution_checklist(1),
         "started_at": _now_iso(),
     }
     flush_status()  # push to dashboard immediately so it shows active task
@@ -390,10 +494,43 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
     step_deadline: list[float] = [time.time() + INITIAL_TIMEOUT_SECS]
     first_output = [False]
 
+    def _set_phase(phase: int) -> None:
+        phase = max(1, min(phase, len(RESOLUTION_CHECKLIST)))
+        current_phase[0] = phase
+        task = _runtime.get("current_task")
+        if not task:
+            return
+        task["phase"] = phase
+        task["checklist"] = build_resolution_checklist(phase)
+        _runtime["current_task"] = task
+        log(f"    → PHASE: {phase}")
+        flush_status()
+
     def _set_step(step: str):
         current_step[0] = step
-        _runtime["current_task"] = {**_runtime["current_task"], "step": step}
+        task = _runtime.get("current_task")
+        if not task:
+            return
+        task["step"] = step
+        _runtime["current_task"] = task
         log(f"    → STEP: {step}")
+        flush_status()
+
+    def _finish_task_checklist(terminal: str) -> None:
+        task = _runtime.get("current_task")
+        if task:
+            phase = task.get("phase", current_phase[0])
+            if terminal == "done":
+                task["checklist"] = build_resolution_checklist(
+                    len(RESOLUTION_CHECKLIST), terminal="done"
+                )
+            else:
+                task["checklist"] = build_resolution_checklist(
+                    phase, terminal="failed"
+                )
+            _runtime["current_task"] = task
+            flush_status()
+        _runtime["current_task"] = None
         flush_status()
 
     def _format_event(evt: dict) -> list[str]:
@@ -413,7 +550,10 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
                     for sub in text.splitlines():
                         lines.append(sub)
                         assistant_text_lines.append(sub)
-                        if sub.startswith("STEP:"):
+                        phase_m = re.match(r"^PHASE:\s*(\d+)\s*$", sub.strip())
+                        if phase_m:
+                            _set_phase(int(phase_m.group(1)))
+                        elif sub.startswith("STEP:"):
                             _set_step(sub[5:].strip())
                 elif btype == "tool_use":
                     name = block.get("name", "?")
@@ -549,9 +689,7 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
     watchdog.join(timeout=2)
 
     elapsed = round(time.time() - task_started)
-    _runtime["current_task"] = None
     _runtime["last_task_duration_secs"] = elapsed
-    flush_status()  # clear active task from dashboard
 
     output = "\n".join(output_lines).strip()
     # Scan plain assistant text (not stream-json wrapper) for RESOLVED/NEEDS_HUMAN
@@ -568,10 +706,12 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
                 msg = (f"step stalled — no output for {STEP_TIMEOUT_SECS}s "
                        f"(last step: '{current_step[0]}')")
             log(f"    WATCHDOG: {msg}")
+            _finish_task_checklist("failed")
             return "STEP_TIMEOUT", msg, ""
         else:
             msg = f"exceeded {TASK_TIMEOUT_SECS}s hard cap (last step: '{current_step[0]}')"
             log(f"    WATCHDOG: {msg}")
+            _finish_task_checklist("failed")
             return "TOTAL_TIMEOUT", msg, ""
 
     # ── scan output for RESOLVED / NEEDS_HUMAN ────────────────────────────────
@@ -589,6 +729,11 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
             if i + 1 < len(text_lines) and text_lines[i + 1].startswith("Reason:"):
                 context = text_lines[i + 1][len("Reason:"):].strip()
             break
+
+    if status == "RESOLVED":
+        _finish_task_checklist("done")
+    else:
+        _finish_task_checklist("failed")
 
     return status, output, context
 
