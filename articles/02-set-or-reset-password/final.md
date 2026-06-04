@@ -97,4 +97,4 @@ Your email address isn't associated with an active SpecterX account. Contact who
 ## Related articles
 
 - [Sign in to SpecterX](../01-log-in-to-specterx/01-log-in-to-specterx.html)
-- What is SpecterX?
+- [What is SpecterX?](../03-what-is-specterx/03-what-is-specterx.html)

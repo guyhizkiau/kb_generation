@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { color-scheme: light; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                 "Helvetica Neue", Arial, sans-serif;
+    color: #1f2328;
+    background: #f6f8fa;
+    line-height: 1.6;
+    font-size: 16px;
+  }
+  main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 48px 32px 96px;
+    background: #ffffff;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    min-height: 100vh;
+  }
+  h1 {
+    font-size: 2rem;
+    line-height: 1.2;
+    margin: 0 0 0.5rem;
+    border-bottom: 1px solid #d0d7de;
+    padding-bottom: 0.4rem;
+  }
+  h2 {
+    font-size: 1.4rem;
+    margin: 2rem 0 0.75rem;
+    border-bottom: 1px solid #eaeef2;
+    padding-bottom: 0.3rem;
+  }
+  h3 { font-size: 1.15rem; margin: 1.6rem 0 0.5rem; }
+  p { margin: 0.75rem 0; }
+  ul { padding-left: 1.4rem; }
+  li { margin: 0.25rem 0; }
+  code {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+                 "Liberation Mono", monospace;
+    background: #f0f3f6;
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    font-size: 0.92em;
+  }
+  blockquote {
+    border-left: 4px solid #d0d7de;
+    margin: 1rem 0;
+    padding: 0.25rem 1rem;
+    color: #57606a;
+    background: #f6f8fa;
+  }
+  figure.screenshot {
+    margin: 1.25rem 0;
+    padding: 0;
+    text-align: center;
+  }
+  figure.screenshot img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .meta {
+    font-size: 0.875em;
+    color: #57606a;
+    margin: 0.25rem 0 1.5rem;
+    padding: 0.5rem 0.75rem;
+    background: #f6f8fa;
+    border-radius: 4px;
+    border-left: 3px solid #d0d7de;
+  }
+  hr {
+    border: none;
+    border-top: 1px solid #d0d7de;
+    margin: 2rem 0;
+  }
+</style>
+</head>
+<body>
+<main>
+<h1>What is SpecterX?</h1>
+<div class="meta"><p>Audience: <strong>everyone</strong> &middot; Reading time: <strong>4 min</strong></p></div>
+<p>SpecterX is a data governance and secure collaboration platform. Your organization uses it to share files, send email, and collaborate with people outside the company while keeping control of what happens next: who opens the content, on what terms, for how long, and whether to revoke access at any time. The protection is built into each file and travels with it across applications, devices, and storage systems, so the rules you set still apply long after the file leaves your inbox, your drive, or your repository.</p>
+<h2>The problem SpecterX solves</h2>
+<p>Once a file leaves your computer as an attachment or a public link, you've lost track of it. Recipients can forward, save, or post it. Your access logs end at "sent."</p>
+<p>SpecterX replaces the attachment with a protected link that stays governed by a policy you control. You can revoke access at any time, see who opened the file from where, and let the policy expire the link on schedule.</p>
+<h2>What SpecterX protects</h2>
+<p>A single policy model applies wherever your organization shares content:</p>
+<ul><li><strong>Files shared from the web.</strong> Upload or select a file in the SpecterX web platform, pick a policy, add recipients, and click Share. See <a href="../01-log-in-to-specterx/01-log-in-to-specterx.html">Sign in to SpecterX</a> for how to reach the web platform.</li><li><strong>Email and attachments.</strong> The Outlook Add-in and Gmail Browser Extension add a SpecterX panel to your compose window. From there you apply a policy to attachments, the message body, or both, and set per-recipient permissions before sending. Server-side mail protection can apply policies automatically as messages leave your organization, driven by your DLP signals.</li><li><strong>Workspaces.</strong> A Workspace is a persistent shared space with a parent policy, named members (Owner, Co-Owner, Contributor, Viewer), and a full audit trail. Use it to collaborate continuously with an external partner, request files from outside parties, or store ongoing project documents under policy. Files added to a Workspace inherit its policy. Workspaces are available when an administrator at the sending organization has enabled them.</li><li><strong>Files in cloud storage platforms.</strong> Share-in-place connectors add SpecterX protection to files that <em>stay</em> in their original storage, such as Google Drive or SharePoint. No upload, no copy, no second source of truth.</li><li><strong>Messages and files in workplace communication tools.</strong> A chat connector for platforms such as Slack lets users send protected content into channels and direct messages under a SpecterX policy, so chat-borne data carries the same governance as anything you'd share by link or email.</li><li><strong>Data exported from CRM platforms.</strong> A browser extension and a reports connector wrap report exports from CRMs such as Salesforce in a SpecterX policy, so a CSV pulled from the CRM becomes a governed share instead of a loose download.</li></ul>
+<p>Every protected interaction produces an audit trail. From the same interface that sent the file, you can revoke access, change recipient permissions, or expire the link instantly.</p>
+<h2>Core concepts</h2>
+<h3>Sender and recipient</h3>
+<p>A <strong>sender</strong> is a licensed SpecterX user at your organization. A <strong>recipient</strong> is anyone the sender shares with. Recipients don't need a SpecterX account; they're set up automatically when the share is made and verify themselves per share. Inside a Workspace, the same relationship becomes a named role (Owner, Co-Owner, Contributor, or Viewer) that persists for as long as the Workspace does.</p>
+<h3>Security policy</h3>
+<p>A <strong>security policy</strong> is a named set of rules that controls how a file can be accessed. Administrators define policies in advance, and the sender picks one from a dropdown at share time. A policy can require verification, restrict whether recipients can forward the file, block downloads, watermark content, encrypt files with a password or Rights Management, and set how many days the link stays active.</p>
+<h3>Recipient experience</h3>
+<p>When a recipient clicks a SpecterX link, they land on a verification page. Verification is usually a 6-digit code sent to their email; depending on the policy, it can also be an SMS code or a personal secret the sender shares out of band. Once verified, the recipient opens the file in the <strong>Secure Viewer</strong>, an in-browser viewer that requires no install. Watermarks, downloads, and forwarding all follow the policy the sender picked at share time.</p>
+<h2>How SpecterX fits with existing tools</h2>
+<p>SpecterX sits between an organization's identity, storage, email, and security systems and the people it shares files with.</p>
+<ul><li><strong>Identity.</strong> SpecterX connects to the organization's identity provider, such as Microsoft Entra ID, Google Workspace, or Okta, so senders sign in with credentials they already have. SAML 2.0, OAuth, and LDAP are all supported. Recipients don't need any of this; they verify per share.</li><li><strong>Storage.</strong> SpecterX-protected data lives in the organization's own storage: Amazon S3, SharePoint, or Google Cloud Storage. An administrator picks the backend tenant-wide, and the choice applies to every kind of share: files uploaded from the web, attachments protected through Outlook or Gmail, Workspace contents, and exports from connected apps.</li><li><strong>Mail.</strong> The Outlook and Gmail integrations protect outbound email from inside the mail clients senders already use. A separate Mail Protection Server can apply policies at the gateway, automatically and at scale, optionally driven by DLP classification signals.</li><li><strong>Data classification and DLP.</strong> SpecterX plugs into the security stack the organization already runs. Policies can trigger a DLP or threat-detection scan when a recipient accesses a file. Policy assignment can also be driven by classification signals such as Microsoft Purview sensitivity labels, custom DLP headers from Exchange Online, or third-party classifiers, so the right protection is applied automatically as files move.</li><li><strong>Deployment.</strong> SpecterX runs in SpecterX's cloud by default, with an On-Prem Gateway option for organizations that need to keep the deployment in their own environment.</li></ul>
+<h2>What SpecterX is NOT</h2>
+<ul><li><strong>Not a storage product.</strong> SpecterX is the protection and access-control layer for files. The files themselves live in the organization's own Amazon S3, SharePoint, or Google Cloud Storage, configured tenant-wide by an administrator. SpecterX adds governance to the storage the organization already runs.</li><li><strong>Not a defense against a determined insider.</strong> SpecterX prevents accidental forwarding, unauthorized access, and uncontrolled distribution from the SpecterX surface. It doesn't stop someone who can already see a file from photographing the screen or transcribing it. Watermarks deter that; they don't block it.</li></ul>
+<h2>Related articles</h2>
+<ul><li><a href="../01-log-in-to-specterx/01-log-in-to-specterx.html">Sign in to SpecterX</a></li><li><a href="../02-set-or-reset-password/02-set-or-reset-password.html">Set or reset your password</a></li></ul>
+<hr>
+<p><em>Last reviewed 2026-06-02.</em></p>
+</main>
+</body>
+</html>

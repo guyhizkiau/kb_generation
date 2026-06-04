@@ -52,5 +52,50 @@
     "captured": "2026-05-27",
     "topics": ["password reset", "forgot password", "admin-driven reset", "leaked password check", "lockout after failed attempts", "Super Admin"],
     "file": "hubspot/reset-password.md"
+  },
+  {
+    "vendor": "egnyte",
+    "slug": "what-is",
+    "source_url": "https://helpdesk.egnyte.com/hc/en-us/articles/360029184571-Getting-Started-Guide-for-Egnyte-Connect",
+    "title": "Getting Started Guide for Egnyte Connect",
+    "captured": "2026-06-01",
+    "topics": ["overview", "getting started", "file sharing", "desktop app", "web UI", "terminology", "new user onboarding"],
+    "file": "egnyte/what-is.md"
+  },
+  {
+    "vendor": "virtru",
+    "slug": "what-is",
+    "source_url": "https://support.virtru.com/hc/en-us/articles/360039055854-How-Virtru-keeps-files-and-data-secure",
+    "title": "How Virtru keeps files and data secure",
+    "captured": "2026-06-01",
+    "topics": ["overview", "security model", "encryption", "zero trust", "TDF", "access control", "compliance"],
+    "file": "virtru/what-is.md"
+  },
+  {
+    "vendor": "docsend",
+    "slug": "what-is",
+    "source_url": "https://help.dropbox.com/plans/what-is-dropbox-docsend",
+    "title": "What is Dropbox DocSend?",
+    "captured": "2026-06-01",
+    "topics": ["overview", "document sharing", "viewer analytics", "supported file types", "spaces", "e-signature", "NDA", "watermark"],
+    "file": "docsend/what-is.md"
+  },
+  {
+    "vendor": "hubspot",
+    "slug": "what-is",
+    "source_url": "https://knowledge.hubspot.com/get-started",
+    "title": "Get Started",
+    "captured": "2026-06-01",
+    "topics": ["overview", "getting started", "CRM", "marketing", "sales", "service", "glossary", "automation", "academy"],
+    "file": "hubspot/what-is.md"
+  },
+  {
+    "vendor": "vera",
+    "slug": "what-is",
+    "source_url": "https://docs.tricentis.com/vera-latest/content/home.htm",
+    "title": "Vera Documentation (home)",
+    "captured": "2026-06-01",
+    "topics": ["overview", "getting started", "validation", "compliance", "FDA", "e-signature", "life sciences"],
+    "file": "vera/what-is.md"
   }
 ]

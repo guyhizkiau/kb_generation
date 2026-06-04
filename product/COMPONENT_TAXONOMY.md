@@ -103,6 +103,16 @@ A background relationship between SpecterX and an external system for exchanging
 - **Examples.** Storage Integration, Identity Integration, DLP Integration, CDR Integration, Classification Integration, Mailflow Integration.
 - **Edge case — Mailflow Integration.** This one is on the line. Users *do* see its effects (sharing flow inside Outlook), but the integration itself is admin-configured plumbing that intercepts mail. The Add-ins under it are the user-facing pieces; the Mail Protection Server is pure plumbing. The umbrella stays "Integration" because that's what the whole product category is, even though some sub-components are user-facing.
 
+### Storage Integration
+
+The storage layer that holds SpecterX-protected data at rest. SpecterX always uses the customer organization's own storage, configured tenant-wide by an admin: Amazon S3 Storage, SharePoint Storage, or Google Cloud Storage. There is no "SpecterX-managed storage" option that competes with customer storage; the Storage Integration is how the customer's own bucket / site becomes the storage backend.
+
+- **No "default SpecterX storage" framing.** Do not write that SpecterX provides its own managed storage as a default, fallback, or alternative. SpecterX-governed data lives in the customer's storage — full stop. The choice the admin makes is *which* customer storage system (S3 vs SharePoint vs GCS), not "SpecterX storage vs ours".
+- **Don't claim additional SpecterX encryption on top of the customer's storage.** It is not a documented product fact that SpecterX layers its own encryption inside the customer's bucket / site, and it is also not a fact that it doesn't. Side-step the question in customer-facing copy: describe access control and policy enforcement (which are SpecterX's job), and leave at-rest cryptography to the storage system's own documentation. Avoid phrases like "under SpecterX encryption", "encrypted by SpecterX inside your bucket", or their negations.
+- **Scope clarification: applies to all data, not a single feature.** Storage Integration backs every kind of SpecterX-governed object: files uploaded via the web platform, attachments protected through Outlook or Gmail, Workspace contents, files exported from CRMs, audit and policy metadata. When writing about Storage Integration, do not scope it to one surface ("Workspaces can be backed by S3"); scope it to the deployment ("SpecterX data is stored in S3, SharePoint, or GCS depending on tenant configuration"). Workspaces inherit the storage backend of the tenant they live in; they are not configured with their own storage.
+- **Not the same as Share-in-Place.** Storage Integration is where SpecterX *keeps the data it governs*. Share-in-Place Connector is where the *file never enters SpecterX custody* and stays in the third-party app (Google Drive, SharePoint as a source). Same vendors can appear in both lists; the relationship is different.
+- **Decision test.** Is this where SpecterX-protected data is stored at rest, configured tenant-wide by an admin? *Yes → Storage Integration.*
+
 ### Connector
 
 A user-facing surface that lets the user actively do something through SpecterX into a specific third-party app. The user chooses to invoke it, knows which app they're targeting, and the third-party app's name shows up in the UI.

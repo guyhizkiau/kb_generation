@@ -143,9 +143,28 @@ Apply Section 13 of the style guide: rewrite "simply", "easily",
 
 ### 9. Em dashes
 
-Section 13a bans em dashes (—) in prose. Replace any em dash with
-either two sentences or a comma / colon, depending on what the
-sentence actually means.
+Section 13a bans em dashes (—) in prose. The rule is absolute, and
+em dashes have slipped past this step in past articles, so make the
+check operational, not optional.
+
+1. Before you stop, run:
+
+   ```
+   grep -n $'—' articles/<NN-slug>/final.md
+   ```
+
+   The U+2014 character is the long dash, distinct from the hyphen
+   (`-`, U+002D) and the en dash (`–`, U+2013). The grep above
+   matches only the long dash and ignores the other two.
+2. For every match, replace the em dash with either two sentences or
+   a comma / colon, depending on what the sentence actually means.
+   Do not substitute another em dash, an en dash, or " - " (space-
+   hyphen-space) — break the sentence instead, or use a colon.
+3. Re-run the grep. The expected output is empty. If anything remains,
+   you are not done.
+
+The same check applies to headings, captions, and alt text — anything
+that ends up in `final.md` or in the rendered HTML.
 
 ### 10. Hyphens at the start of lines
 
