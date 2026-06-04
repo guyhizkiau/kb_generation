@@ -17,7 +17,7 @@ STATE_FILE    = Path("/home/ubuntu/pr-watcher-state.json")
 LOG_FILE      = Path("/home/ubuntu/pr-watcher.log")
 TASK_LOG_FILE = Path("/home/ubuntu/pr-watcher-task.log")   # live Claude output, overwritten per task
 STATUS_DIR    = Path("/home/ubuntu/pr-watcher-web")
-POLL_INTERVAL = 300   # seconds between polls
+POLL_INTERVAL = 30    # seconds between polls
 BOT_MARKER    = "<!-- pr-watcher-bot -->"
 CLAUDE_BIN    = "/usr/local/bin/claude"
 PREVIEW_BASE  = "http://18.192.122.48"   # nginx article browser (port 80)
@@ -196,30 +196,74 @@ File      : {path}
 Line      : {line}
 Comment   : {body}
 
-## What you must do
+## What you must do — FIX THE ROOT CAUSE FIRST (WORKFLOW.md §9.5)
 
-1. Read the file(s) relevant to the comment carefully.
-2. Make exactly the changes needed to address the reviewer's feedback.
-   Typical changes for KB articles:
+Do NOT start by editing the article. Most review feedback reflects a rule
+that should hold for EVERY future article. So you fix the canonical source
+of truth first, then fix this article by APPLYING that updated source. This
+makes the fix global, and turns this article into an immediate test of the
+new rule.
+
+1. Read the comment and the relevant article file carefully.
+
+2. CLASSIFY the comment against this canonical-target map:
+   | Comment is about…                                     | Fix-first file |
+   |-------------------------------------------------------|----------------|
+   | Voice / tone / wording / structure / anti-pattern     | editorial/STYLE_GUIDE.md |
+   | A product term, definition, or canonical phrasing     | canon/GLOSSARY.md |
+   | A component's name or category                        | product/COMPONENT_TAXONOMY.md |
+   | Public-vs-internal scope, audience split              | editorial/PUBLIC_KB_SCOPE.md |
+   | "We shouldn't document this / not shipped"            | canon/DO_NOT_DOCUMENT.md |
+   | Article scope, topics-to-cover, sequencing            | editorial/ARTICLES_PLAN.md |
+   | A process / pipeline-instruction gap                  | the relevant pipeline/prompts/*.md or WORKFLOW.md |
+   | A one-off product fact, blurry screenshot, single fix | none — article-only, with a justification |
+
+3. GENERALIZE WHEN APPLICABLE, ELSE JUSTIFY.
+   - If a canonical file applies: edit THAT FILE FIRST. Then commit it alone:
+       git add <canonical-file>
+       git commit -m "docs(canon): resolve PR#{pr_number} feedback — <summary>"
+       git push origin {branch}
+     (use docs(style)/docs(taxonomy)/docs(scope) as appropriate)
+   - If the comment is genuinely article-specific: do NOT invent a contrived
+     canon edit. Record a one-line justification (you will put it in the reply)
+     and proceed straight to the article fix.
+
+4. APPLY TO THE ARTICLE FROM THE UPDATED CANON.
+   Re-read the canonical file you just edited and fix the article FROM IT
+   (not from memory). Typical article changes:
    - Reword a step for clarity or accuracy
-   - Fix or expand the competitor coverage (if the comment is about research gaps,
-     scrape 2-4 competitor KBs using Playwright headless and update the research files)
+   - Fix or expand competitor coverage (if the comment is about research gaps,
+     scrape 2-4 competitor KBs using Playwright headless and update research files)
    - Add or correct a note, troubleshooting entry, or callout
-   - Fix terminology using canonical labels from ui-glossary.md
-   - Expand the internal sources check: grep BOTH references/internal/ AND
-     the product/ directory (product/COMPONENT_TAXONOMY.md, component-records/, etc.)
-     for relevant content
+   - Fix terminology using the canonical labels you just confirmed/added
+   Then commit the article SEPARATELY:
+       git add <article-file(s)>
+       git commit -m "fix(article): resolve PR#{pr_number} comment — <5-word summary>"
+       git push origin {branch}
 
-3. `git add` only the changed file(s).
-4. `git commit -m "fix(article): resolve PR#{pr_number} comment — <5-word summary>"`
-5. `git push origin {branch}`
+5. VALIDATE AGAINST THE ORIGINAL COMMENT (always — this is the closing step).
+   Re-check the fix against what the reviewer actually asked. Quote the ask
+   and point to the resolved text in the article.
+   - If RESOLVED: continue to step 6.
+   - If NOT resolved: diagnose WHY the generalized rule didn't carry the fix
+     (too vague? wrong target file? rule right but mis-applied?). Then retry
+     more directly — but the canonical edit must EXPAND the existing rule (add
+     a clause, example, or precise label) while PRESERVING the general
+     statement. NEVER delete the general rule and substitute an
+     article-specific instruction — that forgoes generalization for an
+     over-fit. Commit each expansion as its own amended docs(...) commit,
+     re-apply to the article, and re-validate. Bound this loop to 2 retries.
+
 6. On the LAST two lines of your output, print exactly:
    RESOLVED
-   Context: <1-3 sentences explaining specifically what was changed and why>
+   Context: <what canonical file you changed (or the justification for skipping),
+   AND how applying it resolved the article; if the validate loop ran, what you
+   expanded and why>
 
-   Or if you cannot resolve the comment:
+   Or if you could not resolve it within 2 retries:
    NEEDS_HUMAN
-   Reason: <explanation of what human action is needed>
+   Reason: <the diagnosis AND the current state of the expanded rule, so a human
+   can improve the RULE — not just this one article>
 
 ## Competitor research rules (when a comment is about missing competitor coverage)
 
@@ -288,10 +332,15 @@ relevant sections of `editorial/STYLE_GUIDE.md`:
   metadata (test-account emails, last-validated footers, capture-run
   identifiers) in `final.md`.
 
-When a comment asks for a wording or structural change, apply the
-style guide rules to the change. If the comment itself asks for
-something the style guide forbids, leave a brief reply explaining and
-ask for confirmation before pushing the change.
+When a comment asks for a wording or structural change, FIRST check
+whether the style guide already covers it. If the rule is MISSING or
+TOO VAGUE to have prevented the issue, add or sharpen that rule in
+`editorial/STYLE_GUIDE.md` (the docs commit in step 3) and then apply
+it to the article (step 4). If the rule already exists and was simply
+not followed, note that in your reply and just apply the existing rule
+— no canon edit needed. If the comment itself asks for something the
+style guide forbids, leave a brief reply explaining and ask for
+confirmation before pushing the change.
 
 ## Hard rules (WORKFLOW.md §12)
 

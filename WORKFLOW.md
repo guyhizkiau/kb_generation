@@ -994,11 +994,66 @@ Validated against: SpecterX build <X>, <date>
 5. Approve and merge when ready
 ```
 
-### 9.5 Process review feedback
+### 9.5 Process review feedback — fix the root cause first
 
 When the PR gets "Request changes", read the comments, use
 `pipeline/prompts/04-revise-from-pr-comments.md`. Push updates to the same
 branch. Re-request review.
+
+**The principle: resolve the comment as a whole, not just locally.** Most
+review feedback is not unique to one article — it reflects a rule that
+should hold for *every* future article. So the order of work is inverted
+from the obvious one: **first fix the canonical source of truth, then fix
+this article by applying that updated source.** This makes the fix global
+*and* turns the current article into an immediate, real test of the new
+rule.
+
+#### Canonical-target map (what "root cause" means per comment)
+
+| Comment is about… | Fix-first file |
+|---|---|
+| Voice / tone / wording / structure / anti-pattern (e.g. "don't say 'simply'", opener style, troubleshooting header shape) | `editorial/STYLE_GUIDE.md` |
+| A product term, its definition, or its canonical phrasing | `canon/GLOSSARY.md` |
+| A component's name or category | `product/COMPONENT_TAXONOMY.md` |
+| What's in/out of public scope, or an audience split | `editorial/PUBLIC_KB_SCOPE.md` |
+| "We shouldn't document this / not shipped" | `canon/DO_NOT_DOCUMENT.md` |
+| Article scope, topics-to-cover, sequencing | `editorial/ARTICLES_PLAN.md` |
+| A process / pipeline-instruction gap (research depth, render steps, a missing check) | the relevant `pipeline/prompts/*.md` or this file |
+| A pure product fact for one flow, a blurry screenshot, a one-off factual correction | **none** — article-only, with a one-line justification |
+
+#### The resolution flow
+
+1. **Classify** the comment against the map above.
+2. **Generalize when applicable, else justify.** If a canonical file
+   applies, edit *that file first* and commit it on its own
+   (`docs(canon|style|taxonomy|scope): …`). If the comment is genuinely
+   article-specific, record a one-line justification in the PR reply and
+   proceed article-only — do not invent contrived canon edits.
+3. **Apply to the article from the updated canon.** Re-read the canonical
+   file you just edited and fix the article *from it* (not from memory).
+   Commit the article separately (`fix(article): …`). Two commits, in this
+   order, so the durable rule is visible apart from its first application.
+4. **Validate against the original comment** (the closing step, always):
+   re-check the fix against what the reviewer actually asked — quote the
+   ask and point to the resolved text.
+   - If **resolved** → done. Report the canonical change and how it fixed
+     the article (the test passed).
+   - If **not resolved** → diagnose *why* the generalized rule didn't carry
+     the fix (too vague? wrong target file? rule right but mis-applied?).
+     Retry more directly, but the canonical edit must **expand** the
+     existing rule — add a clause, an example, or a precise label — while
+     preserving the general statement. **Never** delete the general rule
+     and substitute an article-specific instruction; that forgoes
+     generalization for an over-fit. Re-apply from the expanded rule, then
+     re-validate. Each expansion is its own amended `docs(...)` commit.
+   - Bound the loop to **2 expand-and-retry attempts**. If still
+     unresolved, stop with `BLOCKED` / `NEEDS_HUMAN` and a reason that
+     includes the diagnosis and the current state of the expanded rule — so
+     the human improves the *rule*, not just this one article.
+
+A failed validation is direct evidence the new rule was insufficient; the
+correct response is to make the **rule** better, never to paper over the
+single article.
 
 ### 9.6 After merge
 

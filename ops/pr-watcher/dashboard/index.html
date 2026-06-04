@@ -123,7 +123,10 @@ header .repo-link { font-size: 12px; color: var(--text-muted); margin-left: auto
 .task-pr   { font-size: 15px; font-weight: 600; color: var(--blue); }
 .task-step { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
 .task-elapsed { font-size: 12px; color: var(--amber); margin-top: 2px; }
-.spinner { display: inline-block; animation: spin 1s linear infinite; }
+.spinner { display: inline-flex; align-items: center; justify-content: center;
+           width: 1em; height: 1em; line-height: 1;
+           animation: spin 1s linear infinite;
+           transform-origin: center center; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* task live output panel */
@@ -746,7 +749,13 @@ async function pollNow() {
   const icon = document.getElementById('poll-btn-icon');
   btn.disabled = true;
   btn.classList.add('firing');
-  icon.style.display = 'inline-block';
+  icon.style.display = 'inline-flex';
+  icon.style.alignItems = 'center';
+  icon.style.justifyContent = 'center';
+  icon.style.width = '1em';
+  icon.style.height = '1em';
+  icon.style.lineHeight = '1';
+  icon.style.transformOrigin = 'center center';
   icon.style.animation = 'spin 0.7s linear infinite';
   try {
     const res = await fetch('/poll-now', { method: 'POST' });
