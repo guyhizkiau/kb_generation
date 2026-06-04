@@ -44,23 +44,23 @@ Good:
 
 ### Audience-aware "your" framing
 
-"Your administrators", "your organisation", "your IT", "your domain", and similar "your"-anchored references all presume the reader is an internal employee at the organisation that deploys SpecterX. They do not work when the article is read by recipients (external users who receive a SpecterX link) or by any mixed audience.
+"Your administrators", "your organization", "your IT", "your domain", and similar "your"-anchored references all presume the reader is an internal employee at the organization that deploys SpecterX. They do not work when the article is read by recipients (external users who receive a SpecterX link) or by any mixed audience.
 
 Check the article's `audience:` front-matter before using these phrases:
 
-- **`audience: everyone`** (overview, concept, or reference articles read by senders, admins, recipients, and prospects) — do not use "your administrators / your organisation / your IT". Recipients have no relationship to the sender's administrators, and prospects don't yet have a SpecterX deployment.
-- **`audience: recipients`** — same rule; the reader is by definition external to the sending organisation.
-- **`audience: end-users` / `audience: admins` / `audience: deployers`** — "your administrators / your organisation" is fine, because the reader is unambiguously inside the deploying organisation.
+- **`audience: everyone`** (overview, concept, or reference articles read by senders, admins, recipients, and prospects) — do not use "your administrators / your organization / your IT". Recipients have no relationship to the sender's administrators, and prospects don't yet have a SpecterX deployment.
+- **`audience: recipients`** — same rule; the reader is by definition external to the sending organization.
+- **`audience: end-users` / `audience: admins` / `audience: deployers`** — "your administrators / your organization" is fine, because the reader is unambiguously inside the deploying organization.
 
 In mixed-audience or recipient-facing articles, refer to the deploying side neutrally. Three options, roughly in order of preference:
 
-1. **Drop the actor — describe what SpecterX does.** "SpecterX connects to the organisation's identity provider..." reads cleanly and avoids the issue entirely.
-2. **Name the role generically.** "An administrator at the deploying organisation..." or just "Administrators..." when the action is being described in general.
-3. **Name the relationship to the share.** "The sender's organisation..." or "The sender's administrators..." when the link to a specific share matters.
+1. **Drop the actor — describe what SpecterX does.** "SpecterX connects to the organization's identity provider..." reads cleanly and avoids the issue entirely.
+2. **Name the role generically.** "An administrator at the deploying organization..." or just "Administrators..." when the action is being described in general.
+3. **Name the relationship to the share.** "The sender's organization..." or "The sender's administrators..." when the link to a specific share matters.
 
 Good (mixed-audience overview):
 
-> SpecterX connects to the organisation's identity provider, such as Microsoft Entra ID, Google Workspace, or Okta.
+> SpecterX connects to the organization's identity provider, such as Microsoft Entra ID, Google Workspace, or Okta.
 
 Good (internal-only admin article):
 
@@ -70,7 +70,7 @@ Avoid (in a mixed-audience or recipient-facing article):
 
 > Your administrators connect SpecterX to your identity provider.
 
-The same check applies to "you" and "your" used about the deployment surface itself — "your security stack", "the mail clients you already use", "your DLP classification". In a mixed-audience article, recast to "the organisation's security stack", "familiar mail clients", "DLP classification signals". Recipients reading the article don't have these systems; senders and admins still recognise the description.
+The same check applies to "you" and "your" used about the deployment surface itself — "your security stack", "the mail clients you already use", "your DLP classification". In a mixed-audience article, recast to "the organization's security stack", "familiar mail clients", "DLP classification signals". Recipients reading the article don't have these systems; senders and admins still recognize the description.
 
 ### Tense
 
@@ -502,7 +502,7 @@ If the relevant region is only a small part of the page, crop tightly to that re
 Before pressing the shutter on any screenshot, walk through this list. The goal is a frame that contains only the UI the step refers to — not the chrome of the surrounding app or third-party host (Gmail, Outlook, etc.).
 
 - **Dismiss promotional / onboarding popups.** Examples seen in practice: Gmail's "Start a chat" tour bubble (close with the **X** in the top-right corner of the bubble), Google Workspace "what's new" cards, browser update banners. None of these are part of the SpecterX flow and they cover the area the reader needs to see.
-- **Clear "this message is spam" / "Report not spam" banners.** If the verification email landed in spam and Gmail (or any other mail client) is showing a yellow/grey "Why is this message in spam?" banner with a **Report not spam** / **Not spam** button, click that button before capturing. The banner moves the email back to the inbox and disappears, leaving a clean message body.
+- **Clear "this message is spam" / "Report not spam" banners.** If the verification email landed in spam and Gmail (or any other mail client) is showing a yellow/gray "Why is this message in spam?" banner with a **Report not spam** / **Not spam** button, click that button before capturing. The banner moves the email back to the inbox and disappears, leaving a clean message body.
 - **Avoid thread collation in mailbox screenshots.** Mail clients group messages with the same subject into a single thread. If a previous test run already left a verification or reset email in the mailbox, the new email collates with it and the screenshot shows two stacked rows instead of one. Before triggering a new email, delete (or permanently delete from Spam) any prior emails from the same sender / with the same subject, so the new capture shows a single, fresh row.
 - **Close any unrelated browser dialogs.** Password-save prompts, translate-this-page bars, autofill prompts.
 
@@ -691,6 +691,27 @@ Keep related articles short and relevant. Do not include broad or loosely relate
 
 ## 12. Vocabulary
 
+### Spelling — American English throughout
+
+Use American English spelling in all article prose, headings, alt text, and published HTML. This is a global rule, not a per-word vocabulary preference: any British-English variant should be replaced with its American counterpart, including words not listed below.
+
+Common substitutions to watch for:
+
+| American (use) | British (avoid) |
+|---|---|
+| organization, organize | organisation, organise |
+| authorize, unauthorized | authorise, unauthorised |
+| recognize, customize, optimize, analyze, finalize, prioritize, specialize | recognise, customise, optimise, analyse, finalise, prioritise, specialise |
+| defense, license (verb), practice (verb) | defence, licence, practise |
+| color, favor, behavior, labor | colour, favour, behaviour, labour |
+| center, fiber, theater, meter | centre, fibre, theatre, metre |
+| catalog, dialog (UI), program | catalogue, dialogue, programme |
+| gray, judgment, while | grey, judgement, whilst |
+
+Before committing, search the article for the British variants above (case-insensitive) and replace them. The same rule applies to the canonical sources of truth in this repository — style guide examples, glossary entries, and taxonomy notes should all read as American English so they don't seed the wrong spelling in future articles.
+
+The one exception is a proper noun or UI label that the product itself spells in British form. Use the product's exact spelling there and note it in the relevant glossary entry. None exist today.
+
 ### Preferred terms
 
 | Preferred term | Avoid | Notes |
@@ -698,7 +719,6 @@ Keep related articles short and relevant. Do not include broad or loosely relate
 | sign in | login as a verb | Use “login” only as a noun/adjective. |
 | sign out | logout as a verb | Use “logout” only as a noun/adjective if needed. |
 | administrator | admin, IT guy | Use “admin” only if the product UI uses it. |
-| organization | organisation | Use American English unless the company chooses otherwise. |
 | email address | email | Use “email” as shorthand only when natural. |
 | identity provider | IdP | Spell out on first use. |
 | single sign-on | SSO | Spell out on first use. |
@@ -1114,7 +1134,7 @@ Prefer:
 
 Avoid:
 
-> Single sign-on (Entra ID, Okta, or other corporate IdP). If your organisation uses Microsoft Entra ID, Okta, or another enterprise identity provider, your tenant's sign-in page is configured to redirect you to your IdP — or to show an IdP-branded button in place of (or in addition to) the email and password form.
+> Single sign-on (Entra ID, Okta, or other corporate IdP). If your organization uses Microsoft Entra ID, Okta, or another enterprise identity provider, your tenant's sign-in page is configured to redirect you to your IdP — or to show an IdP-branded button in place of (or in addition to) the email and password form.
 
 Prefer:
 
@@ -1128,7 +1148,7 @@ Or, when the UI shows buttons:
 
 Avoid:
 
-> SSO says "access denied" or "not authorised". Your identity provider authenticated you, but SpecterX hasn't been told to let your account in. This usually means your administrator hasn't finished provisioning your account in SpecterX (even if your IdP account exists). Contact your administrator and ask them to confirm that your SpecterX account is active and that your email address matches what's in the identity provider.
+> SSO says "access denied" or "not authorized". Your identity provider authenticated you, but SpecterX hasn't been told to let your account in. This usually means your administrator hasn't finished provisioning your account in SpecterX (even if your IdP account exists). Contact your administrator and ask them to confirm that your SpecterX account is active and that your email address matches what's in the identity provider.
 
 Prefer:
 
