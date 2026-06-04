@@ -41,6 +41,13 @@ resolves both for backward compatibility).
 - One commit per pipeline phase (`draft`, `test-notes`, `revise`,
   `final`). Do not amend screenshots into prior commits — history of
   what the tester saw is part of the audit trail.
+- Exception — comment resolution (WORKFLOW.md §9.5) produces **two**
+  commits: a `docs(...)` commit that fixes the canonical source of
+  truth (style guide, glossary, taxonomy, scope, or a prompt) first,
+  then a `fix(article):` commit that applies it to the article. Keep
+  them separate and in that order so the durable rule is visible apart
+  from its first application. If the validate-then-expand loop runs, each
+  rule expansion is its own amended `docs(...)` commit.
 - Do not auto-commit when the user has not asked. The pipeline is
   allowed to commit on its own branch under `workspace/articles/...`;
   human-driven sessions need explicit consent.
