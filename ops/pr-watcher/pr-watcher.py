@@ -236,8 +236,13 @@ new rule.
      scrape 2-4 competitor KBs using Playwright headless and update research files)
    - Add or correct a note, troubleshooting entry, or callout
    - Fix terminology using the canonical labels you just confirmed/added
-   Then commit the article SEPARATELY:
-       git add <article-file(s)>
+   Then RE-RENDER the HTML previews (ALWAYS — even for prose-only changes):
+       python3 pipeline/render_html.py articles/<NN-slug>/
+   This writes <slug>.html AND <slug>-zendesk.html. Also regenerate the index:
+       python3 pipeline/build_index.py
+   Commit the article AND all rendered files together:
+       git add articles/<NN-slug>/final.md articles/<NN-slug>/<slug>.html \
+               articles/<NN-slug>/<slug>-zendesk.html articles/index.html
        git commit -m "fix(article): resolve PR#{pr_number} comment — <5-word summary>"
        git push origin {branch}
 

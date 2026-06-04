@@ -54,6 +54,14 @@ article. Follow WORKFLOW.md §9.5:
 - An update to the relevant **canonical file** (unless the comment is
   genuinely article-specific — then a one-line justification instead).
 - An updated `articles/<NN-slug>/final.md` applying that canon.
+- Re-rendered HTML previews — **always**, even for prose-only changes:
+  ```bash
+  python3 pipeline/render_html.py articles/<NN-slug>/
+  python3 pipeline/build_index.py
+  ```
+  Commit `final.md`, `<slug>.html`, `<slug>-zendesk.html`, and
+  `articles/index.html` together in the `fix(article):` commit. Never
+  commit `final.md` alone without its rendered HTML.
 - New screenshots if a comment requested visual evidence.
 - An update to `test-plan.json` if the comment implies the test should
   re-run.

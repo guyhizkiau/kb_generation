@@ -1031,8 +1031,16 @@ rule.
    proceed article-only — do not invent contrived canon edits.
 3. **Apply to the article from the updated canon.** Re-read the canonical
    file you just edited and fix the article *from it* (not from memory).
-   Commit the article separately (`fix(article): …`). Two commits, in this
-   order, so the durable rule is visible apart from its first application.
+   Then **always** re-render the HTML previews — even for prose-only changes:
+   ```bash
+   python3 pipeline/render_html.py articles/<NN-slug>/
+   python3 pipeline/build_index.py
+   ```
+   Commit `final.md`, `<slug>.html`, `<slug>-zendesk.html`, and
+   `articles/index.html` together as the `fix(article):` commit. Never
+   commit `final.md` alone without its rendered HTML. Two commits total
+   (docs then article+HTML), in this order, so the durable rule is visible
+   apart from its first application.
 4. **Validate against the original comment** (the closing step, always):
    re-check the fix against what the reviewer actually asked — quote the
    ask and point to the resolved text.
