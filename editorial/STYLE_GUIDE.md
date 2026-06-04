@@ -42,6 +42,36 @@ Good:
 
 > If your account has not been created yet, contact your administrator.
 
+### Audience-aware "your" framing
+
+"Your administrators", "your organisation", "your IT", "your domain", and similar "your"-anchored references all presume the reader is an internal employee at the organisation that deploys SpecterX. They do not work when the article is read by recipients (external users who receive a SpecterX link) or by any mixed audience.
+
+Check the article's `audience:` front-matter before using these phrases:
+
+- **`audience: everyone`** (overview, concept, or reference articles read by senders, admins, recipients, and prospects) — do not use "your administrators / your organisation / your IT". Recipients have no relationship to the sender's administrators, and prospects don't yet have a SpecterX deployment.
+- **`audience: recipients`** — same rule; the reader is by definition external to the sending organisation.
+- **`audience: end-users` / `audience: admins` / `audience: deployers`** — "your administrators / your organisation" is fine, because the reader is unambiguously inside the deploying organisation.
+
+In mixed-audience or recipient-facing articles, refer to the deploying side neutrally. Three options, roughly in order of preference:
+
+1. **Drop the actor — describe what SpecterX does.** "SpecterX connects to the organisation's identity provider..." reads cleanly and avoids the issue entirely.
+2. **Name the role generically.** "An administrator at the deploying organisation..." or just "Administrators..." when the action is being described in general.
+3. **Name the relationship to the share.** "The sender's organisation..." or "The sender's administrators..." when the link to a specific share matters.
+
+Good (mixed-audience overview):
+
+> SpecterX connects to the organisation's identity provider, such as Microsoft Entra ID, Google Workspace, or Okta.
+
+Good (internal-only admin article):
+
+> Your administrators connect SpecterX to your identity provider.
+
+Avoid (in a mixed-audience or recipient-facing article):
+
+> Your administrators connect SpecterX to your identity provider.
+
+The same check applies to "you" and "your" used about the deployment surface itself — "your security stack", "the mail clients you already use", "your DLP classification". In a mixed-audience article, recast to "the organisation's security stack", "familiar mail clients", "DLP classification signals". Recipients reading the article don't have these systems; senders and admins still recognise the description.
+
 ### Tense
 
 Use present tense for product behavior.
