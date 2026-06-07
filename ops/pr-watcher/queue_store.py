@@ -42,8 +42,22 @@ def _worktree_root() -> Path | None:
 
 
 def _relative_to_repo(path: Path) -> str:
-    """Return a repo-relative POSIX path for git show."""
-    return path.relative_to(_repo_root()).as_posix()
+    """Return a repo-relative POSIX path for git show.
+
+    Tries the main repo root first, then the worktree root, so callers
+    don't need to know which tree the path came from.
+    """
+    try:
+        return path.relative_to(_repo_root()).as_posix()
+    except ValueError:
+        pass
+    wt = _worktree_root()
+    if wt:
+        try:
+            return path.relative_to(wt).as_posix()
+        except ValueError:
+            pass
+    raise ValueError(f"'{path}' is not in the subpath of '{_repo_root()}'")
 
 
 # ── git ref helpers ───────────────────────────────────────────────────────────
