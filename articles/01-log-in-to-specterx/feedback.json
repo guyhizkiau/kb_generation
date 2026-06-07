@@ -1,0 +1,20 @@
+[
+  {
+    "id": "demo-anno-1",
+    "body": [
+      {
+        "value": "Clarify whether SSO users see the same login screen."
+      }
+    ],
+    "target": {
+      "selector": {
+        "type": "TextQuoteSelector",
+        "exact": "Sign in to SpecterX"
+      }
+    },
+    "creator": {
+      "name": "Reviewer"
+    },
+    "created": "2026-06-07T12:00:00Z"
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "id": "ann-demo-1",
+    "body": [{"value": "The share button label should match the UI — it says 'Share securely' not 'Share file'."}],
+    "target": {
+      "selector": {"type": "TextQuoteSelector", "exact": "Click Share file in the toolbar"},
+      "source": "04-share-a-file.html"
+    },
+    "creator": {"name": "Guy"},
+    "created": "2026-06-06T14:30:00Z"
+  },
+  {
+    "id": "ann-demo-2",
+    "body": [{"value": "Screenshot shows the wrong policy selected — should be Default policy."}],
+    "target": {
+      "selector": {"type": "FragmentSelector", "value": "screenshot-share-dialog.png#xywh=120,80,400,300"},
+      "source": "screenshots/share-dialog.png"
+    },
+    "creator": {"name": "Reviewer"},
+    "created": "2026-06-06T15:00:00Z"
+  }
+]
