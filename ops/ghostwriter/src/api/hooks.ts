@@ -83,7 +83,7 @@ export function useQueue() {
   return useQuery<QueueData>({
     queryKey: ['queue'],
     queryFn: () => apiFetch('/api/queue'),
-    refetchInterval: 10000,
+    refetchInterval: 3000,
   })
 }
 

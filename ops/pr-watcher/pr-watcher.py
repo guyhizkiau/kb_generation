@@ -267,8 +267,11 @@ def _fetch_all_repos():
 
 def is_claude_running() -> bool:
     """Return True if a claude process is already running on the VM."""
-    r = subprocess.run(["pgrep", "-f", "claude.*--dangerously"], capture_output=True)
-    return r.returncode == 0
+    for pattern in (r"claude.*--dangerously", r"claude.*-p", r"run_claude_code\.py"):
+        r = subprocess.run(["pgrep", "-f", pattern], capture_output=True)
+        if r.returncode == 0:
+            return True
+    return False
 
 
 # ── resolution engine ─────────────────────────────────────────────────────────
