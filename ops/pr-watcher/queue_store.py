@@ -335,6 +335,7 @@ def queue_with_states(q: dict | None = None) -> dict:
                 "revision_cycle": rc,
                 "publish_stale": stale,
                 "feedback_issue": fields.get("FEEDBACK_ISSUE", ""),
+                "last_update": fields.get("LAST_UPDATE", ""),
             })
         enriched_clusters.append({**cluster, "articles": enriched_articles})
         if last_merged:

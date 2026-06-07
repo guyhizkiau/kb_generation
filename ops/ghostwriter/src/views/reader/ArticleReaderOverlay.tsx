@@ -1,20 +1,15 @@
 import { useState, useEffect } from 'react'
 import {
-  Box, Group, Text, Badge, Button, ScrollArea, Stack, Anchor, Title, Skeleton,
+  Box, Group, Text, Button, ScrollArea, Stack, Anchor, Title, Skeleton,
 } from '@mantine/core'
 import { IconArrowLeft } from '@tabler/icons-react'
 import { notifications } from '@mantine/notifications'
 import { modals } from '@mantine/modals'
 import { useQueryClient } from '@tanstack/react-query'
-import { useQueue, useFeedback, useTrigger, useMergeArticle, articlePreviewUrl } from '@/api/hooks'
+import { useQueue, useFeedback, useTrigger, useMergeArticle, useDismissAnnotation, articlePreviewUrl } from '@/api/hooks'
 import { githubPullUrl } from '@/api/github'
 import { AnnotationCard } from '@/components/AnnotationCard'
-
-const PHASE_COLORS: Record<string, string> = {
-  PLANNED: 'gray', DRAFTING: 'blue', TESTING: 'yellow', REVISING: 'orange',
-  FINALIZING: 'violet', PR_OPEN: 'cyan', MERGED: 'teal', DONE: 'green',
-  BLOCKED: 'red', UNKNOWN: 'gray',
-}
+import { PhaseBadge } from '@/components/PhaseBadge'
 
 const MERGED_PHASES = new Set(['MERGED', 'DONE'])
 
@@ -31,16 +26,14 @@ export function ArticleReaderOverlay({ slug, onClose }: ArticleReaderOverlayProp
   const { data: feedbackData, isLoading: fbLoading, refetch } = useFeedback(slug)
   const trigger = useTrigger()
   const mergeArticle = useMergeArticle()
-  const [dismissed, setDismissed] = useState<Set<string>>(new Set())
+  const dismissAnnotation = useDismissAnnotation()
   const [previewState, setPreviewState] = useState<PreviewState>('loading')
 
   const article = queueData?.clusters
     .flatMap((c) => c.articles)
     .find((a) => a.slug === slug)
 
-  const activeAnnotations = (feedbackData?.annotations ?? []).filter(
-    (a) => !dismissed.has(a.id),
-  )
+  const activeAnnotations = feedbackData?.annotations ?? []
 
   useEffect(() => {
     setPreviewState('loading')
@@ -185,9 +178,11 @@ export function ArticleReaderOverlay({ slug, onClose }: ArticleReaderOverlayProp
             <Text size="xs" c="dimmed">{slug}</Text>
           </Box>
           {article?.phase && (
-            <Badge color={PHASE_COLORS[article.phase] ?? 'gray'} variant="light">
-              {article.phase}
-            </Badge>
+            <PhaseBadge
+              phase={article.phase}
+              lastUpdate={article.last_update}
+              running={queueData?.claude_running}
+            />
           )}
         </Group>
         <Group gap="xs">
@@ -253,7 +248,17 @@ export function ArticleReaderOverlay({ slug, onClose }: ArticleReaderOverlayProp
                   ann={ann}
                   onAccept={handleAccept}
                   onDismiss={() =>
-                    setDismissed((prev) => new Set([...prev, ann.id]))
+                    dismissAnnotation.mutate(
+                      { slug, id: ann.id },
+                      {
+                        onError: (e) =>
+                          notifications.show({
+                            title: 'Could not dismiss',
+                            message: e.message,
+                            color: 'red',
+                          }),
+                      },
+                    )
                   }
                 />
               ))

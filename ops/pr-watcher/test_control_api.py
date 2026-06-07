@@ -54,6 +54,14 @@ class ControlApiTests(unittest.TestCase):
         self.assertEqual(code, 200)
         self.assertIn("clusters", payload)
         self.assertIn("next_slug", payload)
+        self.assertIn("claude_running", payload)
+        self.assertIsInstance(payload["claude_running"], bool)
+
+    def test_get_api_queue_claude_running_mocked(self):
+        with mock.patch.object(self.pw, "is_claude_running", return_value=True):
+            code, payload, _ = self._req("GET", "/api/queue")
+        self.assertEqual(code, 200)
+        self.assertTrue(payload["claude_running"])
 
     def test_get_api_queue_includes_pr_number(self):
         with mock.patch.object(self.pw._ghq, "open_prs_by_slug", return_value={"01-log-in-to-specterx": 99}):
@@ -87,6 +95,25 @@ class ControlApiTests(unittest.TestCase):
             self.assertIn("GET", methods)
             self.assertIn("PUT", methods)
             self.assertIn("POST", methods)
+            self.assertIn("DELETE", methods)
+
+    def test_delete_api_feedback(self):
+        import feedback_store as fb
+        fb.write_feedback("01-log-in-to-specterx", [{"id": "a1"}, {"id": "a2"}])
+        code, payload, _ = self._req(
+            "DELETE", "/api/feedback?slug=01-log-in-to-specterx&id=a1",
+        )
+        self.assertEqual(code, 200)
+        self.assertTrue(payload["ok"])
+        stored = fb.read_feedback("01-log-in-to-specterx")
+        self.assertEqual(len(stored), 1)
+        self.assertEqual(stored[0]["id"], "a2")
+
+        code2, payload2, _ = self._req(
+            "DELETE", "/api/feedback?slug=01-log-in-to-specterx&id=missing",
+        )
+        self.assertEqual(code2, 404)
+        self.assertFalse(payload2["ok"])
 
     def test_put_api_queue_valid(self):
         q = json.loads((self.root / "clusters" / "queue.json").read_text())

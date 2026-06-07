@@ -7,6 +7,20 @@ import { mockQueue } from '@/test/fixtures'
 import * as hooks from '@/api/hooks'
 import * as rq from '@tanstack/react-query'
 
+const openReaderMock = vi.fn()
+
+vi.mock('@/context/ReaderContext', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/context/ReaderContext')>()
+  return {
+    ...actual,
+    useReader: () => ({
+      readerSlug: null,
+      openReader: openReaderMock,
+      closeReader: vi.fn(),
+    }),
+  }
+})
+
 vi.mock('@tanstack/react-query', async (importOriginal) => {
   const actual = await importOriginal<typeof rq>()
   return {
@@ -44,6 +58,7 @@ describe('ArticlesView', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    openReaderMock.mockClear()
     vi.mocked(hooks.useQueue).mockReturnValue({
       data: mockQueue,
       isLoading: false,
@@ -64,6 +79,12 @@ describe('ArticlesView', () => {
     expect(screen.getAllByRole('button', { name: 'Review' })[0]).toBeInTheDocument()
     expect(screen.getAllByText('UP NEXT')[0]).toBeInTheDocument()
     expect(screen.getAllByText('Next up')[0]).toBeInTheDocument()
+  })
+
+  it('clicking article title opens review', async () => {
+    renderWithProviders(<ArticlesView />)
+    await userEvent.click(screen.getByRole('button', { name: /Review Log in/i }))
+    expect(openReaderMock).toHaveBeenCalledWith('01-log-in-to-specterx')
   })
 
   it('shows Next up badge in planning section', () => {

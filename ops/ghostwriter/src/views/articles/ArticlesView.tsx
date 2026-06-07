@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react'
 import {
   Grid, Card, Text, Badge, Group, Stack, Button, Select,
   Switch, ActionIcon, Title, Box, NavLink, TextInput,
-  SegmentedControl, Tooltip,
+  SegmentedControl, Tooltip, UnstyledButton,
 } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { modals } from '@mantine/modals'
@@ -25,6 +25,7 @@ import type { QueueData, ArticleEntry, Cluster } from '@/api/hooks'
 import { githubPullUrl } from '@/api/github'
 import { partitionArticles } from '@/lib/articlePhase'
 import { ConfirmDeleteModal } from '@/components/ConfirmDeleteModal'
+import { PhaseBadge } from '@/components/PhaseBadge'
 import { useReader } from '@/context/ReaderContext'
 
 /** Strip API-enriched fields before PUT /api/queue. */
@@ -42,34 +43,22 @@ export function toPersistableQueue(q: QueueData): Pick<QueueData, 'version' | 'c
   }
 }
 
-const PHASE_COLORS: Record<string, string> = {
-  PLANNED: 'gray', DRAFTING: 'blue', TESTING: 'yellow', REVISING: 'orange',
-  FINALIZING: 'violet', PR_OPEN: 'cyan', MERGED: 'teal', DONE: 'green',
-  BLOCKED: 'red', UNKNOWN: 'gray',
-}
-
 const MERGED_PHASES = new Set(['MERGED', 'DONE'])
 
 function canMergeArticle(art: ArticleEntry): boolean {
   return !!art.pr_number && !MERGED_PHASES.has(art.phase)
 }
 
-function PhaseBadge({ phase }: { phase: string }) {
-  return (
-    <Badge color={PHASE_COLORS[phase] ?? 'gray'} variant="light" size="sm">
-      {phase}
-    </Badge>
-  )
-}
-
 function ReviewArticleRow({
   art,
   commentCount,
+  claudeRunning,
   onReview,
   onMerge,
 }: {
   art: ArticleEntry
   commentCount: number
+  claudeRunning?: boolean
   onReview: () => void
   onMerge: () => void
 }) {
@@ -83,10 +72,26 @@ function ReviewArticleRow({
       }}
     >
       <Group justify="space-between" wrap="nowrap">
-        <Stack gap={2}>
-          <Text size="sm" fw={500}>{art.title}</Text>
-          <Text size="xs" c="dimmed">{art.slug}</Text>
-        </Stack>
+        <UnstyledButton
+          onClick={onReview}
+          aria-label={`Review ${art.title}`}
+          styles={{
+            root: {
+              borderRadius: 4,
+              padding: '2px 6px',
+              margin: '-2px -6px',
+              transition: 'background-color 100ms ease',
+              '&:hover': {
+                backgroundColor: 'var(--mantine-color-gray-1)',
+              },
+            },
+          }}
+        >
+          <Stack gap={2} ta="left">
+            <Text size="sm" fw={500}>{art.title}</Text>
+            <Text size="xs" c="dimmed">{art.slug}</Text>
+          </Stack>
+        </UnstyledButton>
         <Group gap={4} wrap="nowrap">
           {commentCount > 0 && (
             <Badge color="gray" size="xs">{commentCount} comments</Badge>
@@ -95,7 +100,11 @@ function ReviewArticleRow({
           {art.revision_cycle > 0 && (
             <Badge color="violet" size="xs">cycle {art.revision_cycle}</Badge>
           )}
-          <PhaseBadge phase={art.phase} />
+          <PhaseBadge
+            phase={art.phase}
+            lastUpdate={art.last_update}
+            running={claudeRunning}
+          />
           {canMergeArticle(art) && (
             <Button size="xs" color="green" variant="light" onClick={onMerge}>
               Approve & push
@@ -113,11 +122,13 @@ function ReviewArticleRow({
 function SortableArticleRow({
   art,
   isNext,
+  claudeRunning,
   onRemove,
   onWriteNext,
 }: {
   art: ArticleEntry
   isNext: boolean
+  claudeRunning?: boolean
   onRemove: () => void
   onWriteNext: (slug: string) => void
 }) {
@@ -150,7 +161,11 @@ function SortableArticleRow({
         </Group>
         <Group gap={4} wrap="nowrap">
           {isNext && <Badge color="teal" size="xs">Next up</Badge>}
-          <PhaseBadge phase={art.phase} />
+          <PhaseBadge
+            phase={art.phase}
+            lastUpdate={art.last_update}
+            running={claudeRunning}
+          />
           <Tooltip label="Write this next">
             <ActionIcon size="xs" color="teal" variant="subtle" onClick={() => onWriteNext(art.slug)}>
               ▶
@@ -487,6 +502,7 @@ export function ArticlesView() {
                       key={art.slug}
                       art={art}
                       commentCount={commentCountBySlug[art.slug] ?? 0}
+                      claudeRunning={queue.claude_running}
                       onReview={() => openReader(art.slug)}
                       onMerge={() => handleMerge(art)}
                     />
@@ -511,6 +527,7 @@ export function ArticlesView() {
                           key={art.slug}
                           art={art}
                           isNext={art.slug === nextPlannableSlug}
+                          claudeRunning={queue.claude_running}
                           onRemove={() => setDeleteTarget(art.slug)}
                           onWriteNext={handleWriteNext}
                         />
