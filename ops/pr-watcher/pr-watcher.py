@@ -1062,6 +1062,68 @@ def _launch_next_article(slug: str, title: str, num: int, cluster: str, state: d
     return True
 
 
+# ── phase auto-advancement ────────────────────────────────────────────────────
+#
+# Rules checked on every poll for each open article PR:
+#
+#   TESTING   + draft-1.md   present, test-plan.json absent  → test-plan
+#   REVISING  + test-notes.md present, draft-2.md absent     → revise-from-test
+#   FINALIZING+ draft-2.md   present, final.md absent        → voice-pass
+#
+# Each rule fires at most once per article per phase (deduped via state
+# ["handled"] key "phase-auto-{slug}-{phase}").  If Claude is already
+# running the launch is deferred to the next poll.
+
+_PHASE_AUTO_RULES: list[tuple[str, str, str, str]] = [
+    # (required_STATE_phase, must_exist, must_not_exist, phase_to_launch)
+    ("TESTING",    "draft-1.md",    "test-plan.json", "test-plan"),
+    ("REVISING",   "test-notes.md", "draft-2.md",     "revise-from-test"),
+    ("FINALIZING", "draft-2.md",    "final.md",        "voice-pass"),
+]
+
+
+def _maybe_advance_phase(branch: str, state: dict) -> None:
+    """Auto-launch the next pipeline phase for an article branch if warranted."""
+    if not branch.startswith("article/"):
+        return
+    slug = branch[len("article/"):]
+
+    article_dir = WORKTREE_PATH / "articles" / slug
+    state_path = article_dir / "STATE"
+    if not state_path.exists():
+        return
+
+    fields: dict[str, str] = {}
+    for line in state_path.read_text().splitlines():
+        if "=" in line:
+            k, _, v = line.partition("=")
+            fields[k.strip()] = v.strip()
+
+    current_phase = fields.get("PHASE", "")
+
+    for req_phase, req_file, blocking_file, next_phase in _PHASE_AUTO_RULES:
+        if current_phase != req_phase:
+            continue
+        if not (article_dir / req_file).exists():
+            continue
+        if (article_dir / blocking_file).exists():
+            continue
+
+        trigger_key = f"phase-auto-{slug}-{next_phase}"
+        if trigger_key in state["handled"]:
+            continue  # already launched this phase for this article
+
+        if is_claude_running():
+            log(f"  [{slug}] Auto-advance to {next_phase} deferred — Claude busy")
+            return  # retry next poll
+
+        log(f"  [{slug}] Auto-advancing: STATE={req_phase} → launching phase {next_phase}")
+        _launch_phase(slug, next_phase)
+        state["handled"].append(trigger_key)
+        save_state(state)
+        return  # one phase at a time; re-evaluate on next poll
+
+
 def _launch_phase(slug: str, phase: str):
     """Launch a specific pipeline phase for an article (detached)."""
     ensure_worktree()
@@ -1279,6 +1341,7 @@ def process_pr(pr_number: int, branch: str, state: dict):
         return
 
     post_preview_link(pr_number, branch, state)
+    _maybe_advance_phase(branch, state)
 
     # ── inline review comments ────────────────────────────────────────────
     try:
@@ -1379,6 +1442,12 @@ def _append_feedback(slug: str, payload: dict) -> dict:
         return {"ok": False, "error": "slug required"}
     ann = {k: v for k, v in payload.items() if k != "slug"}
     return _fb.append_feedback(slug, ann)
+
+
+def _remove_feedback(slug: str, ann_id: str) -> dict:
+    if not slug:
+        return {"ok": False, "error": "slug required"}
+    return _fb.remove_feedback(slug, ann_id)
 
 
 class _ControlHandler(BaseHTTPRequestHandler):
@@ -1499,6 +1568,26 @@ class _ControlHandler(BaseHTTPRequestHandler):
         else:
             self._respond(404, json.dumps({"error": "not found"}))
 
+    def do_DELETE(self):
+        path, qs = self._route()
+        if path == "/api/feedback":
+            slug = qs.get("slug", [""])[0]
+            ann_id = qs.get("id", [""])[0]
+            if not slug:
+                self._respond(400, json.dumps({"error": "slug required"}))
+                return
+            if not ann_id:
+                self._respond(400, json.dumps({"error": "id required"}))
+                return
+            result = _remove_feedback(slug, ann_id)
+            if not result.get("ok"):
+                code = 404 if result.get("error") == "annotation not found" else 400
+                self._respond(code, json.dumps(result))
+                return
+            self._respond(200, json.dumps(result))
+        else:
+            self._respond(404, json.dumps({"error": "not found"}))
+
     def do_OPTIONS(self):
         self.send_response(204)
         self._cors_headers()
@@ -1506,7 +1595,7 @@ class _ControlHandler(BaseHTTPRequestHandler):
 
     def _cors_headers(self):
         self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "GET, PUT, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
 
     def _respond(self, code, body):
