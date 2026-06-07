@@ -62,7 +62,7 @@ Use this checklist before running automated tests. ~5 minutes.
 curl -s http://127.0.0.1:8767/api/articles/01-log-in-to-specterx/preview | head -c 200
 curl -s http://127.0.0.1:8767/api/articles/01-log-in-to-specterx/preview | grep -o 'ghostwriter-annotate.js'
 
-# Existing demo comment
+# Feedback API (empty until you add a comment in the reader)
 curl -s 'http://127.0.0.1:8767/api/feedback?slug=01-log-in-to-specterx' | python3 -m json.tool
 ```
 
@@ -75,7 +75,7 @@ Open **http://localhost:5173/ghostwriter/** (not `:8767` directly).
 | 1 | Land on **Articles** (default view) | Cluster list + **Written & in progress** / **Up next** sections |
 | 2 | Cluster **Logging in & account access** | Row **Log in to the SpecterX web platform** shows **Review** |
 | 3 | Click **Review** | Full-screen reader overlay; article HTML in main pane |
-| 4 | Right sidebar | Shows **Comments (1)** with demo quote *"Sign in to SpecterX"* |
+| 4 | Right sidebar | Empty comments prompt, or list if you added comments earlier |
 | 5 | In article pane, **select text** → add comment (Recogito popup) | Prompt for name first time; comment saves |
 | 6 | Sidebar | New comment appears **without** clicking Refresh (postMessage sync) |
 | 7 | **Back** | Returns to Articles |
@@ -100,7 +100,6 @@ If an article has `final.md` but no HTML yet, the preview endpoint **renders it 
 | `01-log-in-to-specterx` | DONE | Yes — **use for review sanity test** |
 | `02-set-or-reset-password` | varies | Yes (if rendered) |
 | `03-what-is-specterx` | varies | Yes (if rendered) |
-| `04-share-a-file` | REVISING | No HTML yet — Feedback inbox only |
 
 ---
 
