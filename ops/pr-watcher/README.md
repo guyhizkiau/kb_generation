@@ -56,6 +56,35 @@ nginx serves:
   - proxy_pass to 127.0.0.1:9191/{poll-now,retry}
 ```
 
+### Serving tree vs worktree (branch decoupling)
+
+Ghostwriter and nginx serve articles from `/home/ubuntu/kb_generation` which **stays on `main`**. Each in-progress article lives on its own `article/<slug>` PR branch; the control API reads STATE and committed preview HTML from that branch via `git show` (no checkout). A background `git fetch --all` (every 60 s on the control server, every poll in the daemon) keeps remote refs fresh.
+
+The daemon performs all branch operations — PR comment resolution, pipeline phases, commits, pushes — in a dedicated git worktree at `/home/ubuntu/kb_generation-work`. Reviewer annotations are stored outside the article tree at `/home/ubuntu/ghostwriter-feedback/<slug>.json`.
+
+**One-time VM migration** (after deploying this change):
+
+```bash
+sudo -u ubuntu mkdir -p /home/ubuntu/ghostwriter-feedback
+# Migrate any legacy per-article feedback files:
+for f in /home/ubuntu/kb_generation/articles/*/feedback.json; do
+  [ -f "$f" ] || continue
+  slug=$(basename "$(dirname "$f")")
+  sudo -u ubuntu cp "$f" "/home/ubuntu/ghostwriter-feedback/${slug}.json"
+done
+sudo -u ubuntu git -C /home/ubuntu/kb_generation worktree add /home/ubuntu/kb_generation-work main
+sudo -u ubuntu git -C /home/ubuntu/kb_generation checkout main   # serving tree stays on main
+sudo systemctl restart pr-watcher
+```
+
+Environment overrides (local dev sets these automatically via `control_server.py`):
+
+| Variable | VM default | Purpose |
+|---|---|---|
+| `WORKTREE_PATH` | `/home/ubuntu/kb_generation-work` | Daemon branch checkout / edit tree |
+| `GHOSTWRITER_FEEDBACK_DIR` | `/home/ubuntu/ghostwriter-feedback` | Annotation JSON store |
+| `GHOSTWRITER_NO_SUDO` | unset (uses `sudo -u ubuntu`) | Set to `1` for local dev without sudo |
+
 ### Files (canonical source in this directory)
 
 | File | Role |
@@ -66,6 +95,9 @@ nginx serves:
 | `write_health.sh` | The one-shot script. Reads `systemctl show pr-watcher` and writes JSON. |
 | `dashboard/index.html` | Self-contained dark dashboard. Polls `status.json` every 5 s and `task-log` every 3 s when a task is active. |
 | `dashboard/{health,status,task-log,prwatcher-fixture.log}.json` | Local fixtures so the dashboard can be previewed via `python -m http.server` without the VM. |
+| `queue_store.py` | Queue I/O, STATE helpers, git-ref resolution for branch articles. |
+| `feedback_store.py` | Branch-independent Ghostwriter annotation store. |
+| `preview_transform.py` | HTML preview patching + ref-aware loading for Ghostwriter. |
 | `README.md` | This document. |
 
 ### Files on the VM only (not in git)
@@ -73,6 +105,8 @@ nginx serves:
 | Path | Purpose |
 |---|---|
 | `/home/ubuntu/pr-watcher.py` | Deployed copy of the daemon. |
+| `/home/ubuntu/kb_generation-work/` | Git worktree for branch checkouts, commits, and pipeline phases. The serving tree at `/home/ubuntu/kb_generation` stays on `main`. |
+| `/home/ubuntu/ghostwriter-feedback/` | Branch-independent Ghostwriter annotation store (`<slug>.json` per article). |
 | `/home/ubuntu/pr-watcher-state.json` | Handled comment/PR IDs + `failed_comments` map. |
 | `/home/ubuntu/pr-watcher.log` | The full poll log (appends forever; cap with `logrotate` if it gets big). |
 | `/home/ubuntu/pr-watcher-task.log` | Live Claude output. Truncated at the start of every task. |

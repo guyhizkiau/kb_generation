@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import subprocess
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -29,6 +30,55 @@ def _queue_path() -> Path:
 
 def _articles_root() -> Path:
     return _repo_root() / "articles"
+
+
+def _relative_to_repo(path: Path) -> str:
+    """Return a repo-relative POSIX path for git show."""
+    return path.relative_to(_repo_root()).as_posix()
+
+
+# ── git ref helpers ───────────────────────────────────────────────────────────
+
+def read_file_at_ref(ref: str, relpath: str) -> str | None:
+    """Read file contents at ``ref:relpath`` without checking out the branch."""
+    result = subprocess.run(
+        ["git", "show", f"{ref}:{relpath}"],
+        cwd=_repo_root(),
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        return None
+    return result.stdout
+
+
+def article_ref(slug: str) -> str | None:
+    """Return a git ref for ``article/<slug>`` when the branch exists locally or on origin."""
+    branch = f"article/{slug}"
+    for candidate in (f"origin/{branch}", branch):
+        result = subprocess.run(
+            ["git", "rev-parse", "--verify", candidate],
+            cwd=_repo_root(),
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode == 0:
+            return candidate
+    return None
+
+
+def article_state_fields(slug: str) -> dict[str, str]:
+    """Read STATE for *slug* from main when merged, else from the article branch ref."""
+    sp = article_state_path(slug)
+    main_fields = read_state_fields(sp)
+    if main_fields.get("PHASE", "UNKNOWN") in TERMINAL_PHASES:
+        return main_fields
+    ref = article_ref(slug)
+    if ref:
+        ref_fields = read_state_fields(sp, ref=ref)
+        if ref_fields:
+            return ref_fields
+    return main_fields
 
 
 # ── queue I/O ─────────────────────────────────────────────────────────────────
@@ -92,12 +142,19 @@ def read_state(path: Path) -> str:
     return "UNKNOWN"
 
 
-def read_state_fields(path: Path) -> dict[str, str]:
-    """Parse ALL KEY=VALUE lines from a STATE file."""
-    if not path.exists():
+def read_state_fields(path: Path, *, ref: str | None = None) -> dict[str, str]:
+    """Parse ALL KEY=VALUE lines from a STATE file (filesystem or git ref)."""
+    if ref:
+        content = read_file_at_ref(ref, _relative_to_repo(path))
+        if content is None:
+            return {}
+        lines = content.splitlines()
+    elif not path.exists():
         return {}
+    else:
+        lines = path.read_text(encoding="utf-8").splitlines()
     result: dict[str, str] = {}
-    for line in path.read_text(encoding="utf-8").splitlines():
+    for line in lines:
         if "=" in line and not line.startswith(" ") and not line.startswith("#"):
             k, _, v = line.partition("=")
             result[k.strip()] = v.strip()
@@ -261,8 +318,7 @@ def queue_with_states(q: dict | None = None) -> dict:
         enriched_articles = []
         last_merged: str | None = None
         for art in cluster.get("articles", []):
-            sp = article_state_path(art["slug"])
-            fields = read_state_fields(sp)
+            fields = article_state_fields(art["slug"])
             phase = fields.get("PHASE", "UNKNOWN")
             try:
                 rc = int(fields.get("REVISION_CYCLE", "0"))

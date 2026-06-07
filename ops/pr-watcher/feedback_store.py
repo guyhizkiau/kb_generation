@@ -1,0 +1,54 @@
+"""Branch-independent Ghostwriter annotation store."""
+from __future__ import annotations
+
+import json
+import os
+from pathlib import Path
+
+
+def _repo_root() -> Path:
+    env = os.environ.get("KB_REPO_ROOT")
+    if env:
+        return Path(env)
+    return Path(__file__).resolve().parent.parent.parent
+
+
+def feedback_dir() -> Path:
+    """Resolve the feedback directory (override via GHOSTWRITER_FEEDBACK_DIR)."""
+    env = os.environ.get("GHOSTWRITER_FEEDBACK_DIR")
+    if env:
+        return Path(env)
+    return _repo_root() / ".ghostwriter" / "feedback"
+
+
+def feedback_path(slug: str) -> Path:
+    """Per-slug annotation JSON file outside the article tree."""
+    return feedback_dir() / f"{slug}.json"
+
+
+def read_feedback(slug: str) -> list:
+    """Return stored annotations for *slug*, or an empty list."""
+    fp = feedback_path(slug)
+    if not fp.exists():
+        return []
+    return json.loads(fp.read_text(encoding="utf-8"))
+
+
+def write_feedback(slug: str, annotations: list) -> None:
+    """Replace all annotations for *slug*."""
+    fp = feedback_path(slug)
+    fp.parent.mkdir(parents=True, exist_ok=True)
+    fp.write_text(json.dumps(annotations, indent=2) + "\n", encoding="utf-8")
+
+
+def append_feedback(slug: str, annotation: dict) -> dict:
+    """Append one annotation; dedupe by ``id``."""
+    ann_id = annotation.get("id")
+    if not ann_id:
+        return {"ok": False, "error": "annotation id required"}
+    annotations = read_feedback(slug)
+    if any(a.get("id") == ann_id for a in annotations):
+        return {"ok": True, "annotation": annotation, "deduped": True}
+    annotations.append(annotation)
+    write_feedback(slug, annotations)
+    return {"ok": True, "annotation": annotation}
