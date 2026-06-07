@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { color-scheme: light; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                 "Helvetica Neue", Arial, sans-serif;
+    color: #1f2328;
+    background: #f6f8fa;
+    line-height: 1.6;
+    font-size: 16px;
+  }
+  main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 48px 32px 96px;
+    background: #ffffff;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    min-height: 100vh;
+  }
+  h1 {
+    font-size: 2rem;
+    line-height: 1.2;
+    margin: 0 0 0.5rem;
+    border-bottom: 1px solid #d0d7de;
+    padding-bottom: 0.4rem;
+  }
+  h2 {
+    font-size: 1.4rem;
+    margin: 2rem 0 0.75rem;
+    border-bottom: 1px solid #eaeef2;
+    padding-bottom: 0.3rem;
+  }
+  h3 { font-size: 1.15rem; margin: 1.6rem 0 0.5rem; }
+  p { margin: 0.75rem 0; }
+  ul { padding-left: 1.4rem; }
+  li { margin: 0.25rem 0; }
+  code {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+                 "Liberation Mono", monospace;
+    background: #f0f3f6;
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    font-size: 0.92em;
+  }
+  blockquote {
+    border-left: 4px solid #d0d7de;
+    margin: 1rem 0;
+    padding: 0.25rem 1rem;
+    color: #57606a;
+    background: #f6f8fa;
+  }
+  figure.screenshot {
+    margin: 1.25rem 0;
+    padding: 0;
+    text-align: center;
+  }
+  figure.screenshot img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .meta {
+    font-size: 0.875em;
+    color: #57606a;
+    margin: 0.25rem 0 1.5rem;
+    padding: 0.5rem 0.75rem;
+    background: #f6f8fa;
+    border-radius: 4px;
+    border-left: 3px solid #d0d7de;
+  }
+  hr {
+    border: none;
+    border-top: 1px solid #d0d7de;
+    margin: 2rem 0;
+  }
+</style>
+<link rel="stylesheet" href="/static/recogito.min.css">
+<link rel="stylesheet" href="/static/annotorious.min.css">
+</head>
+<body>
+<main data-slug="04-share-a-file">
+<h1>Securely share a file from the SpecterX web platform</h1>
+<div class="meta"><p>Audience: <strong>end-user</strong> &middot; Reading time: <strong>5 min</strong></p></div>
+<p>This article walks you through sharing a file from the SpecterX web platform. You'll upload a file, add recipients, choose a security policy, and complete the share. By the end, each recipient will have received a notification email with a protected link, and you'll know how to review or adjust access from the Share &amp; Permissions Drawer.</p>
+<h2>Before you start</h2>
+<p>You need:</p>
+<ul><li>A SpecterX account and an active session. See <a href="../01-log-in-to-specterx/01-log-in-to-specterx.html">Sign in to SpecterX</a> if you are not yet signed in.</li><li>The file you want to share.</li><li>The email address of each recipient.</li><li>If the security policy you intend to use requires phone (SMS) verification: each recipient's phone number in international format.</li></ul>
+<h2>Steps</h2>
+<h3>1. Open the Share files dialog</h3>
+<p>On the <strong>My Files</strong> page, click <strong>Share files</strong> <code>&lt;unknown label — verify in test&gt;</code>.</p>
+<blockquote>Screenshot: The My Files page with the Share files button visible in the top area; cursor pointing to it</blockquote>
+<h3>2. Upload your file</h3>
+<p>Drag your file into the upload area, or click the area to open a file picker and select the file. Wait for the upload progress indicator to finish before continuing.</p>
+<blockquote>Screenshot: The Share files dialog with the upload area, a file dragged over the drop zone, showing the upload progress bar</blockquote>
+<h3>3. Add a recipient</h3>
+<p>In the <strong>Add recipients</strong> field <code>&lt;unknown label — verify in test&gt;</code>, type the recipient's email address and press <strong>Enter</strong> or click <strong>Add</strong> <code>&lt;unknown label — verify in test&gt;</code>.</p>
+<blockquote>Screenshot: The Share files dialog with a recipient's email address typed in the Add recipients field before pressing Enter</blockquote>
+<h3>4. Set the recipient's permission level</h3>
+<p>Next to the recipient's email address, open the permission dropdown and choose one of the three levels:</p>
+<ul><li><strong>Viewer</strong> — can open and read the file; cannot upload files or change permissions.</li><li><strong>Contributor</strong> — can open, read, upload files, and (if the policy permits) download.</li><li><strong>Co-Owner</strong> — full access: can view, upload, download, manage permissions, and reshare.</li></ul>
+<blockquote>Screenshot: Permission level dropdown open next to a recipient's email address, showing Viewer, Contributor, and Co-Owner options with Viewer highlighted</blockquote>
+<p>Repeat steps 3 and 4 for each additional recipient.</p>
+<h3>5. Select a security policy</h3>
+<p>Open the policy dropdown and select the policy that matches the sensitivity of your file. Your administrator defines the available policies.</p>
+<blockquote>Screenshot: Policy dropdown open in the Share files dialog, showing a list of policy names</blockquote>
+<p>If no suitable policy exists, contact your administrator and ask them to create one.</p>
+<h3>6. Enter phone numbers (phone-verification policies only)</h3>
+<p>If the selected policy requires phone (SMS) verification, a phone number field appears next to each recipient. Enter the recipient's phone number in international format, for example <code>+1 555 000 1234</code>.</p>
+<p>The <strong>Share</strong> button stays inactive until every recipient with a required phone-number field has a number entered.</p>
+<blockquote>Screenshot: Recipient row in the Share files dialog with a phone number field visible and a phone number typed in international format</blockquote>
+<p>Skip this step if no phone number fields appear.</p>
+<h3>7. Complete the share</h3>
+<p>Click <strong>Share</strong> <code>&lt;unknown label — verify in test&gt;</code>. SpecterX creates the protected link and sends a notification email to each recipient.</p>
+<blockquote>Screenshot: Share files dialog with all fields filled in and the Share button highlighted, immediately before clicking</blockquote>
+<h3>8. Copy the protected link</h3>
+<p>After the share is created, SpecterX shows a confirmation. Click <strong>Copy link</strong> <code>&lt;unknown label — verify in test&gt;</code> to copy the protected link to your clipboard.</p>
+<blockquote>Screenshot: Share confirmation screen displaying the protected link and the Copy link button</blockquote>
+<p>You can paste the link and send it directly if needed, though recipients have already received the notification email.</p>
+<h2>After you share: the Share &amp; Permissions Drawer</h2>
+<p>To review or change access for a file you have already shared:</p>
+<p>1. In <strong>My Files</strong>, click the share icon next to the file's name.</p>
+<blockquote>Screenshot: My Files list with the share icon highlighted next to a shared file</blockquote>
+<p>2. The Share &amp; Permissions Drawer opens on the right side of the page. It lists every recipient, their current permission level, and a <strong>Parent policy</strong> dropdown showing the policy applied to the file.</p>
+<blockquote>Screenshot: Share &amp; Permissions Drawer open on the right, showing a recipient list with permission dropdowns and the Parent policy dropdown at the top</blockquote>
+<p>From the drawer you can:</p>
+<ul><li>Change a recipient's permission level using the dropdown next to their name.</li><li>Add a new recipient by typing their email address in the <strong>Add recipient</strong> field <code>&lt;unknown label — verify in test&gt;</code> at the top of the drawer.</li><li>Remove a recipient by clicking the remove control next to their row.</li><li>Change the policy governing the file using the <strong>Parent policy</strong> dropdown.</li></ul>
+<p>All changes take effect immediately for anyone who opens the link from that point on.</p>
+<h2>What recipients experience</h2>
+<p>Each recipient receives an email with a link to the protected file. When they click the link they land on the SpecterX Recipient Page and are prompted to verify their identity — usually by entering a 6-digit code sent to their inbox. After verification, the file opens in the SpecterX Viewer. What the recipient can do in the Viewer — download, forward, print — depends on the policy you selected at share time.</p>
+<h2>Troubleshooting</h2>
+<h3>The recipient did not receive the notification email</h3>
+<p>Ask the recipient to check their spam or junk folder. The notification comes from an <code>@specterx.com</code> sender and may be routed through a transactional-email provider. If it still does not arrive after a few minutes, open the Share &amp; Permissions Drawer and confirm the recipient's email address is correct. Remove and re-add the recipient if the address needs correcting.</p>
+<h3>The phone number field is not accepting the number</h3>
+<p>Enter the number in international format starting with the country code, for example <code>+44 7700 900000</code>. Remove spaces, hyphens, or parentheses if the field rejects the format.</p>
+<h3>The Share button is greyed out or inactive</h3>
+<p>All required fields must be filled before the share can proceed. If the selected policy requires phone verification, enter a phone number for every recipient. Also confirm that at least one recipient has been added and that a policy is selected.</p>
+<h3>A recipient sees "Access denied"</h3>
+<p>The email address on the protected link may not match the address the recipient used. Open the Share &amp; Permissions Drawer, verify the address on file, and correct it if needed. If the address is correct, the recipient's access may have been revoked — see <a href="#">Revoke access to a shared file</a>.</p>
+<h2>What's next</h2>
+<ul><li><a href="#">Share a folder</a> — apply a single policy to all files in a folder at once</li><li><a href="#">Set recipient permissions</a> — understand in detail what each permission level allows</li><li><a href="#">Update permissions after sharing</a> — add, change, or remove recipients after the share is live</li><li><a href="#">Revoke access to a shared file</a> — disable a protected link for one recipient or for everyone</li></ul>
+</main>
+<script src="/static/recogito.min.js"></script>
+<script src="/static/annotorious.min.js"></script>
+<script src="/static/ghostwriter-annotate.js" data-slug="04-share-a-file"></script>
+</body>
+</html>

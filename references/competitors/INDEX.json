@@ -97,5 +97,41 @@
     "captured": "2026-06-01",
     "topics": ["overview", "getting started", "validation", "compliance", "FDA", "e-signature", "life sciences"],
     "file": "vera/what-is.md"
+  },
+  {
+    "vendor": "egnyte",
+    "slug": "share-folder",
+    "source_url": "https://helpdesk.egnyte.com/hc/en-us/articles/201637444-Folder-Permissions",
+    "title": "Folder Permissions",
+    "captured": "2026-06-07",
+    "topics": ["share folder", "folder permissions", "permission inheritance", "access levels", "subfolder access", "group permissions", "mobile sharing", "viewer", "editor", "full", "owner"],
+    "file": "egnyte/share-folder.md"
+  },
+  {
+    "vendor": "dropbox",
+    "slug": "share-folder",
+    "source_url": "https://help.dropbox.com/share/share-file-or-folder",
+    "title": "How to share files or folders in Dropbox",
+    "captured": "2026-06-07",
+    "topics": ["share folder", "editor access", "viewer access", "shared link", "file request", "team folder vs shared folder", "subfolder sharing", "ownership"],
+    "file": "dropbox/share-folder.md"
+  },
+  {
+    "vendor": "virtru",
+    "slug": "share-folder",
+    "source_url": "https://support.virtru.com/hc/en-us/articles/360026244833-Security-Option-Persistent-File-Protection-PFP",
+    "title": "Security Option — Persistent File Protection (PFP)",
+    "captured": "2026-06-07",
+    "topics": ["folder protection proxy", "persistent file protection", "PFP", "secure share", "secure reader", "revoke access", "request access", "re-shared attachments", "TDF"],
+    "file": "virtru/share-folder.md"
+  },
+  {
+    "vendor": "docsend",
+    "slug": "share-folder",
+    "source_url": "https://help.dropbox.com/organize/dropbox-docsend-create-a-space-data-room",
+    "title": "Create a Space (data room) in Dropbox DocSend",
+    "captured": "2026-06-07",
+    "topics": ["space", "data room", "share folder", "granular permissions", "visible", "downloadable", "watermark", "NDA", "expiration", "allow list", "block list", "content folders"],
+    "file": "docsend/share-folder.md"
   }
 ]
