@@ -1,5 +1,6 @@
 .venv/
 venv/
+dist/
 __pycache__/
 *.pyc
 .python-version
@@ -31,4 +32,7 @@ articles/*/claude-trace.log
 # Throwaway smoke-test article directories
 workspace/articles/00-test/
 workspace/articles/00-*/
+
+# Ghostwriter local control-server runtime (control_server.py)
+.ghostwriter-local-*
 

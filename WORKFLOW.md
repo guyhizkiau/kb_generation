@@ -1195,3 +1195,49 @@ Order of escalation:
 Do **not**: improvise on infrastructure, change the workflow defined
 here without a PR to this document first, or write articles that
 contradict the canon without flagging it.
+
+---
+
+## §11 — Revision cycle (feedback-driven re-entry)
+
+### 11.1 New STATE fields
+
+Each article STATE file may contain these additional fields:
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `REVISION_CYCLE` | int | 0 | Number of feedback-driven revision cycles completed. 0 = never revised via feedback. |
+| `FEEDBACK_ISSUE` | GitHub issue ref | "" | The review-thread issue that triggered the current/last revision cycle. |
+| `PUBLISH_STALE` | bool | false | Set to `true` when a revised article's PR merges — the Zendesk copy is now stale and needs re-pasting. Cleared manually after Zendesk is updated. |
+
+### 11.2 Post-merge state-machine cycle
+
+A merged article can re-enter the pipeline via the Ghostwriter Feedback view:
+
+```
+MERGED → REVISING → FINALIZING → PR_OPEN → MERGED
+```
+
+Triggered by `POST /api/queue/trigger {reason: "feedback", slug, issue}` from the Ghostwriter SPA or curl.
+
+Steps the daemon performs:
+1. Materializes annotations from the GitHub review-thread issue → `articles/<slug>/feedback.json`
+2. Bumps `REVISION_CYCLE` in STATE (e.g. 0 → 1)
+3. Sets `FEEDBACK_ISSUE=<issue-ref>` in STATE
+4. Sets `PHASE=REVISING` in STATE
+5. Launches `revise-from-feedback` phase via `writer/run_claude_code.py`
+6. The phase prompt chains to `voice-pass`, then re-renders HTML, then opens a new PR
+
+### 11.3 Re-merge guard
+
+When the revision PR merges (second or later merge of the same article):
+- `check_merged_prs` detects `REVISION_CYCLE > 0`
+- Sets `PUBLISH_STALE=true` in STATE (signals Zendesk needs re-pasting)
+- Does NOT advance the cluster queue (the cluster already advanced on the first merge)
+
+### 11.4 PUBLISH_STALE lifecycle
+
+- Set to `true` automatically by the daemon on revision re-merge.
+- Shown as a badge in the Ghostwriter Queue and Feedback views.
+- Cleared manually once the article has been re-pasted to Zendesk.
+  Future: `POST /api/queue/published {slug}` will clear it (out of scope for this plan).

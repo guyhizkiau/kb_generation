@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "clusters": [
+    {
+      "id": "01-login",
+      "title": "Logging in & account access",
+      "mode": "serial",
+      "status": "done",
+      "pause_after": true,
+      "articles": [
+        {"slug": "01-log-in-to-specterx",   "title": "Log in to the SpecterX web platform"},
+        {"slug": "02-set-or-reset-password", "title": "Set or reset your password"},
+        {"slug": "03-what-is-specterx",      "title": "What is SpecterX?"}
+      ]
+    },
+    {
+      "id": "02-share-files",
+      "title": "Share files",
+      "mode": "serial",
+      "status": "active",
+      "pause_after": true,
+      "articles": [
+        {"slug": "04-share-a-file",                  "title": "Securely share a file from the SpecterX web platform"},
+        {"slug": "05-share-a-folder",                "title": "Share a folder"},
+        {"slug": "06-set-recipient-permissions",     "title": "Set recipient permissions"},
+        {"slug": "07-update-permissions",            "title": "Update permissions after sharing"},
+        {"slug": "08-revoke-access",                 "title": "Revoke access to a shared file"},
+        {"slug": "09-set-file-expiry",               "title": "Set how long a file stays accessible"},
+        {"slug": "10-request-a-digital-signature",   "title": "Request a digital signature"}
+      ]
+    }
+  ]
+}
