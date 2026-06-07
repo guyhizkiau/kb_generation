@@ -32,6 +32,15 @@ def _articles_root() -> Path:
     return _repo_root() / "articles"
 
 
+def _worktree_root() -> Path | None:
+    """Return the git worktree path if it exists (KB_WORKTREE_ROOT or default)."""
+    env = os.environ.get("KB_WORKTREE_ROOT")
+    if env:
+        return Path(env)
+    default = Path("/home/ubuntu/kb_generation-work")
+    return default if default.exists() else None
+
+
 def _relative_to_repo(path: Path) -> str:
     """Return a repo-relative POSIX path for git show."""
     return path.relative_to(_repo_root()).as_posix()
@@ -128,7 +137,17 @@ def save_queue(q: dict) -> None:
 # ── STATE file helpers ────────────────────────────────────────────────────────
 
 def article_state_path(slug: str) -> Path:
-    """Return canonical articles/<slug>/STATE path."""
+    """Return canonical articles/<slug>/STATE path.
+
+    Prefers the worktree copy when it exists — the worktree is checked out
+    to the article branch where live STATE updates are written.  Falls back
+    to the main-repo copy (useful for DONE articles merged into main).
+    """
+    wt = _worktree_root()
+    if wt:
+        wt_path = wt / "articles" / slug / "STATE"
+        if wt_path.exists():
+            return wt_path
     return _articles_root() / slug / "STATE"
 
 
