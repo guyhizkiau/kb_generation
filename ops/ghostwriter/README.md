@@ -124,9 +124,9 @@ python3 -m unittest ops.ghostwriter.test_dev_shim -v
 # SPA unit (ops/ghostwriter)
 npm test
 
-# Browser E2E — mocked API
+# Browser tests (Playwright) — mocked API
 npx playwright install chromium   # one-time
-npm run test:e2e
+npm run test:e2e                  # specs in tests/browser/
 ```
 
 ## Production build

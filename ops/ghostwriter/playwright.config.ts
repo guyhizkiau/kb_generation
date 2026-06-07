@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test'
 
 export default defineConfig({
-  testDir: './e2e',
+  testDir: './tests/browser',
   outputDir: './test-results',
   fullyParallel: false,
   retries: 0,
