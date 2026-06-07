@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import base64
 import html
+import json
 import mimetypes
 import re
 import sys
@@ -383,6 +384,22 @@ def render(article_dir: Path) -> tuple[Path, Path]:
     main_inner = f"{h1_tag}\n{meta_html}\n{body_remainder}"
 
     # ── Standalone preview ────────────────────────────────────────────────────
+    # Derive slug from article_dir name for annotation JS
+    _slug = article_dir.name
+
+    # Annotation widget scripts (preview only — not the ZenDesk export)
+    # Libraries are served from /static/ by nginx on the VM.
+    _annotation_head = (
+        '<link rel="stylesheet" href="/static/recogito.min.css">\n'
+        '<link rel="stylesheet" href="/static/annotorious.min.css">\n'
+    )
+    _slug_json = json.dumps(_slug)
+    _annotation_body = (
+        '<script src="/static/recogito.min.js"></script>\n'
+        '<script src="/static/annotorious.min.js"></script>\n'
+        f'<script src="/static/ghostwriter-annotate.js" data-slug={_slug_json}></script>\n'
+    )
+
     preview_page = (
         "<!doctype html>\n"
         '<html lang="en">\n'
@@ -391,11 +408,13 @@ def render(article_dir: Path) -> tuple[Path, Path]:
         '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
         # No <title> — ZenDesk and other CMS platforms re-inject it (WORKFLOW.md §9.3a)
         f"<style>{CSS}</style>\n"
+        f"{_annotation_head}"
         "</head>\n"
         "<body>\n"
-        "<main>\n"
+        f'<main data-slug="{_slug}">\n'
         f"{main_inner}\n"
         "</main>\n"
+        f"{_annotation_body}"
         "</body>\n"
         "</html>\n"
     )

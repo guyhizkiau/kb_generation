@@ -6,7 +6,7 @@ Polls open PRs every 5 minutes. For each new review/issue comment from a
 human, runs VM-Claude to resolve it, commits the fix, and posts a contextual
 reply. Also monitors recently-merged article PRs and triggers the next article.
 """
-import subprocess, json, os, pty, time, re, threading, tempfile
+import subprocess, json, os, pty, time, re, threading, tempfile, sys, urllib.parse
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from datetime import datetime, timezone
@@ -28,6 +28,19 @@ STEP_TIMEOUT_SECS    = 120   # kill if no output for 2 minutes AND claude is not
 TOOL_TIMEOUT_SECS    = 1800  # kill if a single tool call exceeds 30 minutes
 INITIAL_TIMEOUT_SECS = 3600  # match task cap: first output may not arrive until E2E tool finishes
 CONTROL_PORT      = 9191  # localhost-only HTTP control plane
+
+# Prepend script directory so queue_store.py is importable
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+os.environ.setdefault("KB_REPO_ROOT", str(REPO_PATH))
+try:
+    import queue_store as _qs
+    from preview_transform import patch_article_preview_html, load_preview_html
+    _QUEUE_STORE_AVAILABLE = True
+except ImportError:
+    _qs = None  # type: ignore[assignment]
+    patch_article_preview_html = None  # type: ignore[assignment,misc]
+    load_preview_html = None  # type: ignore[assignment,misc]
+    _QUEUE_STORE_AVAILABLE = False
 
 
 def _load_resolution_checklist() -> list[dict]:
@@ -72,12 +85,11 @@ def build_resolution_checklist(
 # Event set by the control plane to trigger an immediate poll
 _poll_now = threading.Event()
 
-# Cluster 1 article sequence (WORKFLOW.md §5.1 — one at a time, review pause after all 3)
-CLUSTER_1_ARTICLES = [
-    ("01-log-in-to-specterx",   "Log in to the SpecterX web platform"),
-    ("02-set-or-reset-password", "Set or reset your password"),
-    ("03-what-is-specterx",      "What is SpecterX?"),
-]
+# Queue source of truth: clusters/queue.json (managed by queue_store)
+# CLUSTER_1_ARTICLES removed — use queue_store.load_queue() instead
+
+_queue_lock = threading.Lock()
+_manual_trigger_set: list[dict] = []   # items: {slug, reason, issue}
 
 
 # ── helpers ───────────────────────────────────────────────────────────────────
@@ -816,7 +828,7 @@ Read WORKFLOW.md fully before starting. It is the authoritative spec.
 
 ## Article to write
 
-Cluster : 01-login
+Cluster : {cluster}
 Slug    : {slug}
 Title   : {title}
 Branch  : article/{slug}
@@ -904,57 +916,92 @@ Print "DONE. PR: <url>" as the final line.
 
 
 def trigger_next_article(merged_slug: str, state: dict):
-    """After an article PR merges, determine and start the next article in the cluster."""
-    slugs = [s for s, _ in CLUSTER_1_ARTICLES]
-    titles = {s: t for s, t in CLUSTER_1_ARTICLES}
-
-    if merged_slug not in slugs:
-        log(f"  Merged slug '{merged_slug}' not in cluster 1 — no auto-trigger")
+    """After an article PR merges, determine and start the next article."""
+    if not _QUEUE_STORE_AVAILABLE:
+        log("  WARNING: queue_store not available — auto-trigger disabled")
+        return
+    try:
+        q = _qs.load_queue()
+    except FileNotFoundError:
+        log("  WARNING: clusters/queue.json missing — auto-trigger disabled")
+        return
+    except Exception as exc:
+        log(f"  ERROR loading queue: {exc}")
         return
 
-    idx = slugs.index(merged_slug)
-    if idx >= len(slugs) - 1:
-        log("  All cluster 1 articles merged — awaiting style extraction review pause")
-        reply_issue_to_anyone(
-            "🎉 All cluster 1 articles merged. "
-            "Per WORKFLOW.md §5.1, stopping now for style extraction and Guy's review "
-            "before proceeding to cluster 2."
-        )
+    plan = _qs.next_article(merged_slug, q)
+    action = plan["action"]
+    cid = plan.get("cluster_id", "")
+
+    if action == "unknown":
+        log(f"  Merged slug '{merged_slug}' not in queue — no auto-trigger")
+        return
+    if action == "noop":
+        log(f"  Revision-cycle re-merge for {merged_slug} — not advancing cluster")
+        return
+    if action == "paused":
+        log(f"  Cluster {cid} is paused — not advancing")
+        return
+    if action in ("pause", "cluster_done"):
+        notice = plan.get("pause_notice", "")
+        log(f"  {notice}")
+        reply_issue_to_anyone(f"\U0001f389 {notice}")
         return
 
-    next_slug = slugs[idx + 1]
-    next_title = titles[next_slug]
-    next_num = idx + 2  # 1-indexed
+    # action == "next_article"
+    for art in plan["articles"]:
+        _launch_next_article(art["slug"], art["title"], art["num"], cid, state)
 
-    trigger_key = f"article-triggered-{next_slug}"
+
+def _article_from_queue(slug: str, q: dict | None = None) -> dict | None:
+    """Look up slug in queue.json; return {slug, title, num, cluster_id} or None."""
+    if q is None:
+        q = _qs.load_queue()
+    for cluster in q.get("clusters", []):
+        for i, art in enumerate(cluster.get("articles", [])):
+            if art.get("slug") == slug:
+                return {
+                    "slug": slug,
+                    "title": art.get("title", slug),
+                    "num": i + 1,
+                    "cluster_id": cluster.get("id", ""),
+                }
+    return None
+
+
+def _launch_next_article(slug: str, title: str, num: int, cluster: str, state: dict) -> bool:
+    """Launch the article pipeline for one slug (detached, as ubuntu user).
+
+    Returns True if launched, False if blocked (deduped or Claude busy).
+    """
+    trigger_key = f"article-triggered-{slug}"
     if trigger_key in state["handled"]:
-        log(f"  Article {next_slug} already triggered")
-        return
-
+        log(f"  Article {slug} already triggered")
+        return False
     if is_claude_running():
-        log(f"  Claude already running — will retry next poll to trigger {next_slug}")
-        return
+        log(f"  Claude already running — will retry next poll to trigger {slug}")
+        return False
 
-    log(f"  Triggering next article: {next_slug} — {next_title}")
+    log(f"  Triggering next article: {slug} — {title}")
 
-    handoff = NEXT_ARTICLE_HANDOFF.format(
-        slug=next_slug, title=next_title, num=next_num
-    )
+    handoff = NEXT_ARTICLE_HANDOFF.format(slug=slug, title=title, num=num, cluster=cluster)
     handoff_path = Path("/home/ubuntu/next-article-handoff.md")
     handoff_path.write_text(handoff)
 
-    # Launch VM-Claude as ubuntu user, log to next-article.log
-    launcher = f"""#!/bin/bash
-export HOME=/home/ubuntu
-export PATH="/home/ubuntu/.local/bin:/usr/local/bin:/usr/bin:/bin"
-set -a; source /home/ubuntu/.config/specterx-kb/.env; set +a
-cd /home/ubuntu/kb_generation
-sudo -u ubuntu git checkout main
-sudo -u ubuntu git pull origin main
-PROMPT=$(cat /home/ubuntu/next-article-handoff.md)
-/usr/local/bin/claude --dangerously-skip-permissions -p "$PROMPT" >> /home/ubuntu/next-article.log 2>&1
-echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] article pipeline exited $?" >> /home/ubuntu/next-article.log
-"""
+    launcher = (
+        "#!/bin/bash\n"
+        "export HOME=/home/ubuntu\n"
+        'export PATH="/home/ubuntu/.local/bin:/usr/local/bin:/usr/bin:/bin"\n'
+        "set -a; source /home/ubuntu/.config/specterx-kb/.env; set +a\n"
+        "cd /home/ubuntu/kb_generation\n"
+        "sudo -u ubuntu git checkout main\n"
+        "sudo -u ubuntu git pull origin main\n"
+        "PROMPT=$(cat /home/ubuntu/next-article-handoff.md)\n"
+        '/usr/local/bin/claude --dangerously-skip-permissions -p "$PROMPT"'
+        " >> /home/ubuntu/next-article.log 2>&1\n"
+        'echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] article pipeline exited $?"'
+        " >> /home/ubuntu/next-article.log\n"
+    )
     launcher_path = Path("/home/ubuntu/run-next-article.sh")
     launcher_path.write_text(launcher)
     launcher_path.chmod(0o755)
@@ -962,12 +1009,114 @@ echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] article pipeline exited $?" >> /home/ubun
     subprocess.Popen(
         ["bash", str(launcher_path)],
         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-        start_new_session=True
+        start_new_session=True,
     )
 
     state["handled"].append(trigger_key)
     save_state(state)
-    log(f"  ✅ Article pipeline launched for {next_slug}")
+    log(f"  ✅ Article pipeline launched for {slug}")
+    return True
+
+
+def _launch_phase(slug: str, phase: str):
+    """Launch a specific pipeline phase for an article (detached)."""
+    launcher = (
+        "#!/bin/bash\n"
+        "export HOME=/home/ubuntu\n"
+        'export PATH="/home/ubuntu/.local/bin:/usr/local/bin:/usr/bin:/bin"\n'
+        "set -a; source /home/ubuntu/.config/specterx-kb/.env; set +a\n"
+        "cd /home/ubuntu/kb_generation\n"
+        f"/usr/local/bin/python3 writer/run_claude_code.py"
+        f" --article {slug} --phase {phase}"
+        f" >> /home/ubuntu/{slug}-{phase}.log 2>&1\n"
+        f'echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] phase {phase} exited $?"'
+        f" >> /home/ubuntu/{slug}-{phase}.log\n"
+    )
+    lpath = Path(f"/home/ubuntu/run-{slug}-{phase}.sh")
+    lpath.write_text(launcher)
+    lpath.chmod(0o755)
+    subprocess.Popen(
+        ["bash", str(lpath)],
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        start_new_session=True,
+    )
+    log(f"  Launched phase {phase} for {slug}")
+
+
+def _handle_trigger(data: dict) -> dict:
+    """Handle a manual or feedback trigger from the control plane API."""
+    slug = data.get("slug", "").strip()
+    reason = data.get("reason", "manual")
+    issue = str(data.get("issue", ""))
+
+    if not slug:
+        return {"ok": False, "error": "slug required"}
+    if not _QUEUE_STORE_AVAILABLE:
+        return {"ok": False, "error": "queue_store not available"}
+
+    state = load_state()
+
+    if reason == "manual":
+        trigger_key = f"article-triggered-{slug}"
+        if trigger_key in state["handled"]:
+            state["handled"].remove(trigger_key)
+            save_state(state)
+        _manual_trigger_set.append({"slug": slug, "reason": reason, "issue": issue})
+        _poll_now.set()
+        return {"ok": True, "reason": reason}
+
+    if reason == "feedback":
+        state_path = _qs.article_state_path(slug)
+        if not state_path.exists():
+            return {"ok": False, "error": f"no STATE file for {slug}"}
+
+        annotations: list = []
+        if issue:
+            try:
+                r = subprocess.run(
+                    ["gh", "api", f"repos/{REPO}/issues/{issue}/comments"],
+                    capture_output=True, text=True,
+                )
+                if r.returncode == 0:
+                    comments = json.loads(r.stdout)
+                    for c in comments:
+                        body_text = c.get("body", "")
+                        m = re.search(r"```json\n(.*?)\n```", body_text, re.DOTALL)
+                        if m:
+                            try:
+                                annotations.append(json.loads(m.group(1)))
+                            except json.JSONDecodeError:
+                                pass
+            except Exception as exc:
+                log(f"  WARNING: could not fetch issue {issue} annotations: {exc}")
+
+        feedback_path = REPO_PATH / "articles" / slug / "feedback.json"
+        feedback_path.parent.mkdir(parents=True, exist_ok=True)
+        feedback_path.write_text(json.dumps(annotations, indent=2))
+
+        fields = _qs.read_state_fields(state_path)
+        try:
+            rc = int(fields.get("REVISION_CYCLE", "0"))
+        except ValueError:
+            rc = 0
+
+        _qs.write_state_fields(state_path, {
+            "PHASE": "REVISING",
+            "REVISION_CYCLE": str(rc + 1),
+            "FEEDBACK_ISSUE": issue,
+        })
+
+        if not is_claude_running():
+            _launch_phase(slug, "revise-from-feedback")
+        else:
+            log(f"  Claude running — queued feedback launch for {slug}")
+            _manual_trigger_set.append({"slug": slug, "reason": "feedback-launch", "issue": issue})
+
+        return {"ok": True, "reason": reason,
+                "phase": "revise-from-feedback",
+                "revision_cycle": rc + 1}
+
+    return {"ok": False, "error": f"unknown reason '{reason}'"}
 
 
 def reply_issue_to_anyone(body: str):
@@ -1016,6 +1165,18 @@ def check_merged_prs(state: dict):
             git("pull", "origin", "main", check=False)
         except Exception:
             pass
+
+        # If REVISION_CYCLE > 0 this is a feedback re-merge: mark PUBLISH_STALE
+        if _QUEUE_STORE_AVAILABLE:
+            try:
+                sp = _qs.article_state_path(slug)
+                fields = _qs.read_state_fields(sp)
+                rc = int(fields.get("REVISION_CYCLE", "0"))
+                if rc > 0:
+                    _qs.write_state_fields(sp, {"PUBLISH_STALE": "true"})
+                    log(f"  Marked {slug} PUBLISH_STALE (revision cycle {rc})")
+            except Exception as exc:
+                log(f"  WARNING: could not check REVISION_CYCLE for {slug}: {exc}")
 
         trigger_next_article(slug, state)
 
@@ -1120,20 +1281,116 @@ def process_pr(pr_number: int, branch: str, state: dict):
 
 # ── control plane (localhost:9191) ────────────────────────────────────────────
 
+def _request_origin(handler: BaseHTTPRequestHandler) -> str:
+    host = handler.headers.get("Host", f"127.0.0.1:{CONTROL_PORT}")
+    return f"http://{host}"
+
+
+def _article_preview_html(slug: str, origin: str) -> tuple[int, str]:
+    return load_preview_html(REPO_PATH, slug, origin)
+
+
+def _append_feedback(slug: str, payload: dict) -> dict:
+    if not slug:
+        return {"ok": False, "error": "slug required"}
+    ann = {k: v for k, v in payload.items() if k != "slug"}
+    ann_id = ann.get("id")
+    if not ann_id:
+        return {"ok": False, "error": "annotation id required"}
+    fb_dir = REPO_PATH / "articles" / slug
+    fb_dir.mkdir(parents=True, exist_ok=True)
+    fb_path = fb_dir / "feedback.json"
+    if fb_path.exists():
+        annotations = json.loads(fb_path.read_text(encoding="utf-8"))
+    else:
+        annotations = []
+    if any(a.get("id") == ann_id for a in annotations):
+        return {"ok": True, "annotation": ann, "deduped": True}
+    annotations.append(ann)
+    fb_path.write_text(json.dumps(annotations, indent=2) + "\n", encoding="utf-8")
+    return {"ok": True, "annotation": ann}
+
+
 class _ControlHandler(BaseHTTPRequestHandler):
     def log_message(self, *args):
         pass  # silence default access log
 
+    def _route(self):
+        parsed = urllib.parse.urlparse(self.path)
+        return parsed.path, urllib.parse.parse_qs(parsed.query)
+
+    def _read_json(self) -> dict:
+        length = int(self.headers.get("Content-Length", 0))
+        body = self.rfile.read(length) if length else b"{}"
+        return json.loads(body)
+
+    def do_GET(self):
+        path, qs = self._route()
+        if path == "/api/queue":
+            if not _QUEUE_STORE_AVAILABLE:
+                self._respond(503, json.dumps({"error": "queue_store not available"}))
+                return
+            try:
+                data = _qs.queue_with_states()
+                self._respond(200, json.dumps(data))
+            except FileNotFoundError:
+                self._respond(404, json.dumps({"error": "clusters/queue.json not found"}))
+            except Exception as exc:
+                self._respond(500, json.dumps({"error": str(exc)}))
+        elif path == "/api/feedback":
+            slug = qs.get("slug", [""])[0]
+            if not slug:
+                self._respond(400, json.dumps({"error": "slug required"}))
+                return
+            fb_path = REPO_PATH / "articles" / slug / "feedback.json"
+            if fb_path.exists():
+                annotations = json.loads(fb_path.read_text(encoding="utf-8"))
+            else:
+                annotations = []
+            self._respond(200, json.dumps({"slug": slug, "annotations": annotations}))
+        elif path.startswith("/api/articles/") and path.endswith("/preview"):
+            slug = path[len("/api/articles/"):-len("/preview")]
+            if not slug:
+                self._respond(400, json.dumps({"error": "slug required"}))
+                return
+            code, html = _article_preview_html(slug, _request_origin(self))
+            if code != 200:
+                self._respond(404, json.dumps({"error": f"preview not found for {slug}"}))
+                return
+            self._respond_html(200, html)
+        else:
+            self._respond(404, json.dumps({"error": "not found"}))
+
+    def do_PUT(self):
+        path, _ = self._route()
+        if path == "/api/queue":
+            if not _QUEUE_STORE_AVAILABLE:
+                self._respond(503, json.dumps({"error": "queue_store not available"}))
+                return
+            try:
+                q = self._read_json()
+                errors = [e for e in _qs.validate_slugs(q) if e["level"] == "error"]
+                if errors:
+                    self._respond(422, json.dumps({"errors": errors}))
+                    return
+                with _queue_lock:
+                    _qs.save_queue(q)
+                _poll_now.set()
+                self._respond(200, json.dumps({"ok": True}))
+            except Exception as exc:
+                self._respond(400, json.dumps({"error": str(exc)}))
+        else:
+            self._respond(404, json.dumps({"error": "not found"}))
+
     def do_POST(self):
-        if self.path == "/poll-now":
+        path, _ = self._route()
+        if path == "/poll-now":
             _poll_now.set()
             log("Control: poll-now requested via HTTP")
             self._respond(200, '{"ok":true}')
-        elif self.path == "/retry":
-            length = int(self.headers.get("Content-Length", 0))
-            body = self.rfile.read(length) if length else b""
+        elif path == "/retry":
             try:
-                data = json.loads(body)
+                data = self._read_json()
                 cid = data["comment_id"]
                 state = load_state()
                 if cid in state["handled"]:
@@ -1146,8 +1403,25 @@ class _ControlHandler(BaseHTTPRequestHandler):
                 self._respond(200, '{"ok":true}')
             except Exception as exc:
                 self._respond(400, json.dumps({"error": str(exc)}))
+        elif path == "/api/queue/trigger":
+            try:
+                data = self._read_json()
+                result = _handle_trigger(data)
+                code = 200 if result.get("ok") else 400
+                self._respond(code, json.dumps(result))
+            except Exception as exc:
+                self._respond(400, json.dumps({"error": str(exc)}))
+        elif path == "/api/feedback":
+            try:
+                data = self._read_json()
+                slug = (data.get("slug") or "").strip()
+                result = _append_feedback(slug, data)
+                code = 200 if result.get("ok") else 400
+                self._respond(code, json.dumps(result))
+            except Exception as exc:
+                self._respond(400, json.dumps({"error": str(exc)}))
         else:
-            self._respond(404, '{"error":"not found"}')
+            self._respond(404, json.dumps({"error": "not found"}))
 
     def do_OPTIONS(self):
         self.send_response(204)
@@ -1156,13 +1430,22 @@ class _ControlHandler(BaseHTTPRequestHandler):
 
     def _cors_headers(self):
         self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Methods", "GET, PUT, POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
 
     def _respond(self, code, body):
         data = body.encode()
         self.send_response(code)
         self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(data)))
+        self._cors_headers()
+        self.end_headers()
+        self.wfile.write(data)
+
+    def _respond_html(self, code, body: str):
+        data = body.encode("utf-8")
+        self.send_response(code)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
         self.send_header("Content-Length", str(len(data)))
         self._cors_headers()
         self.end_headers()
@@ -1202,6 +1485,40 @@ def main():
         try:
             # Check merged PRs first (triggers next article)
             check_merged_prs(state)
+
+            # Drain manual triggers queued by the control plane
+            while _manual_trigger_set:
+                trig = _manual_trigger_set[0]
+                if trig.get("reason") == "feedback-launch":
+                    if not is_claude_running():
+                        _manual_trigger_set.pop(0)
+                        _launch_phase(trig["slug"], "revise-from-feedback")
+                    else:
+                        break
+                elif trig.get("reason") == "manual":
+                    if is_claude_running():
+                        break
+                    slug = trig["slug"]
+                    if not _QUEUE_STORE_AVAILABLE:
+                        _manual_trigger_set.pop(0)
+                        continue
+                    try:
+                        q = _qs.load_queue()
+                        art = _article_from_queue(slug, q)
+                        if not art:
+                            log(f"  Manual trigger: slug '{slug}' not in queue")
+                            _manual_trigger_set.pop(0)
+                            continue
+                        if _launch_next_article(
+                            art["slug"], art["title"], art["num"],
+                            art["cluster_id"], state,
+                        ):
+                            _manual_trigger_set.pop(0)
+                    except Exception as exc:
+                        log(f"  ERROR in manual trigger for {slug}: {exc}")
+                        _manual_trigger_set.pop(0)
+                else:
+                    _manual_trigger_set.pop(0)
 
             # Then process open PRs
             prs = gh_json("pr", "list", "--repo", REPO,

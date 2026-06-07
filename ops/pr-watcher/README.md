@@ -346,3 +346,69 @@ common reasons:
   phase 5 to humanize draft prose.
 - `tester/TEST_RESOURCES.md` — credentials and provisioning notes for
   test accounts used during E2E captures.
+
+---
+
+## Ghostwriter SPA
+
+### Build
+
+```bash
+cd ops/ghostwriter
+npm install
+npm run build
+# Output: ../../dist/ghostwriter/
+```
+
+### Deploy to VM
+
+```bash
+# Copy build output to the VM
+rsync -avz dist/ghostwriter/ ubuntu@18.192.122.48:/home/ubuntu/pr-watcher-web/ghostwriter/
+
+# Copy annotation libraries (one-time setup):
+# Download recogito.min.js + recogito.min.css from @recogito/recogito-js
+# Download annotorious.min.js + annotorious.min.css from @recogito/annotorious
+# Then:
+rsync -avz ops/ghostwriter/static/ ubuntu@18.192.122.48:/home/ubuntu/pr-watcher-web/static/
+```
+
+Or via AWS SSM (same procedure as the daemon — see "Deploying via AWS SSM" above):
+
+```bash
+aws ssm send-command \
+  --instance-ids <INSTANCE_ID> \
+  --document-name "AWS-RunShellScript" \
+  --parameters 'commands=["cd /home/ubuntu/kb_generation && git pull origin main && cd ops/ghostwriter && npm ci && npm run build && rsync -a ../../dist/ghostwriter/ /home/ubuntu/pr-watcher-web/ghostwriter/"]'
+```
+
+### nginx config
+
+Add the location blocks from `ops/ghostwriter/nginx-ghostwriter.conf` to the VM's nginx server block
+(usually `/etc/nginx/sites-available/default`), then reload:
+
+```bash
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+The SPA will then be available at `http://18.192.122.48/ghostwriter/`.
+
+### Environment
+
+Create `ops/ghostwriter/.env.local` (git-ignored, never commit):
+
+```
+VITE_API_BASE=http://18.192.122.48
+VITE_N8N_WEBHOOK=http://18.192.122.48/n8n/webhook/annotation-intake
+```
+
+### queue.json first deploy
+
+Commit `clusters/queue.json` before enabling auto-advance. The daemon degrades gracefully
+if it is missing (logs "auto-trigger disabled") — no crash.
+
+```bash
+git add clusters/queue.json
+git commit -m "chore: seed clusters/queue.json for daemon queue-as-data"
+git push origin main
+```

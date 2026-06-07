@@ -7,6 +7,7 @@ Usage:
     python writer/run_claude_code.py --article NN-slug --phase revise-from-test
     python writer/run_claude_code.py --article NN-slug --phase voice-pass
     python writer/run_claude_code.py --article NN-slug --phase revise-from-pr
+    python writer/run_claude_code.py --article NN-slug --phase revise-from-feedback
 
 Each phase corresponds to a prompt file under pipeline/prompts/ and a set of
 expected outputs under workspace/articles/<slug>/. The wrapper assembles
@@ -31,6 +32,7 @@ PHASE_TO_PROMPT = {
     "revise-from-test": "03-revise-from-test.md",
     "voice-pass": "04a-voice-pass.md",
     "revise-from-pr": "04-revise-from-pr-comments.md",
+    "revise-from-feedback": "06-revise-from-feedback.md",
 }
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
