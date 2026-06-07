@@ -1136,7 +1136,7 @@ def _launch_phase(slug: str, phase: str):
         f"sudo -u ubuntu git checkout article/{slug} 2>/dev/null || "
         f"sudo -u ubuntu git checkout -b article/{slug}\n"
         f"sudo -u ubuntu git pull origin article/{slug} 2>/dev/null || true\n"
-        f"/usr/local/bin/python3 writer/run_claude_code.py"
+        f"/opt/specterx-kb-venv/bin/python3 writer/run_claude_code.py"
         f" --article {slug} --phase {phase}"
         f" >> /home/ubuntu/{slug}-{phase}.log 2>&1\n"
         f'echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] phase {phase} exited $?"'
