@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { isReviewable, isPlannable, partitionArticles } from './articlePhase'
+import { formatPhaseElapsed, isReviewable, isPlannable, partitionArticles } from './articlePhase'
 import type { ArticleEntry } from '@/api/hooks'
 
 const base = (phase: string): ArticleEntry => ({
@@ -38,5 +38,26 @@ describe('articlePhase', () => {
     expect(reviewable).toHaveLength(2)
     expect(plannable).toHaveLength(1)
     expect(plannable[0]?.phase).toBe('UNKNOWN')
+  })
+
+  describe('formatPhaseElapsed', () => {
+    const now = new Date('2026-06-03T12:34:00Z')
+
+    it('formats minutes from ISO timestamp', () => {
+      expect(formatPhaseElapsed('2026-06-03T12:29:00Z', now)).toBe('5m')
+    })
+
+    it('formats hours from ISO timestamp', () => {
+      expect(formatPhaseElapsed('2026-06-03T10:34:00Z', now)).toBe('2h')
+    })
+
+    it('formats days from date-only timestamp', () => {
+      expect(formatPhaseElapsed('2026-06-01', now)).toBe('2d')
+    })
+
+    it('returns null for empty or invalid input', () => {
+      expect(formatPhaseElapsed('', now)).toBeNull()
+      expect(formatPhaseElapsed('not-a-date', now)).toBeNull()
+    })
   })
 })

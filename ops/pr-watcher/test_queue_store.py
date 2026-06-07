@@ -146,6 +146,15 @@ class QueueStoreTests(unittest.TestCase):
         self.assertEqual(data["next_slug"], "02-set-or-reset-password")
         self.assertIn("02-set-or-reset-password", data["publish_stale"])
 
+    def test_queue_with_states_includes_last_update(self):
+        _write_state(self.root, "01-log-in-to-specterx", {
+            "PHASE": "TESTING",
+            "LAST_UPDATE": "2026-06-03T10:00:00Z",
+        })
+        data = qs.queue_with_states()
+        art = data["clusters"][0]["articles"][0]
+        self.assertEqual(art["last_update"], "2026-06-03T10:00:00Z")
+
     def test_strip_queue_for_save_removes_enriched_fields(self):
         enriched = qs.queue_with_states()
         stripped = qs.strip_queue_for_save(enriched)

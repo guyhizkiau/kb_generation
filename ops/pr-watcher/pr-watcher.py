@@ -1473,6 +1473,7 @@ class _ControlHandler(BaseHTTPRequestHandler):
                 data = _qs.queue_with_states()
                 if _ghq:
                     data = _ghq.enrich_queue_with_open_prs(data, repo=REPO)
+                data["claude_running"] = is_claude_running()
                 self._respond(200, json.dumps(data))
             except FileNotFoundError:
                 self._respond(404, json.dumps({"error": "clusters/queue.json not found"}))

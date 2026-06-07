@@ -52,3 +52,15 @@ def append_feedback(slug: str, annotation: dict) -> dict:
     annotations.append(annotation)
     write_feedback(slug, annotations)
     return {"ok": True, "annotation": annotation}
+
+
+def remove_feedback(slug: str, ann_id: str) -> dict:
+    """Remove one annotation by ``id``."""
+    if not ann_id:
+        return {"ok": False, "error": "id required"}
+    annotations = read_feedback(slug)
+    kept = [a for a in annotations if a.get("id") != ann_id]
+    if len(kept) == len(annotations):
+        return {"ok": False, "error": "annotation not found"}
+    write_feedback(slug, kept)
+    return {"ok": True, "id": ann_id}

@@ -69,7 +69,7 @@ def main() -> None:
     print(f"  Worktree: {pw.WORKTREE_PATH} (lazy — created on first daemon edit)")
     print(f"  Listen:   http://127.0.0.1:{port}/")
     print("  Routes: GET/PUT /api/queue  POST /api/queue/trigger  POST /api/queue/merge")
-    print("          GET /api/feedback  POST /api/feedback")
+    print("          GET /api/feedback  POST /api/feedback  DELETE /api/feedback")
     print("          GET /api/articles/{slug}/preview")
     print("          POST /poll-now  POST /retry")
     print("  Press Ctrl+C to stop.")

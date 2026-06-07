@@ -5,7 +5,7 @@ import {
 } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { modals } from '@mantine/modals'
-import { useQueue, useFeedback, useTrigger } from '@/api/hooks'
+import { useQueue, useFeedback, useTrigger, useDismissAnnotation } from '@/api/hooks'
 import { AnnotationCard } from '@/components/AnnotationCard'
 import { useReader } from '@/context/ReaderContext'
 
@@ -17,9 +17,9 @@ const PHASE_COLORS: Record<string, string> = {
 export function FeedbackView() {
   const { data: queueData, isLoading: queueLoading } = useQueue()
   const trigger = useTrigger()
+  const dismissAnnotation = useDismissAnnotation()
   const { openReader } = useReader()
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null)
-  const [dismissed, setDismissed] = useState<Set<string>>(new Set())
 
   const { data: feedbackData, isLoading: fbLoading } = useFeedback(selectedSlug ?? '')
 
@@ -28,9 +28,7 @@ export function FeedbackView() {
       .flatMap((c) => c.articles)
       .filter((a) => a.feedback_issue || a.phase === 'REVISING' || a.publish_stale) ?? []
 
-  const activeAnnotations = (feedbackData?.annotations ?? []).filter(
-    (a) => !dismissed.has(a.id),
-  )
+  const activeAnnotations = feedbackData?.annotations ?? []
   const activeArticle = queueData?.clusters
     .flatMap((c) => c.articles)
     .find((a) => a.slug === selectedSlug)
@@ -170,9 +168,20 @@ export function FeedbackView() {
                       key={ann.id}
                       ann={ann}
                       onAccept={handleAccept}
-                      onDismiss={() =>
-                        setDismissed((prev) => new Set([...prev, ann.id]))
-                      }
+                      onDismiss={() => {
+                        if (!selectedSlug) return
+                        dismissAnnotation.mutate(
+                          { slug: selectedSlug, id: ann.id },
+                          {
+                            onError: (e) =>
+                              notifications.show({
+                                title: 'Could not dismiss',
+                                message: e.message,
+                                color: 'red',
+                              }),
+                          },
+                        )
+                      }}
                     />
                   ))}
                 </ScrollArea>

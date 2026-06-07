@@ -10,6 +10,7 @@ export interface ArticleEntry {
   revision_cycle: number
   publish_stale: boolean
   feedback_issue: string
+  last_update?: string
   pr_number?: number
 }
 
@@ -27,6 +28,7 @@ export interface QueueData {
   clusters: Cluster[]
   next_slug: string | null
   publish_stale: string[]
+  claude_running?: boolean
 }
 
 export interface Annotation {
@@ -137,6 +139,35 @@ export function usePostAnnotation() {
       apiFetch('/api/feedback', { method: 'POST', body: JSON.stringify(data) }),
     onSuccess: (_data, variables) => {
       qc.invalidateQueries({ queryKey: ['feedback', variables.slug] })
+    },
+  })
+}
+
+export function useDismissAnnotation() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ slug, id }: { slug: string; id: string }) =>
+      apiFetch(`/api/feedback?slug=${encodeURIComponent(slug)}&id=${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+      }),
+    onMutate: async ({ slug, id }) => {
+      await qc.cancelQueries({ queryKey: ['feedback', slug] })
+      const prev = qc.getQueryData<FeedbackData>(['feedback', slug])
+      if (prev) {
+        qc.setQueryData<FeedbackData>(['feedback', slug], {
+          ...prev,
+          annotations: prev.annotations.filter((a) => a.id !== id),
+        })
+      }
+      return { prev }
+    },
+    onError: (_err, { slug }, ctx) => {
+      if (ctx?.prev) {
+        qc.setQueryData(['feedback', slug], ctx.prev)
+      }
+    },
+    onSuccess: (_data, { slug }) => {
+      qc.invalidateQueries({ queryKey: ['feedback', slug] })
     },
   })
 }
