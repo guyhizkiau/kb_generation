@@ -55,6 +55,28 @@ class ControlApiTests(unittest.TestCase):
         self.assertIn("clusters", payload)
         self.assertIn("next_slug", payload)
 
+    def test_get_api_queue_includes_pr_number(self):
+        with mock.patch.object(self.pw._ghq, "open_prs_by_slug", return_value={"01-log-in-to-specterx": 99}):
+            code, payload, _ = self._req("GET", "/api/queue")
+        self.assertEqual(code, 200)
+        art = payload["clusters"][0]["articles"][0]
+        self.assertEqual(art.get("pr_number"), 99)
+
+    def test_post_queue_merge(self):
+        with mock.patch.object(self.pw._ghq, "merge_article_pr", return_value={"ok": True, "slug": "01-log-in-to-specterx", "pr_number": 8}), \
+             mock.patch.object(self.pw, "git"), \
+             mock.patch.object(self.pw, "ensure_worktree"), \
+             mock.patch.object(self.pw, "git_worktree"), \
+             mock.patch.object(self.pw, "check_merged_prs"), \
+             mock.patch.object(self.pw, "load_state", return_value={"handled": [], "failed_comments": {}}):
+            code, payload, _ = self._req("POST", "/api/queue/merge", {
+                "slug": "01-log-in-to-specterx",
+                "pr_number": 8,
+            })
+        self.assertEqual(code, 200)
+        self.assertTrue(payload["ok"])
+        self.assertEqual(payload["pr_number"], 8)
+
     def test_options_cors_methods(self):
         req = urllib.request.Request(
             f"http://127.0.0.1:{self.port}/api/queue",
@@ -82,8 +104,11 @@ class ControlApiTests(unittest.TestCase):
         self.assertIn("errors", payload)
 
     def test_post_trigger_feedback(self):
+        self.pw.WORKTREE_PATH.mkdir(parents=True, exist_ok=True)
         with mock.patch.object(self.pw, "is_claude_running", return_value=True), \
-             mock.patch.object(self.pw, "_launch_phase"):
+             mock.patch.object(self.pw, "_launch_phase"), \
+             mock.patch.object(self.pw, "ensure_worktree"), \
+             mock.patch.object(self.pw, "git_worktree"):
             code, payload, _ = self._req("POST", "/api/queue/trigger", {
                 "slug": "01-log-in-to-specterx",
                 "reason": "feedback",
@@ -92,14 +117,14 @@ class ControlApiTests(unittest.TestCase):
         self.assertEqual(code, 200)
         self.assertTrue(payload["ok"])
         fields = self.pw._qs.read_state_fields(
-            self.root / "articles" / "01-log-in-to-specterx" / "STATE",
+            self.pw.WORKTREE_PATH / "articles" / "01-log-in-to-specterx" / "STATE",
         )
         self.assertEqual(fields["PHASE"], "REVISING")
         self.assertEqual(fields["REVISION_CYCLE"], "1")
 
     def test_get_api_feedback(self):
-        fb_path = self.root / "articles" / "01-log-in-to-specterx" / "feedback.json"
-        fb_path.write_text(json.dumps([{"id": "a1"}]))
+        import feedback_store as fb
+        fb.write_feedback("01-log-in-to-specterx", [{"id": "a1"}])
         code, payload, _ = self._req("GET", "/api/feedback?slug=01-log-in-to-specterx")
         self.assertEqual(code, 200)
         self.assertEqual(payload["slug"], "01-log-in-to-specterx")
@@ -122,8 +147,8 @@ class ControlApiTests(unittest.TestCase):
             self.assertNotIn("if (!N8N_WEBHOOK) return", body)
 
     def test_post_api_feedback_append(self):
-        fb_path = self.root / "articles" / "01-log-in-to-specterx" / "feedback.json"
-        fb_path.write_text("[]")
+        import feedback_store as fb
+        fb.write_feedback("01-log-in-to-specterx", [])
         code, payload, _ = self._req("POST", "/api/feedback", {
             "slug": "01-log-in-to-specterx",
             "id": "anno-new",
@@ -131,8 +156,7 @@ class ControlApiTests(unittest.TestCase):
         })
         self.assertEqual(code, 200)
         self.assertTrue(payload["ok"])
-        fb_path = self.root / "articles" / "01-log-in-to-specterx" / "feedback.json"
-        stored = json.loads(fb_path.read_text())
+        stored = fb.read_feedback("01-log-in-to-specterx")
         self.assertEqual(len(stored), 1)
         self.assertEqual(stored[0]["id"], "anno-new")
 
@@ -142,6 +166,30 @@ class ControlApiTests(unittest.TestCase):
             "body": [{"value": "fix typo"}],
         })
         self.assertTrue(payload2.get("deduped"))
+
+    def test_get_article_preview_from_branch_ref(self):
+        import subprocess
+        slug = "02-set-or-reset-password"
+        art = self.root / "articles" / slug
+        art.mkdir(parents=True, exist_ok=True)
+        (art / f"{slug}.html").write_text(
+            "<html><head></head><body><main>branch preview</main></body></html>"
+        )
+        subprocess.run(["git", "init"], cwd=self.root, capture_output=True, check=True)
+        subprocess.run(["git", "config", "user.email", "t@test"], cwd=self.root, check=True)
+        subprocess.run(["git", "config", "user.name", "t"], cwd=self.root, check=True)
+        subprocess.run(["git", "add", "-A"], cwd=self.root, capture_output=True, check=True)
+        subprocess.run(["git", "commit", "-m", "branch html"], cwd=self.root, capture_output=True, check=True)
+        subprocess.run(["git", "branch", f"article/{slug}"], cwd=self.root, check=True)
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{self.port}/api/articles/{slug}/preview",
+            method="GET",
+        )
+        with urllib.request.urlopen(req) as resp:
+            self.assertEqual(resp.status, 200)
+            body = resp.read().decode()
+            self.assertIn("branch preview", body)
+            self.assertIn("ghostwriter-annotate.js", body)
 
     def test_poll_now_and_retry_regression(self):
         code, payload, _ = self._req("POST", "/poll-now")

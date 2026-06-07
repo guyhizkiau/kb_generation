@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -152,6 +153,37 @@ class QueueStoreTests(unittest.TestCase):
         self.assertEqual(set(art.keys()), {"slug", "title"})
         self.assertNotIn("next_slug", stripped)
         self.assertNotIn("publish_stale", stripped)
+
+    def _init_git(self, root: Path) -> None:
+        subprocess.run(["git", "init"], cwd=root, capture_output=True, check=True)
+        subprocess.run(["git", "config", "user.email", "t@test"], cwd=root, check=True)
+        subprocess.run(["git", "config", "user.name", "t"], cwd=root, check=True)
+        subprocess.run(["git", "add", "-A"], cwd=root, capture_output=True, check=True)
+        subprocess.run(["git", "commit", "-m", "init"], cwd=root, capture_output=True, check=True)
+
+    def test_article_ref_detects_local_branch(self):
+        self._init_git(self.root)
+        slug = "02-set-or-reset-password"
+        branch = f"article/{slug}"
+        subprocess.run(["git", "branch", branch], cwd=self.root, check=True)
+        self.assertEqual(qs.article_ref(slug), branch)
+
+    def test_queue_with_states_reads_phase_from_branch_ref(self):
+        self._init_git(self.root)
+        slug = "02-set-or-reset-password"
+        branch = f"article/{slug}"
+        art_dir = self.root / "articles" / slug
+        art_dir.mkdir(parents=True, exist_ok=True)
+        (art_dir / "STATE").write_text("PHASE=PR_OPEN\nREVISION_CYCLE=0\n")
+        subprocess.run(["git", "add", "-A"], cwd=self.root, check=True)
+        subprocess.run(["git", "commit", "-m", "branch state"], cwd=self.root, check=True)
+        subprocess.run(["git", "branch", branch], cwd=self.root, check=True)
+        # main tree has no STATE for slug 02 — ref should supply PR_OPEN
+        data = qs.queue_with_states()
+        art = next(
+            a for c in data["clusters"] for a in c["articles"] if a["slug"] == slug
+        )
+        self.assertEqual(art["phase"], "PR_OPEN")
 
 
 if __name__ == "__main__":

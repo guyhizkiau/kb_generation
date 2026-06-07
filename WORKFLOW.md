@@ -1221,8 +1221,8 @@ MERGED → REVISING → FINALIZING → PR_OPEN → MERGED
 Triggered by `POST /api/queue/trigger {reason: "feedback", slug, issue}` from the Ghostwriter SPA or curl.
 
 Steps the daemon performs:
-1. Materializes annotations from the GitHub review-thread issue → `articles/<slug>/feedback.json`
-2. Bumps `REVISION_CYCLE` in STATE (e.g. 0 → 1)
+1. Materializes annotations from the GitHub review-thread issue → `.ghostwriter/feedback/<slug>.json` (VM: `/home/ubuntu/ghostwriter-feedback/<slug>.json`)
+2. Bumps `REVISION_CYCLE` in STATE on the article branch (worktree checkout)
 3. Sets `FEEDBACK_ISSUE=<issue-ref>` in STATE
 4. Sets `PHASE=REVISING` in STATE
 5. Launches `revise-from-feedback` phase via `writer/run_claude_code.py`

@@ -5,7 +5,9 @@ You are VM-Claude resolving SME feedback annotations on a published KB article.
 ## Inputs
 
 - `articles/<slug>/final.md` — the current article text
-- `articles/<slug>/feedback.json` — W3C Web Annotation JSON array; each item has:
+- Ghostwriter feedback store: `.ghostwriter/feedback/<slug>.json` (on the VM:
+  `/home/ubuntu/ghostwriter-feedback/<slug>.json`) — W3C Web Annotation JSON array;
+  each item has:
   - `id` — annotation URI
   - `body[].value` — the reviewer's comment text
   - `target.selector` — one of:
@@ -46,7 +48,8 @@ Leave these unchanged.
 
 ## Steps
 
-1. Read `articles/<slug>/final.md` and `articles/<slug>/feedback.json`.
+1. Read `articles/<slug>/final.md` and `.ghostwriter/feedback/<slug>.json`
+   (VM path: `/home/ubuntu/ghostwriter-feedback/<slug>.json`).
 2. For each annotation, classify selector type and resolve per the rules above.
 3. After all resolutions, run the voice pass to re-enforce style:
    ```

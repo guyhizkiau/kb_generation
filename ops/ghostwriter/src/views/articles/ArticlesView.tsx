@@ -18,10 +18,11 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import {
-  useQueue, useSaveQueue, useTrigger,
+  useQueue, useSaveQueue, useTrigger, useMergeArticle,
 } from '@/api/hooks'
 import { apiFetch } from '@/api/client'
 import type { QueueData, ArticleEntry, Cluster } from '@/api/hooks'
+import { githubPullUrl } from '@/api/github'
 import { partitionArticles } from '@/lib/articlePhase'
 import { ConfirmDeleteModal } from '@/components/ConfirmDeleteModal'
 import { useReader } from '@/context/ReaderContext'
@@ -47,6 +48,12 @@ const PHASE_COLORS: Record<string, string> = {
   BLOCKED: 'red', UNKNOWN: 'gray',
 }
 
+const MERGED_PHASES = new Set(['MERGED', 'DONE'])
+
+function canMergeArticle(art: ArticleEntry): boolean {
+  return !!art.pr_number && !MERGED_PHASES.has(art.phase)
+}
+
 function PhaseBadge({ phase }: { phase: string }) {
   return (
     <Badge color={PHASE_COLORS[phase] ?? 'gray'} variant="light" size="sm">
@@ -59,10 +66,12 @@ function ReviewArticleRow({
   art,
   commentCount,
   onReview,
+  onMerge,
 }: {
   art: ArticleEntry
   commentCount: number
   onReview: () => void
+  onMerge: () => void
 }) {
   return (
     <Box
@@ -87,6 +96,11 @@ function ReviewArticleRow({
             <Badge color="violet" size="xs">cycle {art.revision_cycle}</Badge>
           )}
           <PhaseBadge phase={art.phase} />
+          {canMergeArticle(art) && (
+            <Button size="xs" color="green" variant="light" onClick={onMerge}>
+              Approve & push
+            </Button>
+          )}
           <Button size="xs" color="teal" variant="light" onClick={onReview}>
             Review
           </Button>
@@ -161,6 +175,7 @@ export function ArticlesView() {
   const { data: queueData, isLoading } = useQueue()
   const saveQueue = useSaveQueue()
   const trigger = useTrigger()
+  const mergeArticle = useMergeArticle()
   const { openReader } = useReader()
 
   const [localQueue, setLocalQueue] = useState<QueueData | null>(null)
@@ -298,6 +313,48 @@ export function ArticlesView() {
     })
   }
 
+  function handleMerge(art: ArticleEntry) {
+    if (!art.pr_number) return
+    const early = !['PR_OPEN', 'FINALIZING', 'MERGED', 'DONE'].includes(art.phase)
+    modals.openConfirmModal({
+      title: 'Approve and push this PR?',
+      children: (
+        <Text size="sm">
+          Push{' '}
+          <strong>
+            <a href={githubPullUrl(art.pr_number)} target="_blank" rel="noreferrer">
+              PR #{art.pr_number}
+            </a>
+          </strong>{' '}
+          for <strong>{art.slug}</strong> into <code>main</code>?
+          {early && (
+            <>
+              {' '}
+              This article is still in <strong>{art.phase}</strong> — only push if you
+              intend to accept the current draft as-is.
+            </>
+          )}
+        </Text>
+      ),
+      labels: { confirm: 'Push PR', cancel: 'Cancel' },
+      confirmProps: { color: 'green' },
+      onConfirm: () =>
+        mergeArticle.mutate(
+          { slug: art.slug, pr_number: art.pr_number },
+          {
+            onSuccess: () =>
+              notifications.show({
+                title: 'Pushed',
+                message: `PR #${art.pr_number} pushed for ${art.slug}`,
+                color: 'green',
+              }),
+            onError: (e) =>
+              notifications.show({ title: 'Push failed', message: e.message, color: 'red' }),
+          },
+        ),
+    })
+  }
+
   function handleWriteNext(slug: string) {
     modals.openConfirmModal({
       title: 'Write this next?',
@@ -431,6 +488,7 @@ export function ArticlesView() {
                       art={art}
                       commentCount={commentCountBySlug[art.slug] ?? 0}
                       onReview={() => openReader(art.slug)}
+                      onMerge={() => handleMerge(art)}
                     />
                   ))
                 )}

@@ -35,4 +35,6 @@ workspace/articles/00-*/
 
 # Ghostwriter local control-server runtime (control_server.py)
 .ghostwriter-local-*
+.ghostwriter/feedback/
+.ghostwriter/worktree/
 

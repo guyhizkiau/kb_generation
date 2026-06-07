@@ -6,7 +6,8 @@ import { IconArrowLeft } from '@tabler/icons-react'
 import { notifications } from '@mantine/notifications'
 import { modals } from '@mantine/modals'
 import { useQueryClient } from '@tanstack/react-query'
-import { useQueue, useFeedback, useTrigger, articlePreviewUrl } from '@/api/hooks'
+import { useQueue, useFeedback, useTrigger, useMergeArticle, articlePreviewUrl } from '@/api/hooks'
+import { githubPullUrl } from '@/api/github'
 import { AnnotationCard } from '@/components/AnnotationCard'
 
 const PHASE_COLORS: Record<string, string> = {
@@ -14,6 +15,8 @@ const PHASE_COLORS: Record<string, string> = {
   FINALIZING: 'violet', PR_OPEN: 'cyan', MERGED: 'teal', DONE: 'green',
   BLOCKED: 'red', UNKNOWN: 'gray',
 }
+
+const MERGED_PHASES = new Set(['MERGED', 'DONE'])
 
 type PreviewState = 'loading' | 'ready'
 
@@ -27,6 +30,7 @@ export function ArticleReaderOverlay({ slug, onClose }: ArticleReaderOverlayProp
   const { data: queueData } = useQueue()
   const { data: feedbackData, isLoading: fbLoading, refetch } = useFeedback(slug)
   const trigger = useTrigger()
+  const mergeArticle = useMergeArticle()
   const [dismissed, setDismissed] = useState<Set<string>>(new Set())
   const [previewState, setPreviewState] = useState<PreviewState>('loading')
 
@@ -53,6 +57,50 @@ export function ArticleReaderOverlay({ slug, onClose }: ArticleReaderOverlayProp
     window.addEventListener('message', onMessage)
     return () => window.removeEventListener('message', onMessage)
   }, [slug, refetch, queryClient])
+
+  function handleMerge() {
+    if (!article?.pr_number) return
+    const early = !['PR_OPEN', 'FINALIZING', 'MERGED', 'DONE'].includes(article.phase)
+    modals.openConfirmModal({
+      title: 'Approve and push this PR?',
+      children: (
+        <Text size="sm">
+          Push{' '}
+          <strong>
+            <a href={githubPullUrl(article.pr_number)} target="_blank" rel="noreferrer">
+              PR #{article.pr_number}
+            </a>
+          </strong>{' '}
+          for <strong>{slug}</strong> into <code>main</code>?
+          {early && (
+            <>
+              {' '}
+              This article is still in <strong>{article.phase}</strong> — only push if you
+              intend to accept the current draft as-is.
+            </>
+          )}
+        </Text>
+      ),
+      labels: { confirm: 'Push PR', cancel: 'Cancel' },
+      confirmProps: { color: 'green' },
+      onConfirm: () =>
+        mergeArticle.mutate(
+          { slug, pr_number: article.pr_number },
+          {
+            onSuccess: () => {
+              notifications.show({
+                title: 'Pushed',
+                message: `PR #${article.pr_number} pushed for ${slug}`,
+                color: 'green',
+              })
+              onClose()
+            },
+            onError: (e) =>
+              notifications.show({ title: 'Push failed', message: e.message, color: 'red' }),
+          },
+        ),
+    })
+  }
 
   function handleAccept() {
     modals.openConfirmModal({
@@ -143,6 +191,16 @@ export function ArticleReaderOverlay({ slug, onClose }: ArticleReaderOverlayProp
           )}
         </Group>
         <Group gap="xs">
+          {article?.pr_number && !MERGED_PHASES.has(article.phase) && (
+            <>
+              <Anchor size="xs" href={githubPullUrl(article.pr_number)} target="_blank">
+                PR #{article.pr_number}
+              </Anchor>
+              <Button size="sm" color="green" onClick={handleMerge}>
+                Approve & push
+              </Button>
+            </>
+          )}
           {article?.feedback_issue && (
             <Anchor
               size="xs"
