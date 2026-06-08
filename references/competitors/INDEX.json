@@ -133,5 +133,14 @@
     "captured": "2026-06-07",
     "topics": ["space", "data room", "share folder", "granular permissions", "visible", "downloadable", "watermark", "NDA", "expiration", "allow list", "block list", "content folders"],
     "file": "docsend/share-folder.md"
+  },
+  {
+    "vendor": "dropbox",
+    "slug": "share-file",
+    "source_url": "https://help.dropbox.com/share/share-with-others",
+    "title": "How to share in Dropbox",
+    "captured": "2026-06-08",
+    "topics": ["share a file", "share a folder", "add people", "edit access", "view access", "copy link", "manage links", "qr code", "default sharing settings", "recipient email", "view-only link"],
+    "file": "dropbox/share-file.md"
   }
 ]
