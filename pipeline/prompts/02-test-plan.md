@@ -178,6 +178,28 @@ Every action that targets an element needs a locator. Use this priority order �
    sentence. If you find yourself writing a sentence, use `role`+`name`
    with your best-guess label instead.
 
+## SpecterX-specific locators (sourced from web-client codebase)
+
+These are confirmed from `web-client/src/components/` — use them exactly, do not guess:
+
+| UI element | Correct locator |
+|-----------|----------------|
+| Sign In form submit button | `"selector": "button[type='submit']"` |
+| Share Files drawer file upload input | `"selector": "input[data-testid='uploadDrawer_dragdropArea']"` |
+
+**File upload note**: The Share Files drawer uses Ant Design's `<Dragger>` with
+`openFileDialogOnClick={false}`, so clicking the drag area does NOT open a file picker.
+The hidden `input[type='file']` has `data-testid="uploadDrawer_dragdropArea"`. Always use
+`"selector": "input[data-testid='uploadDrawer_dragdropArea']"` for file uploads in this drawer.
+The visible text "Choose a file or drag it here" is in a `div`, not the `input` — do not
+use `selector_hint` for file uploads.
+
+**Before writing any test-plan step that interacts with a SpecterX UI element**, grep the
+codebase first:
+```bash
+grep -rn 'data-testid\|aria-label\|placeholder' ~/specterx-codebase/web-client/src/ | grep -i '<relevant-keyword>'
+```
+
 ## Rules
 
 - One step per JSON entry; do not bundle.
