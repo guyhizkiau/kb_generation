@@ -1,0 +1,2 @@
+SpecterX tester fixture
+This is a sample report used for upload tests.
