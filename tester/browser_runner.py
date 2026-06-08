@@ -238,7 +238,15 @@ class BrowserRunner:
             target.fill(value, timeout=timeout)
         elif kind == "type":
             target = self._locate(action, timeout=timeout)
-            target.fill(action.get("value", ""), timeout=timeout)
+            value = action.get("value")
+            if value is None and action.get("value_env"):
+                env_name = action["value_env"]
+                value = os.environ.get(env_name)
+                if value is None:
+                    raise ValueError(
+                        f"type: env var {env_name!r} not set; export it before running"
+                    )
+            target.fill(value or "", timeout=timeout)
             if "enter" in str(action.get("confirm", "")).lower():
                 page.keyboard.press("Enter")
         elif kind == "navigate":
