@@ -29,6 +29,7 @@ export interface QueueData {
   next_slug: string | null
   publish_stale: string[]
   claude_running?: boolean
+  active_article?: string | null
 }
 
 export interface Annotation {
