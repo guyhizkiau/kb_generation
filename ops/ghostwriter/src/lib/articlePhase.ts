@@ -41,3 +41,31 @@ export function partitionArticles(articles: ArticleEntry[]): {
   }
   return { reviewable, plannable }
 }
+
+/** Parse STATE LAST_UPDATE (ISO or date-only) into a Date, or null if invalid. */
+function parseLastUpdate(lastUpdate: string): Date | null {
+  const trimmed = lastUpdate.trim()
+  if (!trimmed) return null
+  const iso = new Date(trimmed)
+  if (!Number.isNaN(iso.getTime())) return iso
+  const dateOnly = new Date(`${trimmed}T00:00:00Z`)
+  if (!Number.isNaN(dateOnly.getTime())) return dateOnly
+  return null
+}
+
+/**
+ * Format coarse elapsed time since last_update (e.g. "5m", "2h", "3d").
+ * Returns null when the timestamp is missing or unparseable.
+ */
+export function formatPhaseElapsed(lastUpdate: string, now: Date = new Date()): string | null {
+  const parsed = parseLastUpdate(lastUpdate)
+  if (!parsed) return null
+  const ms = now.getTime() - parsed.getTime()
+  if (ms < 0) return null
+  const minutes = Math.floor(ms / 60_000)
+  if (minutes < 60) return `${Math.max(1, minutes)}m`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours}h`
+  const days = Math.floor(hours / 24)
+  return `${days}d`
+}

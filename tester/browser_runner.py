@@ -38,6 +38,8 @@ from playwright.sync_api import (
 
 log = logging.getLogger("tester.browser")
 
+REPO_ROOT = Path(__file__).resolve().parent.parent
+
 CDP_DEFAULT_PORT = 9222
 CDP_DEFAULT_TIMEOUT_S = 3
 STEP_DEFAULT_TIMEOUT_MS = 15_000
@@ -203,9 +205,10 @@ class BrowserRunner:
             return StepResult(step_id, False, f"error: {desc}", error=repr(exc))
 
         observation = self._observe(step)
-        screenshot_path: str | None = None
-        if screenshot_spec.get("after"):
-            screenshot_path = self._capture(step_id, screenshot_spec)
+        artifact = action.get("_download_path")
+        screenshot_path = artifact or (
+            self._capture(step_id, screenshot_spec) if screenshot_spec.get("after") else None
+        )
 
         return StepResult(step_id, True, observation, screenshot=screenshot_path)
 
@@ -233,6 +236,59 @@ class BrowserRunner:
             if value is None:
                 raise ValueError("fill action requires 'value' or 'value_env'")
             target.fill(value, timeout=timeout)
+        elif kind == "type":
+            target = self._locate(action, timeout=timeout)
+            target.fill(action.get("value", ""), timeout=timeout)
+            if "enter" in str(action.get("confirm", "")).lower():
+                page.keyboard.press("Enter")
+        elif kind == "navigate":
+            url = action.get("url")
+            if url:
+                page.goto(url, timeout=timeout, wait_until=action.get("wait_until", "load"))
+            else:
+                self._locate(action, timeout=timeout).click(timeout=timeout)
+        elif kind == "select":
+            value = action.get("value")
+            target = self._locate(action, timeout=timeout)
+            try:
+                target.select_option(value, timeout=timeout)
+            except Exception:
+                target.click(timeout=timeout)
+                page.get_by_text(value, exact=False).first.click(timeout=timeout)
+        elif kind == "file_upload":
+            target = self._locate(action, timeout=timeout)
+            folder = action.get("folder")
+            if folder:
+                folder_path = self._fixtures_dir() / folder
+                if not folder_path.is_dir():
+                    raise FileNotFoundError(f"test fixture folder not found: {folder_path}")
+                try:
+                    # webkitdirectory inputs take the directory path itself.
+                    target.set_input_files(str(folder_path), timeout=timeout)
+                except Exception:
+                    # Regular `multiple` inputs take the contained files.
+                    files = sorted(str(p) for p in folder_path.rglob("*") if p.is_file())
+                    if not files:
+                        raise FileNotFoundError(f"test fixture folder is empty: {folder_path}")
+                    target.set_input_files(files, timeout=timeout)
+            else:
+                target.set_input_files(self._resolve_upload_files(action), timeout=timeout)
+        elif kind == "clear":
+            self._locate(action, timeout=timeout).clear(timeout=timeout)
+        elif kind == "hover":
+            self._locate(action, timeout=timeout).hover(timeout=timeout)
+        elif kind == "download":
+            target = self._locate(action, timeout=timeout)
+            with page.expect_download(timeout=timeout) as dl_info:
+                target.click(timeout=timeout)
+            dl = dl_info.value
+            save_path = self.screenshots_dir / (action.get("save_as") or dl.suggested_filename)
+            dl.save_as(str(save_path))
+            action["_download_path"] = (
+                str(save_path.relative_to(self.screenshots_dir.parent))
+                if save_path.is_relative_to(self.screenshots_dir.parent)
+                else str(save_path)
+            )
         elif kind == "press":
             page.keyboard.press(action["key"])
         elif kind == "wait_for":
@@ -242,6 +298,40 @@ class BrowserRunner:
             return
         else:
             raise ValueError(f"unknown action type: {kind!r}")
+
+    @staticmethod
+    def _fixtures_dir() -> Path:
+        return Path(os.environ.get("TEST_FIXTURES_DIR", str(REPO_ROOT / "tester" / "fixtures")))
+
+    def _resolve_upload_files(self, action: dict[str, Any]) -> list[str]:
+        """Resolve a single/multi file_upload action to file paths.
+
+        Handles the file-list shapes, both rooted at the fixtures dir
+        (`TEST_FIXTURES_DIR` or `tester/fixtures/`):
+          - `filename`:  a single file.
+          - `filenames`: a list of files (multi-select upload).
+
+        The `folder` shape is handled separately in `_dispatch_action`
+        because `webkitdirectory` inputs take a directory path, not a
+        file list.
+        """
+        fixtures_dir = self._fixtures_dir()
+        names = action.get("filenames")
+        if names is None:
+            single = action.get("filename")
+            if not single:
+                raise ValueError(
+                    "file_upload action requires 'filename', 'filenames', or 'folder'"
+                )
+            names = [single]
+
+        resolved: list[str] = []
+        for name in names:
+            path = fixtures_dir / name
+            if not path.exists():
+                raise FileNotFoundError(f"test fixture not found: {path}")
+            resolved.append(str(path))
+        return resolved
 
     def _locate(self, action: dict[str, Any], *, timeout: int):
         page = self.page

@@ -10,6 +10,8 @@ export interface ArticleEntry {
   revision_cycle: number
   publish_stale: boolean
   feedback_issue: string
+  last_update?: string
+  pr_number?: number
 }
 
 export interface Cluster {
@@ -26,6 +28,7 @@ export interface QueueData {
   clusters: Cluster[]
   next_slug: string | null
   publish_stale: string[]
+  claude_running?: boolean
 }
 
 export interface Annotation {
@@ -80,7 +83,7 @@ export function useQueue() {
   return useQuery<QueueData>({
     queryKey: ['queue'],
     queryFn: () => apiFetch('/api/queue'),
-    refetchInterval: 10000,
+    refetchInterval: 3000,
   })
 }
 
@@ -99,6 +102,18 @@ export function useTrigger() {
     mutationFn: (data: { slug: string; reason: 'manual' | 'feedback'; issue?: string }) =>
       apiFetch('/api/queue/trigger', { method: 'POST', body: JSON.stringify(data) }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['queue'] }),
+  })
+}
+
+export function useMergeArticle() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: { slug: string; pr_number?: number }) =>
+      apiFetch('/api/queue/merge', { method: 'POST', body: JSON.stringify(data) }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['queue'] })
+      qc.invalidateQueries({ queryKey: ['status'] })
+    },
   })
 }
 
@@ -124,6 +139,35 @@ export function usePostAnnotation() {
       apiFetch('/api/feedback', { method: 'POST', body: JSON.stringify(data) }),
     onSuccess: (_data, variables) => {
       qc.invalidateQueries({ queryKey: ['feedback', variables.slug] })
+    },
+  })
+}
+
+export function useDismissAnnotation() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ slug, id }: { slug: string; id: string }) =>
+      apiFetch(`/api/feedback?slug=${encodeURIComponent(slug)}&id=${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+      }),
+    onMutate: async ({ slug, id }) => {
+      await qc.cancelQueries({ queryKey: ['feedback', slug] })
+      const prev = qc.getQueryData<FeedbackData>(['feedback', slug])
+      if (prev) {
+        qc.setQueryData<FeedbackData>(['feedback', slug], {
+          ...prev,
+          annotations: prev.annotations.filter((a) => a.id !== id),
+        })
+      }
+      return { prev }
+    },
+    onError: (_err, { slug }, ctx) => {
+      if (ctx?.prev) {
+        qc.setQueryData(['feedback', slug], ctx.prev)
+      }
+    },
+    onSuccess: (_data, { slug }) => {
+      qc.invalidateQueries({ queryKey: ['feedback', slug] })
     },
   })
 }

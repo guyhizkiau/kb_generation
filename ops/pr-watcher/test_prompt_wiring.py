@@ -24,7 +24,7 @@ class PromptWiringTests(unittest.TestCase):
         prompt = assemble_prompt("01-log-in-to-specterx", "revise-from-feedback")
         self.assertIn("revise-from-feedback", prompt)
         self.assertIn("01-log-in-to-specterx", prompt)
-        self.assertIn("feedback.json", prompt)
+        self.assertIn(".ghostwriter/feedback", prompt)
 
 
 if __name__ == "__main__":

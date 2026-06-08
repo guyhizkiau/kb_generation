@@ -25,6 +25,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import os
+import subprocess
 import sys
 import urllib.error
 import urllib.request
@@ -59,6 +60,9 @@ os.environ.setdefault("KB_REPO_ROOT", str(REPO_ROOT))
 sys.path.insert(0, str(PR_WATCHER_DIR))
 _qs = _import_module("queue_store", PR_WATCHER_DIR / "queue_store.py")
 _pt = _import_module("preview_transform", PR_WATCHER_DIR / "preview_transform.py")
+_fb = _import_module("feedback_store", PR_WATCHER_DIR / "feedback_store.py")
+_ghq = _import_module("gh_queue", PR_WATCHER_DIR / "gh_queue.py")
+GITHUB_REPO = os.environ.get("GITHUB_REPO", "guyhizkiau/kb_generation")
 
 
 def control_reachable() -> bool:
@@ -82,8 +86,20 @@ def proxy_request(method: str, path: str, body: bytes | None = None, query: str 
         return resp.status, resp.read()
 
 
+def _claude_running() -> bool:
+    """True when a Claude pipeline process is active (VM or local writer)."""
+    for pattern in (r"claude.*--dangerously", r"claude.*-p", r"run_claude_code\.py"):
+        r = subprocess.run(["pgrep", "-f", pattern], capture_output=True)
+        if r.returncode == 0:
+            return True
+    return False
+
+
 def local_get_queue() -> dict:
-    return _qs.queue_with_states()
+    data = _qs.queue_with_states()
+    data = _ghq.enrich_queue_with_open_prs(data, repo=GITHUB_REPO)
+    data["claude_running"] = _claude_running()
+    return data
 
 
 def local_put_queue(payload: dict) -> tuple[int, dict]:
@@ -129,17 +145,24 @@ def local_trigger(payload: dict) -> tuple[int, dict]:
     return 400, {"ok": False, "error": f"unknown reason '{reason}'"}
 
 
+def local_merge(payload: dict) -> tuple[int, dict]:
+    slug = (payload.get("slug") or "").strip()
+    if not slug:
+        return 400, {"ok": False, "error": "slug required"}
+    pr_number = payload.get("pr_number")
+    if pr_number is not None:
+        pr_number = int(pr_number)
+    result = _ghq.merge_article_pr(slug, pr_number=pr_number, repo=GITHUB_REPO)
+    code = 200 if result.get("ok") else 400
+    return code, result
+
+
 def local_feedback(slug: str) -> dict:
-    fb_path = REPO_ROOT / "articles" / slug / "feedback.json"
-    if fb_path.exists():
-        annotations = json.loads(fb_path.read_text(encoding="utf-8"))
-    else:
-        annotations = []
-    return {"slug": slug, "annotations": annotations}
+    return {"slug": slug, "annotations": _fb.read_feedback(slug)}
 
 
 def local_article_preview(slug: str, origin: str) -> tuple[int, bytes, str]:
-    code, html = _pt.load_preview_html(REPO_ROOT, slug, origin)
+    code, html = _pt.resolve_preview_html(REPO_ROOT, slug, origin)
     if code != 200:
         return 404, b"", "application/json"
     return 200, html.encode("utf-8"), "text/html; charset=utf-8"
@@ -150,21 +173,21 @@ def local_append_feedback(payload: dict) -> tuple[int, dict]:
     if not slug:
         return 400, {"ok": False, "error": "slug required"}
     ann = {k: v for k, v in payload.items() if k != "slug"}
-    ann_id = ann.get("id")
+    result = _fb.append_feedback(slug, ann)
+    code = 200 if result.get("ok") else 400
+    return code, result
+
+
+def local_remove_feedback(slug: str, ann_id: str) -> tuple[int, dict]:
+    if not slug:
+        return 400, {"ok": False, "error": "slug required"}
     if not ann_id:
-        return 400, {"ok": False, "error": "annotation id required"}
-    fb_dir = REPO_ROOT / "articles" / slug
-    fb_dir.mkdir(parents=True, exist_ok=True)
-    fb_path = fb_dir / "feedback.json"
-    if fb_path.exists():
-        annotations = json.loads(fb_path.read_text(encoding="utf-8"))
-    else:
-        annotations = []
-    if any(a.get("id") == ann_id for a in annotations):
-        return 200, {"ok": True, "annotation": ann, "deduped": True}
-    annotations.append(ann)
-    fb_path.write_text(json.dumps(annotations, indent=2) + "\n", encoding="utf-8")
-    return 200, {"ok": True, "annotation": ann}
+        return 400, {"ok": False, "error": "id required"}
+    result = _fb.remove_feedback(slug, ann_id)
+    if not result.get("ok"):
+        code = 404 if result.get("error") == "annotation not found" else 400
+        return code, result
+    return 200, result
 
 
 STATIC_DIR = GHOSTWRITER_DIR / "static"
@@ -187,7 +210,7 @@ class ShimHandler(BaseHTTPRequestHandler):
 
     def _cors(self) -> None:
         self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "GET, PUT, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
 
     def _send_bytes(self, code: int, body: bytes, content_type: str = "application/json") -> None:
@@ -311,7 +334,7 @@ class ShimHandler(BaseHTTPRequestHandler):
         path = parsed.path
         body = self._read_body()
 
-        if path in ("/poll-now", "/retry", "/api/queue/trigger", "/api/feedback") and self._control_up():
+        if path in ("/poll-now", "/retry", "/api/queue/trigger", "/api/queue/merge", "/api/feedback") and self._control_up():
             try:
                 code, raw = proxy_request("POST", path, body=body or None)
                 self._send_bytes(code, raw)
@@ -341,6 +364,15 @@ class ShimHandler(BaseHTTPRequestHandler):
             try:
                 payload = json.loads(body or b"{}")
                 code, result = local_trigger(payload)
+                self._send_json(result, code)
+            except Exception as exc:
+                self._send_json({"error": str(exc)}, 400)
+            return
+
+        if path == "/api/queue/merge":
+            try:
+                payload = json.loads(body or b"{}")
+                code, result = local_merge(payload)
                 self._send_json(result, code)
             except Exception as exc:
                 self._send_json({"error": str(exc)}, 400)
@@ -381,6 +413,34 @@ class ShimHandler(BaseHTTPRequestHandler):
                 self.simulator.failed_comments = []
                 self.simulator._reset_idle()
             self._send_json({"ok": True})
+            return
+
+        self._send_json({"error": "not found"}, 404)
+
+    def do_DELETE(self) -> None:
+        parsed = urlparse(self.path)
+        path = parsed.path
+
+        if path == "/api/feedback" and self._control_up():
+            try:
+                code, raw = proxy_request("DELETE", path, query=parsed.query)
+                if 200 <= code < 300:
+                    self._send_bytes(code, raw)
+                    return
+            except urllib.error.HTTPError as exc:
+                # Older control servers may not implement DELETE — handle locally.
+                if exc.code not in (404, 405, 501):
+                    self._send_bytes(exc.code, exc.read())
+                    return
+            except Exception:
+                pass  # fall through to local handler
+
+        if path == "/api/feedback":
+            qs = parse_qs(parsed.query)
+            slug = qs.get("slug", [""])[0]
+            ann_id = qs.get("id", [""])[0]
+            code, result = local_remove_feedback(slug, ann_id)
+            self._send_json(result, code)
             return
 
         self._send_json({"error": "not found"}, 404)

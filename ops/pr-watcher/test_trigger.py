@@ -43,9 +43,12 @@ class TriggerTests(unittest.TestCase):
 
     def test_handle_trigger_feedback_writes_state_and_feedback(self):
         slug = "01-log-in-to-specterx"
+        self.pw.WORKTREE_PATH.mkdir(parents=True, exist_ok=True)
         issue_body = 'Review comment\n```json\n{"id":"anno-1","body":[{"value":"fix this"}]}\n```'
         with mock.patch.object(self.pw, "is_claude_running", return_value=False), \
              mock.patch.object(self.pw, "_launch_phase") as launch, \
+             mock.patch.object(self.pw, "ensure_worktree"), \
+             mock.patch.object(self.pw, "git_worktree"), \
              mock.patch("subprocess.run") as run:
             run.return_value = mock.Mock(returncode=0, stdout=json.dumps([
                 {"body": issue_body},
@@ -55,9 +58,12 @@ class TriggerTests(unittest.TestCase):
             })
         self.assertTrue(result["ok"])
         self.assertEqual(result["revision_cycle"], 1)
-        fb = json.loads((self.root / "articles" / slug / "feedback.json").read_text())
-        self.assertEqual(len(fb), 1)
-        fields = self.pw._qs.read_state_fields(self.root / "articles" / slug / "STATE")
+        import feedback_store as fb
+        fb_data = fb.read_feedback(slug)
+        self.assertEqual(len(fb_data), 1)
+        fields = self.pw._qs.read_state_fields(
+            self.pw.WORKTREE_PATH / "articles" / slug / "STATE",
+        )
         self.assertEqual(fields["PHASE"], "REVISING")
         self.assertEqual(fields["REVISION_CYCLE"], "1")
         self.assertEqual(fields["FEEDBACK_ISSUE"], "99")

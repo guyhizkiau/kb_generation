@@ -56,9 +56,14 @@ def make_fixture_repo() -> tuple[tempfile.TemporaryDirectory, Path]:
 def patch_vm_paths(pw: Any, root: Path) -> None:
     """Point pr-watcher VM paths at the temp fixture."""
     pw.REPO_PATH = root
+    pw.WORKTREE_PATH = root / "worktree"
     pw.STATE_FILE = root / "state.json"
     pw.LOG_FILE = root / "watcher.log"
     pw.TASK_LOG_FILE = root / "task.log"
     pw.STATUS_DIR = root / "status"
     pw.STATUS_DIR.mkdir(exist_ok=True)
     os.environ["KB_REPO_ROOT"] = str(root)
+    os.environ["GHOSTWRITER_NO_SUDO"] = "1"
+    fb_dir = root / ".ghostwriter" / "feedback"
+    fb_dir.mkdir(parents=True, exist_ok=True)
+    os.environ["GHOSTWRITER_FEEDBACK_DIR"] = str(fb_dir)

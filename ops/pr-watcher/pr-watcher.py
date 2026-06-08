@@ -13,6 +13,7 @@ from datetime import datetime, timezone
 
 REPO          = "guyhizkiau/kb_generation"
 REPO_PATH     = Path("/home/ubuntu/kb_generation")
+WORKTREE_PATH = Path("/home/ubuntu/kb_generation-work")
 STATE_FILE    = Path("/home/ubuntu/pr-watcher-state.json")
 LOG_FILE      = Path("/home/ubuntu/pr-watcher.log")
 TASK_LOG_FILE = Path("/home/ubuntu/pr-watcher-task.log")   # live Claude output, overwritten per task
@@ -32,14 +33,22 @@ CONTROL_PORT      = 9191  # localhost-only HTTP control plane
 # Prepend script directory so queue_store.py is importable
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 os.environ.setdefault("KB_REPO_ROOT", str(REPO_PATH))
+_vm_repo = "/home/ubuntu/kb_generation"
+if os.environ.get("KB_REPO_ROOT") == _vm_repo and Path(_vm_repo).exists():
+    os.environ.setdefault("GHOSTWRITER_FEEDBACK_DIR", "/home/ubuntu/ghostwriter-feedback")
 try:
     import queue_store as _qs
-    from preview_transform import patch_article_preview_html, load_preview_html
+    import feedback_store as _fb
+    from preview_transform import patch_article_preview_html, load_preview_html, resolve_preview_html
+    import gh_queue as _ghq
     _QUEUE_STORE_AVAILABLE = True
 except ImportError:
     _qs = None  # type: ignore[assignment]
+    _fb = None  # type: ignore[assignment]
+    _ghq = None  # type: ignore[assignment]
     patch_article_preview_html = None  # type: ignore[assignment,misc]
     load_preview_html = None  # type: ignore[assignment,misc]
+    resolve_preview_html = None  # type: ignore[assignment,misc]
     _QUEUE_STORE_AVAILABLE = False
 
 
@@ -219,27 +228,59 @@ def _tail_log(n: int) -> list[str]:
 
 
 def git(*args, check=True):
+    """Run git in the serving tree (always on main)."""
+    return _run_git(args, REPO_PATH, check=check)
+
+
+def git_worktree(*args, check=True):
+    """Run git in the daemon worktree (branch checkouts / commits)."""
+    ensure_worktree()
+    return _run_git(args, WORKTREE_PATH, check=check)
+
+
+def _run_git(args, cwd: Path, check=True):
+    cmd = ["git", *args]
+    if os.environ.get("GHOSTWRITER_NO_SUDO") != "1":
+        cmd = ["sudo", "-u", "ubuntu", *cmd]
     r = subprocess.run(
-        ["sudo", "-u", "ubuntu", "git", *args],
-        cwd=REPO_PATH, capture_output=True, text=True
+        cmd,
+        cwd=str(cwd), capture_output=True, text=True,
     )
     if check and r.returncode != 0:
         raise RuntimeError(f"git {' '.join(args)} failed:\n{r.stderr.strip()}")
     return r.stdout.strip()
 
 
+def ensure_worktree() -> Path:
+    """Ensure WORKTREE_PATH exists as a git worktree rooted at main."""
+    if (WORKTREE_PATH / ".git").exists():
+        return WORKTREE_PATH
+    WORKTREE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    git("worktree", "add", str(WORKTREE_PATH), "main")
+    return WORKTREE_PATH
+
+
+def _fetch_all_repos():
+    """Refresh remote refs for git show without checking out branches."""
+    git("fetch", "--all", check=False)
+
+
 def is_claude_running() -> bool:
     """Return True if a claude process is already running on the VM."""
-    r = subprocess.run(["pgrep", "-f", "claude.*--dangerously"], capture_output=True)
-    return r.returncode == 0
+    for pattern in (r"claude.*--dangerously", r"claude.*-p", r"run_claude_code\.py"):
+        r = subprocess.run(["pgrep", "-f", pattern], capture_output=True)
+        if r.returncode == 0:
+            return True
+    return False
 
 
 # ── resolution engine ─────────────────────────────────────────────────────────
 
 RESOLUTION_PROMPT_TEMPLATE = """\
 You are the KB pipeline bot resolving a PR review comment on the repository at
-/home/ubuntu/kb_generation. The branch {branch} is already checked out and
-up to date. Do NOT switch branches. Do NOT open PRs. Do NOT merge anything.
+{worktree_path}. The branch {branch} is already checked out in this worktree
+and up to date. The serving copy at {repo_path} stays on main — do NOT touch it.
+Do NOT switch branches. Do NOT open PRs. Do NOT merge anything.
 
 ## Comment details
 
@@ -431,6 +472,7 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
     body = comment["body"]
 
     prompt = RESOLUTION_PROMPT_TEMPLATE.format(
+        worktree_path=WORKTREE_PATH, repo_path=REPO_PATH,
         branch=branch, pr_number=pr_number, path=path, line=line, body=body,
         step_timeout=STEP_TIMEOUT_SECS, task_timeout=TASK_TIMEOUT_SECS,
         tool_timeout=TOOL_TIMEOUT_SECS,
@@ -486,7 +528,7 @@ def resolve_comment(pr_number: int, branch: str, comment: dict) -> tuple[str, st
             stdout=slave_fd,
             stderr=slave_fd,
             stdin=subprocess.DEVNULL,
-            env=claude_env, cwd=str(REPO_PATH),
+            env=claude_env, cwd=str(WORKTREE_PATH),
             preexec_fn=os.setpgrp, # new process group for killpg
             close_fds=True,
         )
@@ -821,7 +863,8 @@ def post_preview_link(pr_number: int, branch: str, state: dict):
 # ── next-article trigger ──────────────────────────────────────────────────────
 
 NEXT_ARTICLE_HANDOFF = """\
-You are VM-Claude on /home/ubuntu/kb_generation (guyhizkiau/kb_generation, main branch).
+You are VM-Claude on {worktree_path} (guyhizkiau/kb_generation).
+The serving copy at {repo_path} stays on main — do all work in this worktree.
 Your task: write the next KB article in the pipeline, following WORKFLOW.md exactly.
 
 Read WORKFLOW.md fully before starting. It is the authoritative spec.
@@ -984,7 +1027,11 @@ def _launch_next_article(slug: str, title: str, num: int, cluster: str, state: d
 
     log(f"  Triggering next article: {slug} — {title}")
 
-    handoff = NEXT_ARTICLE_HANDOFF.format(slug=slug, title=title, num=num, cluster=cluster)
+    ensure_worktree()
+    handoff = NEXT_ARTICLE_HANDOFF.format(
+        worktree_path=WORKTREE_PATH, repo_path=REPO_PATH,
+        slug=slug, title=title, num=num, cluster=cluster,
+    )
     handoff_path = Path("/home/ubuntu/next-article-handoff.md")
     handoff_path.write_text(handoff)
 
@@ -993,7 +1040,7 @@ def _launch_next_article(slug: str, title: str, num: int, cluster: str, state: d
         "export HOME=/home/ubuntu\n"
         'export PATH="/home/ubuntu/.local/bin:/usr/local/bin:/usr/bin:/bin"\n'
         "set -a; source /home/ubuntu/.config/specterx-kb/.env; set +a\n"
-        "cd /home/ubuntu/kb_generation\n"
+        f"cd {WORKTREE_PATH}\n"
         "sudo -u ubuntu git checkout main\n"
         "sudo -u ubuntu git pull origin main\n"
         "PROMPT=$(cat /home/ubuntu/next-article-handoff.md)\n"
@@ -1018,15 +1065,81 @@ def _launch_next_article(slug: str, title: str, num: int, cluster: str, state: d
     return True
 
 
+# ── phase auto-advancement ────────────────────────────────────────────────────
+#
+# Rules checked on every poll for each open article PR:
+#
+#   TESTING   + draft-1.md   present, test-plan.json absent  → test-plan
+#   REVISING  + test-notes.md present, draft-2.md absent     → revise-from-test
+#   FINALIZING+ draft-2.md   present, final.md absent        → voice-pass
+#
+# Each rule fires at most once per article per phase (deduped via state
+# ["handled"] key "phase-auto-{slug}-{phase}").  If Claude is already
+# running the launch is deferred to the next poll.
+
+_PHASE_AUTO_RULES: list[tuple[str, str, str, str]] = [
+    # (required_STATE_phase, must_exist, must_not_exist, phase_to_launch)
+    ("TESTING",    "draft-1.md",    "test-plan.json", "test-plan"),
+    ("REVISING",   "test-notes.md", "draft-2.md",     "revise-from-test"),
+    ("FINALIZING", "draft-2.md",    "final.md",        "voice-pass"),
+]
+
+
+def _maybe_advance_phase(branch: str, state: dict) -> None:
+    """Auto-launch the next pipeline phase for an article branch if warranted."""
+    if not branch.startswith("article/"):
+        return
+    slug = branch[len("article/"):]
+
+    article_dir = WORKTREE_PATH / "articles" / slug
+    state_path = article_dir / "STATE"
+    if not state_path.exists():
+        return
+
+    fields: dict[str, str] = {}
+    for line in state_path.read_text().splitlines():
+        if "=" in line:
+            k, _, v = line.partition("=")
+            fields[k.strip()] = v.strip()
+
+    current_phase = fields.get("PHASE", "")
+
+    for req_phase, req_file, blocking_file, next_phase in _PHASE_AUTO_RULES:
+        if current_phase != req_phase:
+            continue
+        if not (article_dir / req_file).exists():
+            continue
+        if (article_dir / blocking_file).exists():
+            continue
+
+        trigger_key = f"phase-auto-{slug}-{next_phase}"
+        if trigger_key in state["handled"]:
+            continue  # already launched this phase for this article
+
+        if is_claude_running():
+            log(f"  [{slug}] Auto-advance to {next_phase} deferred — Claude busy")
+            return  # retry next poll
+
+        log(f"  [{slug}] Auto-advancing: STATE={req_phase} → launching phase {next_phase}")
+        _launch_phase(slug, next_phase)
+        state["handled"].append(trigger_key)
+        save_state(state)
+        return  # one phase at a time; re-evaluate on next poll
+
+
 def _launch_phase(slug: str, phase: str):
     """Launch a specific pipeline phase for an article (detached)."""
+    ensure_worktree()
     launcher = (
         "#!/bin/bash\n"
         "export HOME=/home/ubuntu\n"
         'export PATH="/home/ubuntu/.local/bin:/usr/local/bin:/usr/bin:/bin"\n'
         "set -a; source /home/ubuntu/.config/specterx-kb/.env; set +a\n"
-        "cd /home/ubuntu/kb_generation\n"
-        f"/usr/local/bin/python3 writer/run_claude_code.py"
+        f"cd {WORKTREE_PATH}\n"
+        f"sudo -u ubuntu git checkout article/{slug} 2>/dev/null || "
+        f"sudo -u ubuntu git checkout -b article/{slug}\n"
+        f"sudo -u ubuntu git pull origin article/{slug} 2>/dev/null || true\n"
+        f"/opt/specterx-kb-venv/bin/python3 writer/run_claude_code.py"
         f" --article {slug} --phase {phase}"
         f" >> /home/ubuntu/{slug}-{phase}.log 2>&1\n"
         f'echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] phase {phase} exited $?"'
@@ -1066,8 +1179,8 @@ def _handle_trigger(data: dict) -> dict:
         return {"ok": True, "reason": reason}
 
     if reason == "feedback":
-        state_path = _qs.article_state_path(slug)
-        if not state_path.exists():
+        fields = _qs.article_state_fields(slug)
+        if not fields:
             return {"ok": False, "error": f"no STATE file for {slug}"}
 
         annotations: list = []
@@ -1090,11 +1203,14 @@ def _handle_trigger(data: dict) -> dict:
             except Exception as exc:
                 log(f"  WARNING: could not fetch issue {issue} annotations: {exc}")
 
-        feedback_path = REPO_PATH / "articles" / slug / "feedback.json"
-        feedback_path.parent.mkdir(parents=True, exist_ok=True)
-        feedback_path.write_text(json.dumps(annotations, indent=2))
+        _fb.write_feedback(slug, annotations)
 
-        fields = _qs.read_state_fields(state_path)
+        ensure_worktree()
+        branch = f"article/{slug}"
+        git_worktree("checkout", branch, check=False)
+        git_worktree("pull", "origin", branch, check=False)
+
+        state_path = WORKTREE_PATH / "articles" / slug / "STATE"
         try:
             rc = int(fields.get("REVISION_CYCLE", "0"))
         except ValueError:
@@ -1117,6 +1233,36 @@ def _handle_trigger(data: dict) -> dict:
                 "revision_cycle": rc + 1}
 
     return {"ok": False, "error": f"unknown reason '{reason}'"}
+
+
+def _handle_merge(data: dict) -> dict:
+    """Merge the open article PR for *slug* and refresh the serving tree."""
+    if not _ghq:
+        return {"ok": False, "error": "gh_queue not available"}
+    slug = (data.get("slug") or "").strip()
+    pr_number = data.get("pr_number")
+    if pr_number is not None:
+        pr_number = int(pr_number)
+    result = _ghq.merge_article_pr(slug, pr_number=pr_number, repo=REPO)
+    if not result.get("ok"):
+        return result
+
+    log(f"  Ghostwriter merged PR#{result['pr_number']} for {slug}")
+    try:
+        git("pull", "origin", "main", check=False)
+        ensure_worktree()
+        git_worktree("checkout", "main", check=False)
+        git_worktree("pull", "origin", "main", check=False)
+    except Exception as exc:
+        log(f"  WARNING: post-merge git pull failed: {exc}")
+
+    state = load_state()
+    try:
+        check_merged_prs(state)
+    except Exception as exc:
+        log(f"  WARNING: post-merge check_merged_prs failed: {exc}")
+    _poll_now.set()
+    return result
 
 
 def reply_issue_to_anyone(body: str):
@@ -1159,10 +1305,12 @@ def check_merged_prs(state: dict):
         state["handled"].append(merge_key)
         save_state(state)
 
-        # Switch back to main after the merge
+        # Refresh serving tree (main) and reset worktree after merge
         try:
-            git("checkout", "main", check=False)
             git("pull", "origin", "main", check=False)
+            ensure_worktree()
+            git_worktree("checkout", "main", check=False)
+            git_worktree("pull", "origin", "main", check=False)
         except Exception:
             pass
 
@@ -1188,13 +1336,15 @@ def process_pr(pr_number: int, branch: str, state: dict):
     log(f"  Checking PR#{pr_number} (branch: {branch})")
 
     try:
-        git("checkout", branch)
-        git("pull", "origin", branch)
+        ensure_worktree()
+        git_worktree("checkout", branch)
+        git_worktree("pull", "origin", branch)
     except RuntimeError as exc:
-        log(f"  ERROR checking out {branch}: {exc}")
+        log(f"  ERROR checking out {branch} in worktree: {exc}")
         return
 
     post_preview_link(pr_number, branch, state)
+    _maybe_advance_phase(branch, state)
 
     # ── inline review comments ────────────────────────────────────────────
     try:
@@ -1220,7 +1370,7 @@ def process_pr(pr_number: int, branch: str, state: dict):
         log(f"    Status: {status}  Context: {context[:80]}")
 
         try:
-            sha = git("rev-parse", "--short", "HEAD")
+            sha = git_worktree("rev-parse", "--short", "HEAD")
         except Exception:
             sha = "unknown"
 
@@ -1263,7 +1413,7 @@ def process_pr(pr_number: int, branch: str, state: dict):
         log(f"    Status: {status}  Context: {context[:80]}")
 
         try:
-            sha = git("rev-parse", "--short", "HEAD")
+            sha = git_worktree("rev-parse", "--short", "HEAD")
         except Exception:
             sha = "unknown"
 
@@ -1287,28 +1437,20 @@ def _request_origin(handler: BaseHTTPRequestHandler) -> str:
 
 
 def _article_preview_html(slug: str, origin: str) -> tuple[int, str]:
-    return load_preview_html(REPO_PATH, slug, origin)
+    return resolve_preview_html(REPO_PATH, slug, origin)
 
 
 def _append_feedback(slug: str, payload: dict) -> dict:
     if not slug:
         return {"ok": False, "error": "slug required"}
     ann = {k: v for k, v in payload.items() if k != "slug"}
-    ann_id = ann.get("id")
-    if not ann_id:
-        return {"ok": False, "error": "annotation id required"}
-    fb_dir = REPO_PATH / "articles" / slug
-    fb_dir.mkdir(parents=True, exist_ok=True)
-    fb_path = fb_dir / "feedback.json"
-    if fb_path.exists():
-        annotations = json.loads(fb_path.read_text(encoding="utf-8"))
-    else:
-        annotations = []
-    if any(a.get("id") == ann_id for a in annotations):
-        return {"ok": True, "annotation": ann, "deduped": True}
-    annotations.append(ann)
-    fb_path.write_text(json.dumps(annotations, indent=2) + "\n", encoding="utf-8")
-    return {"ok": True, "annotation": ann}
+    return _fb.append_feedback(slug, ann)
+
+
+def _remove_feedback(slug: str, ann_id: str) -> dict:
+    if not slug:
+        return {"ok": False, "error": "slug required"}
+    return _fb.remove_feedback(slug, ann_id)
 
 
 class _ControlHandler(BaseHTTPRequestHandler):
@@ -1332,6 +1474,9 @@ class _ControlHandler(BaseHTTPRequestHandler):
                 return
             try:
                 data = _qs.queue_with_states()
+                if _ghq:
+                    data = _ghq.enrich_queue_with_open_prs(data, repo=REPO)
+                data["claude_running"] = is_claude_running()
                 self._respond(200, json.dumps(data))
             except FileNotFoundError:
                 self._respond(404, json.dumps({"error": "clusters/queue.json not found"}))
@@ -1342,11 +1487,7 @@ class _ControlHandler(BaseHTTPRequestHandler):
             if not slug:
                 self._respond(400, json.dumps({"error": "slug required"}))
                 return
-            fb_path = REPO_PATH / "articles" / slug / "feedback.json"
-            if fb_path.exists():
-                annotations = json.loads(fb_path.read_text(encoding="utf-8"))
-            else:
-                annotations = []
+            annotations = _fb.read_feedback(slug)
             self._respond(200, json.dumps({"slug": slug, "annotations": annotations}))
         elif path.startswith("/api/articles/") and path.endswith("/preview"):
             slug = path[len("/api/articles/"):-len("/preview")]
@@ -1411,6 +1552,14 @@ class _ControlHandler(BaseHTTPRequestHandler):
                 self._respond(code, json.dumps(result))
             except Exception as exc:
                 self._respond(400, json.dumps({"error": str(exc)}))
+        elif path == "/api/queue/merge":
+            try:
+                data = self._read_json()
+                result = _handle_merge(data)
+                code = 200 if result.get("ok") else 400
+                self._respond(code, json.dumps(result))
+            except Exception as exc:
+                self._respond(400, json.dumps({"error": str(exc)}))
         elif path == "/api/feedback":
             try:
                 data = self._read_json()
@@ -1423,6 +1572,26 @@ class _ControlHandler(BaseHTTPRequestHandler):
         else:
             self._respond(404, json.dumps({"error": "not found"}))
 
+    def do_DELETE(self):
+        path, qs = self._route()
+        if path == "/api/feedback":
+            slug = qs.get("slug", [""])[0]
+            ann_id = qs.get("id", [""])[0]
+            if not slug:
+                self._respond(400, json.dumps({"error": "slug required"}))
+                return
+            if not ann_id:
+                self._respond(400, json.dumps({"error": "id required"}))
+                return
+            result = _remove_feedback(slug, ann_id)
+            if not result.get("ok"):
+                code = 404 if result.get("error") == "annotation not found" else 400
+                self._respond(code, json.dumps(result))
+                return
+            self._respond(200, json.dumps(result))
+        else:
+            self._respond(404, json.dumps({"error": "not found"}))
+
     def do_OPTIONS(self):
         self.send_response(204)
         self._cors_headers()
@@ -1430,7 +1599,7 @@ class _ControlHandler(BaseHTTPRequestHandler):
 
     def _cors_headers(self):
         self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "GET, PUT, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
 
     def _respond(self, code, body):
@@ -1452,10 +1621,26 @@ class _ControlHandler(BaseHTTPRequestHandler):
         self.wfile.write(data)
 
 
+def _start_fetch_thread(interval: int = 60):
+    """Background git fetch so branch refs stay fresh for git show serving."""
+
+    def _loop():
+        while True:
+            try:
+                _fetch_all_repos()
+            except Exception as exc:
+                log(f"Background fetch failed: {exc}")
+            time.sleep(interval)
+
+    t = threading.Thread(target=_loop, daemon=True, name="git-fetch")
+    t.start()
+
+
 def _start_control_server():
     srv = HTTPServer(("127.0.0.1", CONTROL_PORT), _ControlHandler)
     t = threading.Thread(target=srv.serve_forever, daemon=True, name="control-http")
     t.start()
+    _start_fetch_thread()
     log(f"Control plane listening on 127.0.0.1:{CONTROL_PORT}")
 
 

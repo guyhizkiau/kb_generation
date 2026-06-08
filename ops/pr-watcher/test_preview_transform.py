@@ -1,6 +1,7 @@
 """Unit tests for preview HTML transform."""
 from __future__ import annotations
 
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -8,6 +9,7 @@ from pathlib import Path
 from preview_transform import (
     ensure_article_html,
     load_preview_html,
+    load_preview_html_from_ref,
     patch_article_preview_html,
 )
 
@@ -62,6 +64,46 @@ class PreviewTransformTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             self.assertIsNone(ensure_article_html(root, "99-nope"))
+
+    def test_load_preview_html_from_ref(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            slug = "01-test"
+            art = root / "articles" / slug
+            art.mkdir(parents=True)
+            (art / f"{slug}.html").write_text(
+                "<html><head></head><body><main>from ref</main></body></html>"
+            )
+            import subprocess
+            subprocess.run(["git", "init"], cwd=root, capture_output=True, check=True)
+            subprocess.run(["git", "config", "user.email", "t@test"], cwd=root, check=True)
+            subprocess.run(["git", "config", "user.name", "t"], cwd=root, check=True)
+            subprocess.run(["git", "add", "-A"], cwd=root, capture_output=True, check=True)
+            subprocess.run(["git", "commit", "-m", "html"], cwd=root, capture_output=True, check=True)
+            branch = f"article/{slug}"
+            subprocess.run(["git", "branch", branch], cwd=root, check=True)
+            code, html = load_preview_html_from_ref(root, slug, "http://127.0.0.1:8767", branch)
+            self.assertEqual(code, 200)
+            self.assertIn("from ref", html)
+            self.assertIn("ghostwriter-annotate.js", html)
+
+    def test_load_preview_html_from_ref_renders_draft(self):
+        repo_root = Path(__file__).resolve().parent.parent.parent
+        slug = "04-share-a-file"
+        ref = "origin/article/04-share-a-file"
+        check = subprocess.run(
+            ["git", "rev-parse", "--verify", ref],
+            cwd=repo_root,
+            capture_output=True,
+        )
+        if check.returncode != 0:
+            self.skipTest(f"{ref} not available locally")
+        code, html = load_preview_html_from_ref(
+            repo_root, slug, "http://127.0.0.1:8767", ref,
+        )
+        self.assertEqual(code, 200)
+        self.assertIn("Securely share a file", html)
+        self.assertIn("ghostwriter-annotate.js", html)
 
 
 if __name__ == "__main__":

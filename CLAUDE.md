@@ -99,3 +99,9 @@ operational runbook — including how the daemon talks to Claude (PTY +
 `--output-format stream-json`), the three timeout dials, the
 dashboard at `http://18.192.122.48/status/`, and the deploy procedure
 via AWS SSM.
+
+Ghostwriter reviewer annotations live in the branch-independent feedback
+store (`.ghostwriter/feedback/<slug>.json` locally;
+`/home/ubuntu/ghostwriter-feedback/<slug>.json` on the VM) — not in
+`articles/<slug>/feedback.json`. The serving tree stays on `main`; each
+in-progress article is read from its `article/<slug>` branch by git ref.
