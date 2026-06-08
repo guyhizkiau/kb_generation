@@ -272,7 +272,18 @@ class BrowserRunner:
                         raise FileNotFoundError(f"test fixture folder is empty: {folder_path}")
                     target.set_input_files(files, timeout=timeout)
             else:
-                target.set_input_files(self._resolve_upload_files(action), timeout=timeout)
+                files = self._resolve_upload_files(action)
+                try:
+                    target.set_input_files(files, timeout=timeout)
+                except Exception as e:
+                    if "[webkitdirectory]" in str(e):
+                        # Playwright refuses to set individual files on webkitdirectory
+                        # inputs. Temporarily remove the attribute so set_input_files
+                        # succeeds; the app's onChange handler fires as normal.
+                        target.evaluate("el => el.removeAttribute('webkitdirectory')")
+                        target.set_input_files(files, timeout=timeout)
+                    else:
+                        raise
         elif kind == "clear":
             self._locate(action, timeout=timeout).clear(timeout=timeout)
         elif kind == "hover":
