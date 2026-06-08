@@ -392,8 +392,27 @@ class BrowserRunner:
     def _capture(self, step_id: str, spec: dict[str, Any]) -> str:
         filename = spec.get("filename") or f"{step_id}-after.png"
         out = self.screenshots_dir / filename
+        # Always wait 3 s before capturing so animations and lazy-loading settle
+        self.page.wait_for_timeout(3000)
         try:
-            self.page.screenshot(path=str(out), full_page=bool(spec.get("full_page", False)))
+            element_selector = spec.get("element")
+            if element_selector:
+                # Close-up of a specific element with padding for context
+                loc = self.page.locator(element_selector).first
+                bbox = loc.bounding_box()
+                if bbox:
+                    pad_x, pad_y = 60, 30
+                    clip = {
+                        "x": max(0.0, bbox["x"] - pad_x),
+                        "y": max(0.0, bbox["y"] - pad_y),
+                        "width": bbox["width"] + pad_x * 2,
+                        "height": bbox["height"] + pad_y * 2,
+                    }
+                    self.page.screenshot(path=str(out), clip=clip)
+                else:
+                    loc.screenshot(path=str(out))
+            else:
+                self.page.screenshot(path=str(out), full_page=bool(spec.get("full_page", False)))
         except Exception as exc:
             log.warning("screenshot failed for step %s: %s", step_id, exc)
             return ""

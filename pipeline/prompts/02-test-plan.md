@@ -201,18 +201,61 @@ strips the attribute and retries. Always use
 The visible text "Choose a file or drag it here" is in a `div`, not the `input` — do not
 use `selector_hint` for file uploads.
 
-**Policy step note**: After clicking Next, `applyRules` runs asynchronously. If any rule
-auto-assigns a policy to the uploaded file, the "Choose Policy" section is hidden and
-`[data-testid='uploadDrawer_policyDropdown']` never appears. Add a
+**Policy step note**: After clicking Next, `applyRules` runs asynchronously. Add a
 `{"type": "wait_for", "selector": "[data-testid='uploadDrawer_shareButton']", "state": "visible", "timeout_ms": 30000}`
-step after Next to wait for rules to finish loading before interacting with the policy step.
-The Share button (`uploadDrawer_shareButton`) appears once rules complete regardless of
-whether a policy was auto-assigned.
+step immediately after Next with `"screenshot": {"after": true, "filename": "04-policy-step.png"}` —
+this waits for rules to complete AND captures the policy step. The Share button appears once rules
+complete. After waiting, interact with the policy dropdown: the `PolicySelect` combobox has
+`role="combobox"` (no `data-testid`); click it and then click the desired option in the portal
+dropdown using `.ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option-content:has-text('Default')`.
+
+**Policy step interaction pattern** (3 steps after the Next click):
+```json
+{"id": "04a-wait-policy-loaded", "description": "Wait for rules to finish, capture policy step", "backend": "browser",
+ "action": {"type": "wait_for", "selector": "[data-testid='uploadDrawer_shareButton']", "state": "visible"},
+ "screenshot": {"after": true, "filename": "04-policy-step.png", "focus": "The policy step with assigned/available policy"},
+ "verify": "Share button is visible", "timeout_ms": 30000},
+{"id": "05-open-policy-dropdown", "description": "Click the policy dropdown to open it", "backend": "browser",
+ "action": {"type": "click", "role": "combobox"},
+ "screenshot": {"after": true, "filename": "05-policy-dropdown-open.png", "focus": "Policy dropdown open with options"},
+ "verify": "Policy dropdown is open"},
+{"id": "06-select-default-policy", "description": "Select the Default policy", "backend": "browser",
+ "action": {"type": "click", "selector": ".ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option-content:has-text('Default')"},
+ "screenshot": {"after": true, "filename": "06-policy-selected.png", "focus": "Policy step with Default policy selected"},
+ "verify": "Default policy is selected"}
+```
 
 **Before writing any test-plan step that interacts with a SpecterX UI element**, grep the
 codebase first:
 ```bash
 grep -rn 'data-testid\|aria-label\|placeholder' ~/specterx-codebase/web-client/src/ | grep -i '<relevant-keyword>'
+```
+
+## Screenshot spec fields
+
+The `screenshot` object supports these fields:
+
+- `"after": true/false` — whether to take a screenshot after this step (required).
+- `"filename": "name.png"` — output filename under `screenshots/`.
+- `"focus": "…"` — human-readable description of what to check (for logs/report).
+- `"full_page": true` — capture the full scrollable page height (default: false).
+- `"element": "css-selector"` — take a **close-up** of the matched element with ~60px
+  horizontal and ~30px vertical padding. Use this when the article text tells the user
+  to click or notice a specific UI element — show them **what to click**, cropped tightly
+  around it, before the instruction.
+
+**Rule**: whenever a step asks the user to click or interact with a specific element (a
+button, icon, link), the screenshot for that step must use `"element"` so the reader sees
+a close-up of that element. The next step (after the click) can show the full result.
+
+Example — screenshot the share icon before instructing the user to click it:
+```json
+{"id": "09a-share-icon-close-up", "backend": "browser",
+ "action": {"type": "wait_for", "selector": "[data-testid='myFiles_WhoHasAccess']", "state": "visible"},
+ "screenshot": {"after": true, "filename": "09-share-icon.png",
+                "element": "[data-testid='myFiles_WhoHasAccess']",
+                "focus": "The share icon on the file row — close-up"},
+ "verify": "Share icon is visible on the file row"}
 ```
 
 ## Rules
