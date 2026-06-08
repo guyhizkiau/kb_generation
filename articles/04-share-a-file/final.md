@@ -59,13 +59,17 @@ A Contributor or Co-owner can't override the policy: if the policy blocks downlo
 
 ### 5. Continue to the policy step
 
-Click **Next** at the bottom of the drawer to move to the **Select Policy** step.
+Click **Next** at the bottom of the drawer. SpecterX checks your organisation's auto-protection rules before presenting policy options — the drawer shows **Setting up secure sharing** briefly while this runs.
 
-![The Select Policy step after clicking Next](screenshots/04-policy-step.png)
+![The Setting up secure sharing screen while SpecterX applies your organisation's auto-protection rules](screenshots/04-policy-step.png)
+
+When the check finishes, the **Select Policy** step appears.
 
 ### 6. Pick a security policy
 
 From the **Choose Policy** dropdown, pick the policy that matches the sensitivity of the file. Your administrator defines the available policies; the dropdown shows only those allowed for your account.
+
+![The Choose Policy dropdown open, showing available policies](screenshots/05-policy-dropdown-open.png)
 
 If a Platform Governance Rule applies to this share, the policy is already chosen and the heading reads **Choose or Review Policy** instead. You can review the assigned policy but you can't change it.
 
@@ -96,17 +100,21 @@ To send the link through another channel (a chat message, a calendar invite), cl
 
 ![The copy-link icon in the recipient row of the Confirm step](screenshots/08-link-copied.png)
 
-## After you share: the Share & Permissions Drawer
+## After you share: the Share & Permissions panel
 
-To check who has access to a file you've already shared, or to change something after the share is live, open the **Share & Permissions Drawer** from **My Files**.
+To check who has access to a file you've already shared, or to change something after the share is live, use the **Share & Permissions** panel from **My Files**.
 
-1. In **My Files**, click the share icon on the file's row. The drawer opens on the right with the heading **Who has access**.
+1. In **My Files**, find the file you shared. Each row has action icons at the right edge — look for the outward-pointing arrow (the share icon).
 
-![My Files showing the file row with the share icon](screenshots/09-my-files-after-share.png)
+![The share icon on the file row — click it to open the sharing panel](screenshots/09-share-icon.png)
 
-![The Share and Permissions drawer showing Who has access](screenshots/10-permissions-drawer.png)
+   Click the share icon. The **Share with** panel opens in the centre of the page, showing the current share link and a **Who has access** option at the top right.
 
-2. From the drawer you can:
+![The Share with panel showing the active share link and the Who has access option](screenshots/10-permissions-drawer.png)
+
+   Click **Who has access** at the top of the panel to see all recipients and their current access level.
+
+2. From the **Who has access** view you can:
 
    - Change a recipient's role from the dropdown next to their email address.
    - Add a new recipient under **Add New Recipients**.
