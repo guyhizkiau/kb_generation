@@ -218,6 +218,87 @@ class ControlApiTests(unittest.TestCase):
             self.assertIn("branch preview", body)
             self.assertIn("ghostwriter-annotate.js", body)
 
+    def _restore_queue(self):
+        original = json.loads((self.root / "clusters" / "queue.json").read_text())
+
+        def restore():
+            (self.root / "clusters" / "queue.json").write_text(json.dumps(original))
+
+        self.addCleanup(restore)
+
+    def test_delete_article_non_merged_keeps_plan(self):
+        self._restore_queue()
+        import feedback_store as fb
+        slug = "02-set-or-reset-password"
+        fb.write_feedback(slug, [{"id": "x1"}])
+        self.assertTrue(fb.feedback_path(slug).exists())
+        with mock.patch.object(self.pw._ghq, "close_article_pr",
+                               return_value={"ok": True, "pr_number": None}) as close, \
+             mock.patch.object(self.pw, "git") as git, \
+             mock.patch.object(self.pw, "git_worktree"):
+            code, payload, _ = self._req("DELETE", f"/api/articles/{slug}")
+        self.assertEqual(code, 200)
+        self.assertTrue(payload["ok"])
+        self.assertFalse(payload["merged"])
+        self.assertFalse(payload["removed_from_plan"])
+        close.assert_called_once()
+        q = json.loads((self.root / "clusters" / "queue.json").read_text())
+        slugs = [a["slug"] for c in q["clusters"] for a in c["articles"]]
+        self.assertIn(slug, slugs)
+        # Prunes the stale remote-tracking ref so phase stops resolving from it.
+        called = [c.args for c in git.call_args_list]
+        self.assertIn(("branch", "-rd", f"origin/article/{slug}"), called)
+        # Removes the branch-independent annotation store.
+        self.assertFalse(fb.feedback_path(slug).exists())
+
+    def test_delete_article_remove_from_plan(self):
+        self._restore_queue()
+        slug = "02-set-or-reset-password"
+        with mock.patch.object(self.pw._ghq, "close_article_pr",
+                               return_value={"ok": True, "pr_number": None}), \
+             mock.patch.object(self.pw, "git"), \
+             mock.patch.object(self.pw, "git_worktree"):
+            code, payload, _ = self._req(
+                "DELETE", f"/api/articles/{slug}?remove_from_plan=true",
+            )
+        self.assertEqual(code, 200)
+        self.assertTrue(payload["removed_from_plan"])
+        q = json.loads((self.root / "clusters" / "queue.json").read_text())
+        slugs = [a["slug"] for c in q["clusters"] for a in c["articles"]]
+        self.assertNotIn(slug, slugs)
+
+    def test_delete_merged_article_commits_to_main(self):
+        self._restore_queue()
+        slug = "01-log-in-to-specterx"
+        art_dir = self.root / "articles" / slug
+        state = (art_dir / "STATE").read_text()
+
+        def restore_dir():
+            art_dir.mkdir(parents=True, exist_ok=True)
+            (art_dir / "STATE").write_text(state)
+
+        self.addCleanup(restore_dir)
+
+        with mock.patch.object(self.pw._ghq, "close_article_pr",
+                               return_value={"ok": True, "pr_number": 5}), \
+             mock.patch.object(self.pw, "git") as git, \
+             mock.patch.object(self.pw, "git_worktree"):
+            code, payload, _ = self._req("DELETE", f"/api/articles/{slug}")
+        self.assertEqual(code, 200)
+        self.assertTrue(payload["merged"])
+        self.assertTrue(payload["pushed"])
+        called = [c.args for c in git.call_args_list]
+        self.assertTrue(any(a[:1] == ("rm",) for a in called), called)
+        self.assertTrue(any(a[:1] == ("commit",) for a in called), called)
+        self.assertIn(("push", "origin", "main"), called)
+        self.assertFalse(art_dir.exists())
+
+    def test_delete_article_invalid_slug(self):
+        with mock.patch.object(self.pw, "git"):
+            code, payload, _ = self._req("DELETE", "/api/articles/bad_slug")
+        self.assertEqual(code, 400)
+        self.assertFalse(payload["ok"])
+
     def test_poll_now_and_retry_regression(self):
         code, payload, _ = self._req("POST", "/poll-now")
         self.assertEqual(code, 200)

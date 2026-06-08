@@ -49,12 +49,16 @@ vi.mock('@/api/hooks', async (importOriginal) => {
     useQueue: vi.fn(),
     useSaveQueue: vi.fn(),
     useTrigger: vi.fn(),
+    useMergeArticle: vi.fn(),
+    useDeleteArticle: vi.fn(),
   }
 })
 
 describe('ArticlesView', () => {
   const mutateSave = vi.fn()
   const mutateTrigger = vi.fn()
+  const mutateMerge = vi.fn()
+  const mutateDelete = vi.fn()
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -71,6 +75,14 @@ describe('ArticlesView', () => {
       mutate: mutateTrigger,
       isPending: false,
     } as unknown as ReturnType<typeof hooks.useTrigger>)
+    vi.mocked(hooks.useMergeArticle).mockReturnValue({
+      mutate: mutateMerge,
+      isPending: false,
+    } as unknown as ReturnType<typeof hooks.useMergeArticle>)
+    vi.mocked(hooks.useDeleteArticle).mockReturnValue({
+      mutate: mutateDelete,
+      isPending: false,
+    } as unknown as ReturnType<typeof hooks.useDeleteArticle>)
   })
 
   it('shows review section and planning section separately', () => {
@@ -104,6 +116,39 @@ describe('ArticlesView', () => {
     expect(removeBtn).not.toBeDisabled()
     await userEvent.click(removeBtn)
     expect(screen.getAllByText('UNSAVED')[0]).toBeInTheDocument()
+  })
+
+  it('written-row delete opens two-option modal gated on typing delete', async () => {
+    renderWithProviders(<ArticlesView />)
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Delete 01-log-in-to-specterx' }),
+    )
+    expect(await screen.findByTestId('delete-confirm-input')).toBeInTheDocument()
+    const deleteOnly = screen.getByRole('button', { name: 'Delete article' })
+    const deleteAndPlan = screen.getByRole('button', { name: 'Delete & remove from plan' })
+    expect(deleteOnly).toBeDisabled()
+    expect(deleteAndPlan).toBeDisabled()
+    await userEvent.type(screen.getByTestId('delete-confirm-input'), 'delete')
+    expect(deleteOnly).not.toBeDisabled()
+    expect(deleteAndPlan).not.toBeDisabled()
+    await userEvent.click(deleteOnly)
+    expect(mutateDelete).toHaveBeenCalledWith(
+      { slug: '01-log-in-to-specterx', removeFromPlan: false },
+      expect.any(Object),
+    )
+  })
+
+  it('written-row delete with remove-from-plan passes removeFromPlan true', async () => {
+    renderWithProviders(<ArticlesView />)
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Delete 01-log-in-to-specterx' }),
+    )
+    await userEvent.type(await screen.findByTestId('delete-confirm-input'), 'delete')
+    await userEvent.click(screen.getByRole('button', { name: 'Delete & remove from plan' }))
+    expect(mutateDelete).toHaveBeenCalledWith(
+      { slug: '01-log-in-to-specterx', removeFromPlan: true },
+      expect.any(Object),
+    )
   })
 
   it('Write next triggers manual POST from planning section', async () => {

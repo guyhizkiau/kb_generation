@@ -1265,6 +1265,93 @@ def _handle_merge(data: dict) -> dict:
     return result
 
 
+def _handle_delete_article(slug: str, remove_from_plan: bool) -> dict:
+    """Delete an article's files, branch, and PR. Optionally drop it from the queue.
+
+    For a merged article (STATE lives on main) the deletion is committed and
+    pushed to main so the daemon's git pulls don't resurrect it — a deliberate,
+    user-approved override of the "never commit to main" rule, scoped to this
+    explicit admin deletion.
+    """
+    if not _QUEUE_STORE_AVAILABLE:
+        return {"ok": False, "error": "queue_store not available"}
+    slug = (slug or "").strip()
+    if not _qs.SLUG_RE.match(slug):
+        return {"ok": False, "error": f"invalid slug '{slug}'"}
+
+    merged = False
+    try:
+        merged = _qs.article_is_merged(slug)
+    except Exception as exc:
+        log(f"  WARNING: could not determine merged state for {slug}: {exc}")
+
+    # Close the open PR and delete its remote branch (best-effort).
+    if _ghq:
+        try:
+            res = _ghq.close_article_pr(slug, repo=REPO)
+            if not res.get("ok"):
+                log(f"  WARNING: close PR for {slug} failed: {res.get('error')}")
+        except Exception as exc:
+            log(f"  WARNING: close_article_pr({slug}) raised: {exc}")
+
+    # Delete local branch (best-effort) in both serving tree and worktree.
+    git("branch", "-D", f"article/{slug}", check=False)
+    try:
+        git_worktree("branch", "-D", f"article/{slug}", check=False)
+    except Exception as exc:
+        log(f"  WARNING: worktree branch delete for {slug} failed: {exc}")
+    # Drop the stale remote-tracking ref so phase no longer resolves from it.
+    git("branch", "-rd", f"origin/article/{slug}", check=False)
+
+    pushed = False
+    push_failed = False
+    push_error = ""
+    if merged:
+        # Durable removal on main: git rm + commit + push.
+        git("rm", "-r", "--quiet", f"articles/{slug}", check=False)
+        _qs.delete_article_dir(slug)
+        git("commit", "-m", f"chore(article): delete {slug}", check=False)
+        try:
+            git("push", "origin", "main")
+            pushed = True
+        except Exception as exc:
+            push_failed = True
+            push_error = str(exc)
+            log(f"  WARNING: push of {slug} deletion to main failed: {exc}")
+    else:
+        _qs.delete_article_dir(slug)
+
+    # Drop the branch-independent annotation store for this article.
+    if _fb:
+        try:
+            _fb.delete_feedback(slug)
+        except Exception as exc:
+            log(f"  WARNING: delete feedback for {slug} failed: {exc}")
+
+    removed_from_plan = False
+    if remove_from_plan:
+        try:
+            with _queue_lock:
+                removed_from_plan = _qs.remove_article_from_queue(slug)
+            _poll_now.set()
+        except Exception as exc:
+            log(f"  WARNING: remove {slug} from queue failed: {exc}")
+
+    log(f"  Ghostwriter deleted article {slug} "
+        f"(merged={merged}, removed_from_plan={removed_from_plan})")
+    result = {
+        "ok": True,
+        "slug": slug,
+        "merged": merged,
+        "removed_from_plan": removed_from_plan,
+        "pushed": pushed,
+    }
+    if push_failed:
+        result["push_failed"] = True
+        result["error"] = push_error
+    return result
+
+
 def reply_issue_to_anyone(body: str):
     """Post a general notice on the most recent open/merged article PR."""
     try:
@@ -1589,6 +1676,15 @@ class _ControlHandler(BaseHTTPRequestHandler):
                 self._respond(code, json.dumps(result))
                 return
             self._respond(200, json.dumps(result))
+        elif path.startswith("/api/articles/"):
+            slug = path[len("/api/articles/"):].strip("/")
+            remove_from_plan = qs.get("remove_from_plan", ["false"])[0].lower() == "true"
+            try:
+                result = _handle_delete_article(slug, remove_from_plan)
+                code = 200 if result.get("ok") else 400
+                self._respond(code, json.dumps(result))
+            except Exception as exc:
+                self._respond(400, json.dumps({"error": str(exc)}))
         else:
             self._respond(404, json.dumps({"error": "not found"}))
 

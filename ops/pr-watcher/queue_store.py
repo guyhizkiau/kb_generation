@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import shutil
 import subprocess
 import tempfile
 from pathlib import Path
@@ -146,6 +147,44 @@ def save_queue(q: dict) -> None:
         except OSError:
             pass
         raise
+
+
+def remove_article_from_queue(slug: str) -> bool:
+    """Remove *slug* from every cluster in queue.json. Returns True if present."""
+    q = load_queue()
+    present = False
+    for cluster in q.get("clusters", []):
+        before = cluster.get("articles", [])
+        after = [a for a in before if a.get("slug") != slug]
+        if len(after) != len(before):
+            present = True
+        cluster["articles"] = after
+    if present:
+        save_queue(q)
+    return present
+
+
+def delete_article_dir(slug: str) -> bool:
+    """Delete articles/<slug>/ from the main tree and worktree. Idempotent.
+
+    Returns True if anything was removed.
+    """
+    removed = False
+    candidates = [_articles_root() / slug]
+    wt = _worktree_root()
+    if wt:
+        candidates.append(wt / "articles" / slug)
+    for path in candidates:
+        if path.exists():
+            shutil.rmtree(path)
+            removed = True
+    return removed
+
+
+def article_is_merged(slug: str) -> bool:
+    """True when *slug*'s phase is terminal (MERGED/DONE) — i.e. lives on main."""
+    fields = read_state_fields(article_state_path(slug))
+    return fields.get("PHASE", "UNKNOWN") in TERMINAL_PHASES
 
 
 # ── STATE file helpers ────────────────────────────────────────────────────────

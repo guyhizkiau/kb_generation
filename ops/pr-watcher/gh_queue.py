@@ -74,3 +74,33 @@ def merge_article_pr(
         err = (result.stderr or result.stdout or "gh pr merge failed").strip()
         return {"ok": False, "error": err}
     return {"ok": True, "slug": slug, "pr_number": pr_number}
+
+
+def close_article_pr(
+    slug: str,
+    *,
+    pr_number: int | None = None,
+    repo: str | None = None,
+) -> dict:
+    """Close the open PR for *slug* and delete its remote branch.
+
+    Runs ``gh pr close <num> --delete-branch``. A missing open PR is a
+    non-fatal skip (the caller still deletes local files/branch).
+    """
+    repo = repo or github_repo()
+    if not slug.strip():
+        return {"ok": False, "error": "slug required"}
+    slug = slug.strip()
+    if pr_number is None:
+        pr_number = open_prs_by_slug(repo).get(slug)
+    if not pr_number:
+        return {"ok": True, "slug": slug, "pr_number": None, "skipped": "no open PR"}
+    result = subprocess.run(
+        ["gh", "pr", "close", str(pr_number), "--repo", repo, "--delete-branch"],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        err = (result.stderr or result.stdout or "gh pr close failed").strip()
+        return {"ok": False, "slug": slug, "pr_number": pr_number, "error": err}
+    return {"ok": True, "slug": slug, "pr_number": pr_number}

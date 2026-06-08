@@ -18,13 +18,14 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import {
-  useQueue, useSaveQueue, useTrigger, useMergeArticle,
+  useQueue, useSaveQueue, useTrigger, useMergeArticle, useDeleteArticle,
 } from '@/api/hooks'
 import { apiFetch } from '@/api/client'
 import type { QueueData, ArticleEntry, Cluster } from '@/api/hooks'
 import { githubPullUrl } from '@/api/github'
 import { partitionArticles } from '@/lib/articlePhase'
 import { ConfirmDeleteModal } from '@/components/ConfirmDeleteModal'
+import { DeleteArticleModal } from '@/components/DeleteArticleModal'
 import { PhaseBadge } from '@/components/PhaseBadge'
 import { useReader } from '@/context/ReaderContext'
 
@@ -55,12 +56,14 @@ function ReviewArticleRow({
   claudeRunning,
   onReview,
   onMerge,
+  onDelete,
 }: {
   art: ArticleEntry
   commentCount: number
   claudeRunning?: boolean
   onReview: () => void
   onMerge: () => void
+  onDelete: () => void
 }) {
   return (
     <Box
@@ -113,6 +116,15 @@ function ReviewArticleRow({
           <Button size="xs" color="teal" variant="light" onClick={onReview}>
             Review
           </Button>
+          <ActionIcon
+            size="xs"
+            color="red"
+            variant="subtle"
+            aria-label={`Delete ${art.slug}`}
+            onClick={onDelete}
+          >
+            ✕
+          </ActionIcon>
         </Group>
       </Group>
     </Box>
@@ -191,6 +203,7 @@ export function ArticlesView() {
   const saveQueue = useSaveQueue()
   const trigger = useTrigger()
   const mergeArticle = useMergeArticle()
+  const deleteArticle = useDeleteArticle()
   const { openReader } = useReader()
 
   const [localQueue, setLocalQueue] = useState<QueueData | null>(null)
@@ -199,6 +212,7 @@ export function ArticlesView() {
   const [newSlug, setNewSlug] = useState('')
   const [newTitle, setNewTitle] = useState('')
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
+  const [deleteArticleTarget, setDeleteArticleTarget] = useState<string | null>(null)
 
   const queue = localQueue ?? queueData
   const activeClusterId = selectedCluster ?? queue?.clusters[0]?.id ?? null
@@ -286,6 +300,35 @@ export function ArticlesView() {
       ),
     }))
     setDeleteTarget(null)
+  }
+
+  function confirmDeleteArticle(removeFromPlan: boolean) {
+    const slug = deleteArticleTarget
+    if (!slug) return
+    deleteArticle.mutate(
+      { slug, removeFromPlan },
+      {
+        onSuccess: (res: unknown) => {
+          const r = res as { push_failed?: boolean }
+          if (r?.push_failed) {
+            notifications.show({
+              title: 'Deleted (push failed)',
+              message: `${slug} deleted locally but the push to main failed — retry needed`,
+              color: 'orange',
+            })
+          } else {
+            notifications.show({
+              title: 'Deleted',
+              message: `${slug} deleted${removeFromPlan ? ' and removed from plan' : ''}`,
+              color: 'teal',
+            })
+          }
+        },
+        onError: (e) =>
+          notifications.show({ title: 'Delete failed', message: e.message, color: 'red' }),
+      },
+    )
+    setDeleteArticleTarget(null)
   }
 
   function addArticle() {
@@ -505,6 +548,7 @@ export function ArticlesView() {
                       claudeRunning={queue.claude_running}
                       onReview={() => openReader(art.slug)}
                       onMerge={() => handleMerge(art)}
+                      onDelete={() => setDeleteArticleTarget(art.slug)}
                     />
                   ))
                 )}
@@ -580,6 +624,13 @@ export function ArticlesView() {
         slug={deleteTarget ?? ''}
         onClose={() => setDeleteTarget(null)}
         onConfirm={() => deleteTarget && removeArticle(deleteTarget)}
+      />
+
+      <DeleteArticleModal
+        opened={deleteArticleTarget !== null}
+        slug={deleteArticleTarget ?? ''}
+        onClose={() => setDeleteArticleTarget(null)}
+        onConfirm={confirmDeleteArticle}
       />
     </Stack>
   )
