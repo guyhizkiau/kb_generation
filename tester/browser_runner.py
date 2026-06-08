@@ -341,7 +341,7 @@ class BrowserRunner:
         role = action.get("role")
         name = action.get("name") or _name_from_hint(hint)
         if role and name:
-            return page.get_by_role(role, name=name, exact=True).first
+            return page.get_by_role(role, name=name).first
         if name:
             return page.get_by_text(name, exact=False).first
         if action.get("placeholder"):

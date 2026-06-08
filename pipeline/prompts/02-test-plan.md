@@ -153,7 +153,7 @@ four steps before any article-specific steps:
  "action": {"type": "fill", "placeholder": "Enter your password", "value_env": "SPECTERX_PASSWORD"},
  "screenshot": {"after": false}, "verify": ""},
 {"id": "00-signin", "description": "Click Sign In", "backend": "browser",
- "action": {"type": "click", "role": "button", "name": "Sign In"},
+ "action": {"type": "click", "selector": "button[type='submit']"},
  "screenshot": {"after": false}, "verify": ""},
 {"id": "00-dashboard", "description": "Wait for My Files", "backend": "browser",
  "action": {"type": "wait_for", "name": "My Files", "state": "visible"},

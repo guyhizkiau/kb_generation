@@ -1,21 +1,19 @@
-import { useState } from 'react'
 import { AppShell } from '@mantine/core'
 import { useDisclosure, useLocalStorage } from '@mantine/hooks'
-import { NavSidebar, type AppView } from './NavSidebar'
+import { NavSidebar } from './NavSidebar'
 import { ArticlesView } from '@/views/articles/ArticlesView'
 import { HealthView } from '@/views/health/HealthView'
 import { FeedbackView } from '@/views/feedback/FeedbackView'
 import { ArticleReaderOverlay } from '@/views/reader/ArticleReaderOverlay'
-import { ReaderProvider, useReader } from '@/context/ReaderContext'
+import { NavigationProvider, useNavigation } from '@/context/NavigationContext'
 
 function ShellContent() {
-  const [active, setActive] = useState<AppView>('articles')
+  const { view: active, setView, readerSlug, closeReader } = useNavigation()
   const [collapsed, setCollapsed] = useLocalStorage({
     key: 'gw_sidebar_collapsed',
     defaultValue: false,
   })
   const [mobileOpened, { toggle: toggleMobile }] = useDisclosure()
-  const { readerSlug, closeReader } = useReader()
 
   return (
     <>
@@ -41,8 +39,8 @@ function ShellContent() {
         <AppShell.Navbar p={0}>
           <NavSidebar
             active={active}
-            onSelect={(view) => {
-              setActive(view)
+            onSelect={(v) => {
+              setView(v)
               if (mobileOpened) toggleMobile()
             }}
             collapsed={collapsed}
@@ -68,8 +66,8 @@ function ShellContent() {
 
 export function GhostwriterShell() {
   return (
-    <ReaderProvider>
+    <NavigationProvider>
       <ShellContent />
-    </ReaderProvider>
+    </NavigationProvider>
   )
 }

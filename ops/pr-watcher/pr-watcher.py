@@ -100,6 +100,11 @@ _poll_now = threading.Event()
 _queue_lock = threading.Lock()
 _manual_trigger_set: list[dict] = []   # items: {slug, reason, issue}
 
+# Slug of the article the daemon is currently writing (in-memory; reset each
+# start). Drives the per-article live "running" indicator in the dashboard.
+_active_article_slug: str | None = None
+_active_article_since: float = 0.0
+
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -1061,6 +1066,11 @@ def _launch_next_article(slug: str, title: str, num: int, cluster: str, state: d
 
     state["handled"].append(trigger_key)
     save_state(state)
+
+    global _active_article_slug, _active_article_since
+    _active_article_slug = slug
+    _active_article_since = time.time()
+
     log(f"  ✅ Article pipeline launched for {slug}")
     return True
 
@@ -1564,6 +1574,7 @@ class _ControlHandler(BaseHTTPRequestHandler):
                 if _ghq:
                     data = _ghq.enrich_queue_with_open_prs(data, repo=REPO)
                 data["claude_running"] = is_claude_running()
+                data["active_article"] = _active_article_slug
                 self._respond(200, json.dumps(data))
             except FileNotFoundError:
                 self._respond(404, json.dumps({"error": "clusters/queue.json not found"}))
@@ -1817,6 +1828,17 @@ def main():
         except Exception as exc:
             log(f"ERROR in poll loop: {exc}")
             _runtime["last_error"] = {"message": str(exc), "at": _now_iso()}
+
+        # Clear the active-article marker once Claude is no longer running.
+        # Guarded by a grace window because the launcher runs `git pull` before
+        # `claude` starts, so is_claude_running() is briefly False after launch.
+        global _active_article_slug
+        if (
+            _active_article_slug
+            and time.time() - _active_article_since > max(POLL_INTERVAL, 120)
+            and not is_claude_running()
+        ):
+            _active_article_slug = None
 
         write_status(state, iteration, next_poll_at)
         triggered = _poll_now.wait(timeout=POLL_INTERVAL)

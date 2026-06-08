@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { GhostwriterShell } from './GhostwriterShell'
@@ -21,9 +21,19 @@ vi.mock('@/api/hooks', async (importOriginal) => {
 })
 
 describe('GhostwriterShell', () => {
+  afterEach(() => {
+    window.history.replaceState(null, '', window.location.pathname)
+  })
+
   it('loads Articles as default view', () => {
     renderWithProviders(<GhostwriterShell />)
     expect(screen.getByText('Review published articles and plan what\'s next')).toBeInTheDocument()
+  })
+
+  it('restores the view from the URL hash on load', () => {
+    window.history.replaceState(null, '', '#/health')
+    renderWithProviders(<GhostwriterShell />)
+    expect(screen.getByText('Daemon Health')).toBeInTheDocument()
   })
 
   it('toggles sidebar collapse', async () => {

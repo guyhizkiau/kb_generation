@@ -28,6 +28,7 @@ import { ConfirmDeleteModal } from '@/components/ConfirmDeleteModal'
 import { DeleteArticleModal } from '@/components/DeleteArticleModal'
 import { PhaseBadge } from '@/components/PhaseBadge'
 import { useReader } from '@/context/ReaderContext'
+import { useNavigation } from '@/context/NavigationContext'
 
 /** Strip API-enriched fields before PUT /api/queue. */
 export function toPersistableQueue(q: QueueData): Pick<QueueData, 'version' | 'clusters'> {
@@ -54,6 +55,7 @@ function ReviewArticleRow({
   art,
   commentCount,
   claudeRunning,
+  isActive,
   onReview,
   onMerge,
   onDelete,
@@ -61,6 +63,7 @@ function ReviewArticleRow({
   art: ArticleEntry
   commentCount: number
   claudeRunning?: boolean
+  isActive?: boolean
   onReview: () => void
   onMerge: () => void
   onDelete: () => void
@@ -107,6 +110,7 @@ function ReviewArticleRow({
             phase={art.phase}
             lastUpdate={art.last_update}
             running={claudeRunning}
+            forceActivity={isActive}
           />
           {canMergeArticle(art) && (
             <Button size="xs" color="green" variant="light" onClick={onMerge}>
@@ -135,12 +139,14 @@ function SortableArticleRow({
   art,
   isNext,
   claudeRunning,
+  isActive,
   onRemove,
   onWriteNext,
 }: {
   art: ArticleEntry
   isNext: boolean
   claudeRunning?: boolean
+  isActive?: boolean
   onRemove: () => void
   onWriteNext: (slug: string) => void
 }) {
@@ -177,6 +183,7 @@ function SortableArticleRow({
             phase={art.phase}
             lastUpdate={art.last_update}
             running={claudeRunning}
+            forceActivity={isActive}
           />
           <Tooltip label="Write this next">
             <ActionIcon size="xs" color="teal" variant="subtle" onClick={() => onWriteNext(art.slug)}>
@@ -205,9 +212,9 @@ export function ArticlesView() {
   const mergeArticle = useMergeArticle()
   const deleteArticle = useDeleteArticle()
   const { openReader } = useReader()
+  const { clusterId: selectedCluster, setClusterId } = useNavigation()
 
   const [localQueue, setLocalQueue] = useState<QueueData | null>(null)
-  const [selectedCluster, setSelectedCluster] = useState<string | null>(null)
   const [dirty, setDirty] = useState(false)
   const [newSlug, setNewSlug] = useState('')
   const [newTitle, setNewTitle] = useState('')
@@ -443,13 +450,13 @@ export function ArticlesView() {
         children: <Text size="sm">Switch clusters without saving?</Text>,
         labels: { confirm: 'Switch', cancel: 'Stay' },
         onConfirm: () => {
-          setSelectedCluster(id)
+          setClusterId(id)
           setDirty(false)
           setLocalQueue(null)
         },
       })
     } else {
-      setSelectedCluster(id)
+      setClusterId(id)
     }
   }
 
@@ -545,7 +552,11 @@ export function ArticlesView() {
                       key={art.slug}
                       art={art}
                       commentCount={commentCountBySlug[art.slug] ?? 0}
-                      claudeRunning={queue.claude_running}
+                      claudeRunning={
+                        queue.claude_running &&
+                        (!queue.active_article || queue.active_article === art.slug)
+                      }
+                      isActive={queue.active_article === art.slug}
                       onReview={() => openReader(art.slug)}
                       onMerge={() => handleMerge(art)}
                       onDelete={() => setDeleteArticleTarget(art.slug)}
@@ -571,7 +582,11 @@ export function ArticlesView() {
                           key={art.slug}
                           art={art}
                           isNext={art.slug === nextPlannableSlug}
-                          claudeRunning={queue.claude_running}
+                          claudeRunning={
+                            queue.claude_running &&
+                            (!queue.active_article || queue.active_article === art.slug)
+                          }
+                          isActive={queue.active_article === art.slug}
                           onRemove={() => setDeleteTarget(art.slug)}
                           onWriteNext={handleWriteNext}
                         />

@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import {
   Grid, Card, Text, Badge, Group, Stack, Button,
   Title, Box, NavLink, ScrollArea, Anchor,
@@ -8,6 +7,7 @@ import { modals } from '@mantine/modals'
 import { useQueue, useFeedback, useTrigger, useDismissAnnotation } from '@/api/hooks'
 import { AnnotationCard } from '@/components/AnnotationCard'
 import { useReader } from '@/context/ReaderContext'
+import { useNavigation } from '@/context/NavigationContext'
 
 const PHASE_COLORS: Record<string, string> = {
   MERGED: 'teal', DONE: 'green', PR_OPEN: 'cyan',
@@ -19,7 +19,7 @@ export function FeedbackView() {
   const trigger = useTrigger()
   const dismissAnnotation = useDismissAnnotation()
   const { openReader } = useReader()
-  const [selectedSlug, setSelectedSlug] = useState<string | null>(null)
+  const { feedbackSlug: selectedSlug, setFeedbackSlug } = useNavigation()
 
   const { data: feedbackData, isLoading: fbLoading } = useFeedback(selectedSlug ?? '')
 
@@ -71,7 +71,7 @@ export function FeedbackView() {
   }
 
   function openArticle(slug: string) {
-    setSelectedSlug(slug)
+    setFeedbackSlug(slug)
     openReader(slug)
   }
 
