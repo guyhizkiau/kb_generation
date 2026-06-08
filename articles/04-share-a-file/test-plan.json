@@ -5,174 +5,190 @@
       "kind": "browser_login",
       "url": "https://app.specterx.com",
       "credential": "SPECTERX_USERNAME / SPECTERX_PASSWORD"
-    },
-    {
-      "kind": "file_available",
-      "description": "A test file named test-document.pdf must exist and be reachable by the browser file picker before the session begins"
     }
   ],
   "steps": [
     {
-      "id": "01",
-      "description": "On the My Files page, click the Share files button to open the Share files dialog",
+      "id": "00-goto",
+      "description": "Navigate to SpecterX",
       "backend": "browser",
-      "action": {
-        "type": "click",
-        "selector_hint": "the Share files button in the top area of the My Files page — the exact label is unconfirmed; look for a prominent primary action button near the top of the page labelled Share, Share files, or similar"
-      },
-      "screenshot": {
-        "after": true,
-        "filename": "01-share-files-dialog.png",
-        "focus": "the Share files dialog or modal that opened, showing the upload area"
-      },
-      "verify": "A Share files dialog or modal is open and contains a visible upload area or drop zone"
+      "action": {"type": "goto", "url": "https://app.specterx.com", "wait_until": "domcontentloaded"},
+      "screenshot": {"after": false},
+      "verify": ""
+    },
+    {
+      "id": "00-email",
+      "description": "Fill email",
+      "backend": "browser",
+      "action": {"type": "fill", "placeholder": "Enter your email", "value_env": "SPECTERX_USERNAME"},
+      "screenshot": {"after": false},
+      "verify": ""
+    },
+    {
+      "id": "00-password",
+      "description": "Fill password",
+      "backend": "browser",
+      "action": {"type": "fill", "placeholder": "Enter your password", "value_env": "SPECTERX_PASSWORD"},
+      "screenshot": {"after": false},
+      "verify": ""
+    },
+    {
+      "id": "00-signin",
+      "description": "Click Sign In",
+      "backend": "browser",
+      "action": {"type": "click", "role": "button", "name": "Sign In"},
+      "screenshot": {"after": false},
+      "verify": ""
+    },
+    {
+      "id": "00-dashboard",
+      "description": "Wait for My Files",
+      "backend": "browser",
+      "action": {"type": "wait_for", "name": "My Files", "state": "visible"},
+      "screenshot": {"after": true, "filename": "00-dashboard.png", "focus": "My Files dashboard"},
+      "verify": "My Files"
+    },
+    {
+      "id": "01",
+      "description": "Click the Share files button on the My Files page (article Step 1: Open the Share files dialog)",
+      "backend": "browser",
+      "action": {"type": "click", "role": "button", "name": "Share files"},
+      "screenshot": {"after": true, "filename": "01-share-files-button.png", "focus": "My Files page with the Share files button highlighted in the top area"},
+      "verify": "The Share files dialog begins to open"
     },
     {
       "id": "02",
-      "description": "Upload test-document.pdf using the file picker inside the Share files dialog and wait for the upload to complete",
+      "description": "Wait for the Share files dialog to be fully open",
       "backend": "browser",
-      "action": {
-        "type": "file_upload",
-        "selector_hint": "the upload area or drop zone inside the Share files dialog — click it to open the OS file picker, then select test-document.pdf",
-        "filename": "test-document.pdf"
-      },
-      "screenshot": {
-        "after": true,
-        "filename": "02-file-uploaded.png",
-        "focus": "test-document.pdf listed in the dialog's file area with the upload progress indicator completed"
-      },
-      "verify": "test-document.pdf appears in the dialog's file list and the upload progress indicator has finished"
+      "action": {"type": "wait_for", "role": "dialog", "name": "Share files", "state": "visible"},
+      "screenshot": {"after": true, "filename": "02-share-dialog-open.png", "focus": "Share files dialog with the upload area visible"},
+      "verify": "The Share files dialog is open and the upload drop zone is visible"
     },
     {
       "id": "03",
-      "description": "In the Add recipients field, type a recipient email address and confirm it by pressing Enter or clicking Add",
+      "description": "Upload test-document.pdf using the file input in the Share files dialog (article Step 2: Upload your file)",
       "backend": "browser",
-      "action": {
-        "type": "type",
-        "selector_hint": "the recipient email input field inside the Share files dialog — the exact label is unconfirmed; look for a field labelled Add recipients, Add people, or similar",
-        "value": "testrecipient@example.com",
-        "confirm": "Enter key or the Add button next to the field"
-      },
-      "screenshot": {
-        "after": true,
-        "filename": "03-recipient-added.png",
-        "focus": "testrecipient@example.com appearing as a recipient row in the dialog with a permission dropdown beside it"
-      },
-      "verify": "testrecipient@example.com is shown as a recipient row in the Share files dialog"
+      "action": {"type": "file_upload", "selector": "input[type='file']", "filename": "test-document.pdf"},
+      "screenshot": {"after": true, "filename": "03-upload-progress.png", "focus": "test-document.pdf uploading in the dialog with a progress bar visible"},
+      "verify": "test-document.pdf appears in the upload area with an upload progress indicator"
     },
     {
       "id": "04",
-      "description": "Open the permission level dropdown next to testrecipient@example.com and select Viewer",
+      "description": "Wait for test-document.pdf to finish uploading",
       "backend": "browser",
-      "action": {
-        "type": "select",
-        "selector_hint": "the permission level dropdown immediately to the right of testrecipient@example.com in the recipient list",
-        "value": "Viewer"
-      },
-      "screenshot": {
-        "after": true,
-        "filename": "04-permission-dropdown.png",
-        "focus": "the permission dropdown open showing Viewer, Contributor, and Co-Owner options with Viewer highlighted or selected"
-      },
-      "verify": "The permission dropdown for testrecipient@example.com shows Viewer, Contributor, and Co-Owner as options; Viewer is selected after the interaction"
+      "action": {"type": "wait_for", "selector_hint": "'test-document.pdf'", "state": "visible"},
+      "screenshot": {"after": true, "filename": "04-upload-complete.png", "focus": "test-document.pdf showing as fully uploaded in the Share files dialog with no active progress bar"},
+      "verify": "test-document.pdf is shown as uploaded with no active progress indicator"
     },
     {
       "id": "05",
-      "description": "Open the policy dropdown in the Share files dialog and select any available security policy",
+      "description": "Type a recipient email address in the Add recipients field (article Step 3: Add a recipient)",
       "backend": "browser",
-      "action": {
-        "type": "select",
-        "selector_hint": "the policy or security policy dropdown inside the Share files dialog — look for a dropdown labelled Policy, Security policy, or similar"
-      },
-      "screenshot": {
-        "after": true,
-        "filename": "05-policy-dropdown.png",
-        "focus": "the policy dropdown open showing a list of available policy names"
-      },
-      "verify": "The policy dropdown lists at least one policy name; a policy is selected after the interaction"
+      "action": {"type": "fill", "placeholder": "Add recipients", "value_env": "SPECTERX_USERNAME"},
+      "screenshot": {"after": true, "filename": "05-recipient-typed.png", "focus": "Add recipients field with the email address typed, before pressing Enter"},
+      "verify": "The recipient email address is visible in the Add recipients field"
     },
     {
       "id": "06",
-      "description": "If the selected policy requires phone verification, a phone number field appears next to the recipient — enter a phone number in international format; skip this step if no phone number field appears",
+      "description": "Press Enter to confirm and add the recipient to the list",
       "backend": "browser",
-      "action": {
-        "type": "type",
-        "selector_hint": "the phone number input field next to testrecipient@example.com in the Share files dialog — only present when the selected policy requires SMS verification",
-        "value": "+1 555 000 1234",
-        "conditional": "only if a phone number field is visible next to the recipient row"
-      },
-      "screenshot": {
-        "after": true,
-        "filename": "06-phone-number.png",
-        "focus": "the recipient row with +1 555 000 1234 entered in the phone number field, and the Share button becoming active"
-      },
-      "verify": "If a phone number field was visible: it contains +1 555 000 1234 and the Share button is now active. If no phone number field appeared: the Share button is already active and this step is a no-op"
+      "action": {"type": "press", "key": "Enter"},
+      "screenshot": {"after": true, "filename": "06-recipient-added.png", "focus": "Recipient email appearing as a chip or row in the recipients list inside the Share files dialog"},
+      "verify": "The recipient email address appears as a chip or row in the recipients list"
     },
     {
       "id": "07",
-      "description": "Click the Share button to create the protected link and send the notification email to the recipient",
+      "description": "Click the permission dropdown next to the recipient to open it (article Step 4: Set recipient permission level)",
       "backend": "browser",
-      "action": {
-        "type": "click",
-        "selector_hint": "the Share (or Confirm) primary action button at the bottom of the Share files dialog — the exact label is unconfirmed; look for the main submit button that is active once all required fields are filled"
-      },
-      "screenshot": {
-        "after": true,
-        "filename": "07-share-confirmation.png",
-        "focus": "the confirmation screen or success state showing that the share was created and a protected link is displayed"
-      },
-      "verify": "A share confirmation screen or success message is displayed, showing a protected link for test-document.pdf"
+      "action": {"type": "click", "role": "combobox", "name": "Viewer"},
+      "screenshot": {"after": true, "filename": "07-permission-dropdown-open.png", "focus": "Permission dropdown open next to the recipient's email showing Viewer, Contributor, and Co-Owner options with Viewer highlighted"},
+      "verify": "The permission dropdown is open showing Viewer, Contributor, and Co-Owner options"
     },
     {
       "id": "08",
-      "description": "On the share confirmation screen, click the Copy link button to copy the protected link to the clipboard",
+      "description": "Select Viewer from the permission dropdown",
       "backend": "browser",
-      "action": {
-        "type": "click",
-        "selector_hint": "the Copy link button on the share confirmation screen — the exact label is unconfirmed; look for a button labelled Copy link, Copy, or similar next to the displayed protected link"
-      },
-      "screenshot": {
-        "after": true,
-        "filename": "08-link-copied.png",
-        "focus": "the Copy link button and any visual feedback confirming the link was copied (e.g. button label change to Copied, a checkmark, or a toast notification)"
-      },
-      "verify": "Visual feedback confirms the link was copied to the clipboard — for example the button label changes to Copied, a checkmark appears, or a toast message is shown"
+      "action": {"type": "click", "role": "option", "name": "Viewer"},
+      "screenshot": {"after": true, "filename": "08-permission-viewer-selected.png", "focus": "Viewer selected as the permission level next to the recipient's email"},
+      "verify": "Viewer is selected as the permission level for the recipient"
     },
     {
       "id": "09",
-      "description": "Close or dismiss the Share files dialog and return to the My Files page; confirm test-document.pdf appears in the file list with a share icon visible next to its name",
+      "description": "Click the security policy dropdown to open it (article Step 5: Select a security policy)",
       "backend": "browser",
-      "action": {
-        "type": "navigate",
-        "selector_hint": "close or dismiss button on the share confirmation screen, or the My Files navigation link — return to the My Files page and locate test-document.pdf in the file list"
-      },
-      "screenshot": {
-        "after": true,
-        "filename": "09-my-files-after-share.png",
-        "focus": "the My Files file list showing test-document.pdf with a share icon or sharing indicator next to its name"
-      },
-      "verify": "test-document.pdf is visible in the My Files list and has a share icon or sharing indicator next to its name"
+      "action": {"type": "click", "role": "combobox", "name": "Policy"},
+      "screenshot": {"after": true, "filename": "09-policy-dropdown-open.png", "focus": "Policy dropdown open in the Share files dialog showing available security policy names"},
+      "verify": "The policy dropdown is open with a list of available security policies"
     },
     {
       "id": "10",
-      "description": "Click the share icon next to test-document.pdf in the My Files list to open the Share & Permissions Drawer",
+      "description": "Select the Standard security policy from the dropdown",
       "backend": "browser",
-      "action": {
-        "type": "click",
-        "selector_hint": "the share icon (sharing indicator) immediately next to test-document.pdf in the My Files file list row"
-      },
-      "screenshot": {
-        "after": true,
-        "filename": "10-permissions-drawer.png",
-        "focus": "the Share & Permissions Drawer open on the right side of the page, showing testrecipient@example.com with a permission dropdown and the Parent policy dropdown at the top of the drawer"
-      },
-      "verify": "The Share & Permissions Drawer is open on the right side of the page and lists testrecipient@example.com with a Viewer permission dropdown and a Parent policy dropdown"
+      "action": {"type": "click", "role": "option", "name": "Standard"},
+      "screenshot": {"after": true, "filename": "10-policy-selected.png", "focus": "A security policy selected and displayed in the policy field of the Share files dialog"},
+      "verify": "A security policy is selected and visible in the policy field"
+    },
+    {
+      "id": "11",
+      "description": "Click the Share button to create the protected link and send notification emails (article Step 7: Complete the share)",
+      "backend": "browser",
+      "action": {"type": "click", "role": "button", "name": "Share"},
+      "screenshot": {"after": true, "filename": "11-share-button-clicked.png", "focus": "Share files dialog with all fields filled — file, recipient, policy — and the Share button highlighted"},
+      "verify": "The share request is submitted and SpecterX is processing the protected link creation"
+    },
+    {
+      "id": "12",
+      "description": "Wait for the share confirmation screen showing the Copy link button",
+      "backend": "browser",
+      "action": {"type": "wait_for", "role": "button", "name": "Copy link", "state": "visible"},
+      "screenshot": {"after": true, "filename": "12-share-confirmation.png", "focus": "Share confirmation screen displaying the protected link and the Copy link button"},
+      "verify": "The share confirmation screen is visible with the protected link and the Copy link button"
+    },
+    {
+      "id": "13",
+      "description": "Click Copy link to copy the protected link to the clipboard (article Step 8: Copy the protected link)",
+      "backend": "browser",
+      "action": {"type": "click", "role": "button", "name": "Copy link"},
+      "screenshot": {"after": true, "filename": "13-link-copied.png", "focus": "Confirmation toast or message indicating the protected link was copied to clipboard"},
+      "verify": "A confirmation toast or message indicates the protected link was copied to the clipboard"
+    },
+    {
+      "id": "14",
+      "description": "Close the Share files confirmation and return to My Files",
+      "backend": "browser",
+      "action": {"type": "click", "role": "button", "name": "Done"},
+      "screenshot": {"after": false},
+      "verify": ""
+    },
+    {
+      "id": "15",
+      "description": "Wait for the My Files page to be visible after closing the dialog",
+      "backend": "browser",
+      "action": {"type": "wait_for", "role": "heading", "name": "My Files", "state": "visible"},
+      "screenshot": {"after": true, "filename": "15-my-files-after-share.png", "focus": "My Files page with test-document.pdf listed, showing the share icon next to it"},
+      "verify": "The My Files page is visible and test-document.pdf appears in the file list"
+    },
+    {
+      "id": "16",
+      "description": "Click the share icon next to test-document.pdf to open the Share & Permissions Drawer (article: After you share section)",
+      "backend": "browser",
+      "action": {"type": "click", "role": "button", "name": "Manage sharing"},
+      "screenshot": {"after": true, "filename": "16-share-icon.png", "focus": "Share icon highlighted next to test-document.pdf in the My Files list"},
+      "verify": "The Share & Permissions Drawer begins to open on the right side of the page"
+    },
+    {
+      "id": "17",
+      "description": "Verify the Share & Permissions Drawer shows the recipient, permission level, and policy",
+      "backend": "browser",
+      "action": {"type": "wait_for", "role": "complementary", "name": "Share & Permissions", "state": "visible"},
+      "screenshot": {"after": true, "filename": "17-permissions-drawer.png", "focus": "Share & Permissions Drawer open on the right, showing the recipient list with permission dropdowns and the Parent policy dropdown at the top"},
+      "verify": "The Share & Permissions Drawer is open and lists the recipient with their Viewer permission level and the applied security policy in the Parent policy dropdown"
     }
   ],
   "postconditions": [
     {
       "kind": "cleanup",
-      "description": "Delete test-document.pdf from SpecterX — from the My Files page, select test-document.pdf and delete it — to leave the tenant in a clean state"
+      "description": "Delete test-document.pdf from SpecterX to leave the tenant clean"
     }
   ]
 }

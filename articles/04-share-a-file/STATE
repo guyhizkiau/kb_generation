@@ -1,3 +1,4 @@
 PHASE=PR_OPEN
-LAST_UPDATE=2026-06-07T16:00:00+00:00
-NEXT_ACTION=push the voice-pass commit and request review
+LAST_UPDATE=2026-06-08T08:07:37+00:00
+NEXT_ACTION=await PR review and merge
+PR_NUMBER=8
