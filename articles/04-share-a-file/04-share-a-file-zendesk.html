@@ -1,49 +1,61 @@
 <h1>Securely share a file from the SpecterX web platform</h1>
 <div style="font-size:0.875em;color:#57606a;margin:0.25rem 0 1.5rem;padding:0.5rem 0.75rem;background:#f6f8fa;border-radius:4px;border-left:3px solid #d0d7de;"><p>Audience: <strong>end-user</strong> &middot; Reading time: <strong>5 min</strong></p></div>
-<p>When you share a file from SpecterX, the platform creates a protected link and sends a notification email to each recipient. The security policy you choose controls what recipients can do with the file.</p>
+<p>To send a file to someone outside SpecterX, open the <strong>Share Files</strong> drawer in <strong>My Files</strong>, upload the file, add the people you want to reach, pick a security policy, and click <strong>Share</strong>. SpecterX creates a protected link and sends each recipient a notification email; the policy you choose controls what they can do once they open it.</p>
 <h2>Before you start</h2>
 <p>You need:</p>
-<ul><li>A SpecterX account and an active session. See <a href="../01-log-in-to-specterx/01-log-in-to-specterx.html">Sign in to SpecterX</a> if you aren't yet signed in.</li><li>The file you want to share.</li><li>The email address of each recipient.</li><li>If the security policy you intend to use requires phone (SMS) verification: each recipient's phone number in international format.</li></ul>
+<ul><li>An active SpecterX session in your browser. If you haven't signed in yet, see <a href="../01-log-in-to-specterx/01-log-in-to-specterx.html">Sign in to SpecterX</a>.</li><li>The file you want to share. It can be one you've already uploaded to <strong>My Files</strong>, or one from your computer that you upload as part of this flow.</li><li>The email address of each recipient.</li><li>A phone number for each recipient, in international format, if you plan to use a policy that requires SMS verification. Your administrator decides which policies require this.</li></ul>
 <h2>Steps</h2>
-<h3>1. Open the Share files dialog</h3>
+<h3>1. Open the Share Files drawer</h3>
 <p>On the <strong>My Files</strong> page, click <strong>Share files</strong>.</p>
-<h3>2. Upload your file</h3>
-<p>Drag your file into the upload area, or click the area to open a file picker and select the file. Wait for the upload progress indicator to finish before continuing.</p>
+<p>The <strong>Share Files</strong> drawer opens on the right of the page with the first step, <strong>Add items and Recipients</strong>, already showing.</p>
+<h3>2. Add the file</h3>
+<p>In the upload area at the top of the drawer, <strong>Click or drag a file to this area to upload</strong>. The file uploads as soon as you drop it; wait for the upload bar to finish before you continue.</p>
+<p>To share a file you've already uploaded to <strong>My Files</strong>, close the drawer, click the <strong>Share</strong> action on the file's row, and skip to step 4.</p>
 <h3>3. Add a recipient</h3>
-<p>In the <strong>Add recipients</strong> field, type the recipient's email address and press <strong>Enter</strong> or click <strong>Add</strong>.</p>
-<h3>4. Set the recipient's permission level</h3>
-<p>Next to the recipient's email address, open the permission dropdown and choose one of the three levels:</p>
-<ul><li><strong>Viewer</strong>: can open and read the file. They can't upload files or change permissions.</li><li><strong>Contributor</strong>: can open, read, and upload files. Download access depends on the policy.</li><li><strong>Co-Owner</strong>: full access. They can view, upload, download, manage permissions, and reshare.</li></ul>
-<p>Repeat steps 3 and 4 for each additional recipient.</p>
-<h3>5. Select a security policy</h3>
-<p>Open the policy dropdown and select the policy that matches the sensitivity of your file. Your administrator defines the available policies.</p>
-<p>If no suitable policy exists, contact your administrator and ask them to create one.</p>
-<h3>6. Enter phone numbers (phone-verification policies only)</h3>
-<p>If the selected policy requires phone (SMS) verification, a phone number field appears next to each recipient. Enter the recipient's phone number in international format, for example <code>+1 555 000 1234</code>.</p>
-<p>The <strong>Share</strong> button stays inactive until every recipient with a required phone-number field has a number entered.</p>
-<p>Skip this step if no phone number fields appear.</p>
-<h3>7. Complete the share</h3>
-<p>Click <strong>Share</strong>. SpecterX creates the protected link and sends a notification email to each recipient.</p>
-<h3>8. Copy the protected link</h3>
-<p>After the share is created, SpecterX shows a confirmation. Click <strong>Copy link</strong> to copy the protected link to your clipboard.</p>
-<p>You can paste the link and send it directly if needed, though recipients have already received the notification email.</p>
+<p>Below the upload area, in the <strong>Share with</strong> block, the recipient field shows the placeholder <strong>Insert email address and click <code>Enter</code></strong>.</p>
+<p>Type the recipient's email address and press <strong>Enter</strong>. The address moves into a recipient row below the field.</p>
+<p>Repeat this for every recipient you want to add.</p>
+<h3>4. Set each recipient's permission level</h3>
+<p>Each recipient row has a role dropdown set to <strong>Viewer</strong> by default. Open the dropdown and pick the level you want:</p>
+<ul><li><strong>Viewer</strong>. Can view the file. This is the default.</li><li><strong>Contributor</strong>. Can view and edit the file's content. Whether they can also download depends on the policy you select in step 5.</li><li><strong>Co-owner</strong>. Can view, edit, reshare the file with new recipients, and read the file's audit log.</li></ul>
+<p>A Contributor or Co-owner can't override the policy: if the policy blocks downloads, even a Co-owner sees the same Secure Viewer with no download button.</p>
+<h3>5. Continue to the policy step</h3>
+<p>Click <strong>Next</strong> at the bottom of the drawer to move to the <strong>Select Policy</strong> step.</p>
+<h3>6. Pick a security policy</h3>
+<p>From the <strong>Choose Policy</strong> dropdown, pick the policy that matches the sensitivity of the file. Your administrator defines the available policies; the dropdown shows only those allowed for your account.</p>
+<p>If a Platform Governance Rule applies to this share, the policy is already chosen and the heading reads <strong>Choose or Review Policy</strong> instead. You can review the assigned policy but you can't change it.</p>
+<p>If no policy in the list fits the share, ask your administrator to add one. Don't pick a permissive policy as a fallback.</p>
+<h3>7. Enter any extra recipient details the policy needs</h3>
+<p>Some policies require an additional piece of information per recipient before SpecterX will create the link:</p>
+<ul><li><strong>Phone (SMS) verification.</strong> An <strong>Add phone number</strong> action appears next to each recipient. Click it and enter the recipient's phone number in international format, for example <code>+1 555 000 1234</code>.</li><li><strong>Personal secret.</strong> An <strong>Add password</strong> action appears next to each recipient. Click it and enter the secret you've agreed with the recipient out of band.</li></ul>
+<p>If any required detail is missing, the banner <strong>One or more of the recipients' phone numbers are missing. Please complete them.</strong> stays at the top of the drawer and <strong>Share</strong> stays disabled.</p>
+<p>Skip this step if the policy you picked doesn't ask for either.</p>
+<h3>8. Send the share</h3>
+<p>Click <strong>Share</strong>. The drawer moves to the <strong>Confirm</strong> step and shows <strong>Sharing Successful.</strong> along with a one-line summary listing how many files were shared and who they went to.</p>
+<p>Each recipient receives a notification email with the protected link. The notification is sent automatically unless you turned off <strong>Notify recipients</strong> earlier in the flow.</p>
+<h3>9. Copy the protected link</h3>
+<p>To send the link through another channel (a chat message, a calendar invite), click <strong>Copy Link</strong> on the <strong>Confirm</strong> step. SpecterX copies the link to your clipboard. The link is the same one every recipient received by email, and it's already governed by the policy you picked.</p>
 <h2>After you share: the Share &amp; Permissions Drawer</h2>
-<p>To review or change access for a file you've already shared:</p>
-<p>1. In <strong>My Files</strong>, click the share icon next to the file's name.</p>
-<p>2. The Share &amp; Permissions Drawer opens on the right side of the page. It lists every recipient, their current permission level, and a <strong>Parent policy</strong> dropdown showing the policy applied to the file.</p>
-<p>From the drawer you can:</p>
-<ul><li>Change a recipient's permission level using the dropdown next to their name.</li><li>Add a new recipient by typing their email address in the <strong>Add recipient</strong> field at the top of the drawer.</li><li>Remove a recipient by clicking the remove control next to their row.</li><li>Change the policy governing the file using the <strong>Parent policy</strong> dropdown.</li></ul>
-<p>All changes take effect immediately for anyone who opens the link from that point on.</p>
+<p>To check who has access to a file you've already shared, or to change something after the share is live, open the <strong>Share &amp; Permissions Drawer</strong> from <strong>My Files</strong>.</p>
+<p>1. In <strong>My Files</strong>, click the share icon on the file's row. The drawer opens on the right with the heading <strong>Who has access</strong>.</p>
+<p>2. From the drawer you can:</p>
+<ul><li>Change a recipient's role from the dropdown next to their email address.</li><li>Add a new recipient under <strong>Add New Recipients</strong>.</li><li>Revoke a recipient's access using the <strong>Revoke</strong> action on their row.</li><li>Change the policy from the <strong>Parent policy</strong> dropdown.</li></ul>
+<p>Changes take effect the next time the recipient opens the protected link. Anyone with the file already open in the Secure Viewer won't see the change until they reload.</p>
 <h2>What recipients experience</h2>
-<p>Each recipient receives an email with a link to the protected file. When they click the link they land on the SpecterX Recipient Page and are prompted to verify their identity, usually by entering a 6-digit code sent to their inbox. After verification, the file opens in the SpecterX Viewer. The policy you selected at share time determines what the recipient can do in the Viewer: download, forward, or print the file.</p>
+<p>Each recipient receives an email from an <code>@specterx.com</code> sender with a link to the protected file. When they click the link they land on the <strong>Recipient Page</strong> and verify their identity. For most recipients, this means entering a 6-digit code sent to their inbox. After verification, the file opens in the <strong>Secure Viewer</strong>.</p>
+<p>Whether they can download, forward, or print the file depends on the policy you picked in step 6, not on the role you gave them.</p>
+<p>Recipients don't need a SpecterX account; SpecterX provisions them automatically when you add them to the share.</p>
 <h2>Troubleshooting</h2>
-<h3>The recipient didn't receive the notification email</h3>
-<p>Ask the recipient to check their spam or junk folder. The notification comes from an <code>@specterx.com</code> sender and may be routed through a transactional-email provider. If it still doesn't arrive after a few minutes, open the Share &amp; Permissions Drawer and confirm the recipient's email address is correct. Remove and re-add the recipient if the address needs correcting.</p>
-<h3>The phone number field isn't accepting the number</h3>
-<p>Enter the number in international format starting with the country code, for example <code>+44 7700 900000</code>. Remove spaces, hyphens, or parentheses if the field rejects the format.</p>
-<h3>The Share button is grayed out or inactive</h3>
-<p>All required fields must be filled before the share can proceed. If the selected policy requires phone verification, enter a phone number for every recipient. Also confirm that at least one recipient has been added and that a policy is selected.</p>
-<h3>A recipient sees "Access denied"</h3>
-<p>The email address on the protected link may not match the address the recipient used. Open the Share &amp; Permissions Drawer, verify the address on file, and correct it if needed. If the address is correct, the recipient's access may have been revoked. See <a href="#">Revoke access to a shared file</a>.</p>
-<h2>What's next</h2>
-<ul><li><a href="#">Share a folder</a>: apply a single policy to all files in a folder at once</li><li><a href="#">Set recipient permissions</a>: understand in detail what each permission level allows</li><li><a href="#">Update permissions after sharing</a>: add, change, or remove recipients after the share is live</li><li><a href="#">Revoke access to a shared file</a>: disable a protected link for one recipient or for everyone</li></ul>
+<h3>The Share button stays disabled</h3>
+<p>One of the required pieces is missing. Look at the top of the drawer for the message it shows:</p>
+<ul><li><strong>Please add files to share</strong>. The upload didn't finish, or no file was added.</li><li><strong>Please add recipients to share</strong>. At least one recipient must be added.</li><li><strong>Recipient wasn't added. Please click on "Add" button</strong>. You typed an address but didn't press Enter to commit it.</li><li><strong>Some files are still uploading. Please wait until they finish uploading</strong>. Wait for the upload bar to finish.</li><li>A missing phone number or password banner. The selected policy needs that detail for every recipient.</li></ul>
+<h3>"Invalid email address" appears as you type a recipient</h3>
+<p>The address isn't in <code>name@example.com</code> form. Check for typos, then press Enter again.</p>
+<h3>The recipient is already on the file's access list</h3>
+<p>If you see <strong>You have already shared this file with {recipient}</strong>, the address is already on the file's recipient list. Use the <strong>Share &amp; Permissions Drawer</strong> on the file to review or change that recipient's access instead.</p>
+<h3>A recipient says they didn't get the notification email</h3>
+<p>Ask them to check their spam or junk folder. The notification comes from an <code>@specterx.com</code> sender and may be routed through a transactional-email provider. If it still doesn't arrive after a few minutes, open the <strong>Share &amp; Permissions Drawer</strong>, confirm the recipient's email address is correct, and remove and re-add the recipient if it needs correcting.</p>
+<h3>A recipient sees "Access denied" on the Recipient Page</h3>
+<p>The address on the protected link may not match the address the recipient used to verify. Open the <strong>Share &amp; Permissions Drawer</strong>, check the address you have on file, and correct it if needed. If the address is right but they still can't open the file, the policy may require a verification method the recipient hasn't completed, for example a phone number that hasn't been entered for them.</p>
+<h2>Related articles</h2>
+<ul><li><a href="../01-log-in-to-specterx/01-log-in-to-specterx.html">Sign in to SpecterX</a></li><li><a href="../03-what-is-specterx/03-what-is-specterx.html">What is SpecterX?</a></li></ul>
