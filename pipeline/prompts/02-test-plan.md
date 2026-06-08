@@ -6,6 +6,10 @@ You convert `draft-1.md` into a machine-executable test plan.
 
 - `articles/<NN-slug>/draft-1.md`
 
+**Do not read any existing `test-plan.json`.** If one already exists in
+the article directory, ignore it completely and generate from scratch
+using only `draft-1.md`.
+
 ## What you produce
 
 A file at `articles/<NN-slug>/test-plan.json`. The tester reads this and
