@@ -6,7 +6,7 @@ estimated-reading-time: 5 min
 
 # Securely share a file from the SpecterX web platform
 
-To send a file to someone outside SpecterX, open the **Share Files** drawer in **My Files**, upload the file, add the people you want to reach, pick a security policy, and click **Share**. SpecterX creates a protected link and sends each recipient a notification email; the policy you choose controls what they can do once they open it.
+If you need to send a file to someone outside SpecterX, the **Share Files** drawer handles the upload, the access controls, and the notification email. The security policy you pick determines what recipients can do with the file.
 
 ## Before you start
 
@@ -103,7 +103,7 @@ Each recipient receives an email from an `@specterx.com` sender with a link to t
 
 Whether they can download, forward, or print the file depends on the policy you picked in step 6, not on the role you gave them.
 
-Recipients don't need a SpecterX account; SpecterX provisions them automatically when you add them to the share.
+Recipients don't need a SpecterX account. SpecterX provisions them automatically when you add them to the share.
 
 ## Troubleshooting
 
@@ -121,7 +121,7 @@ One of the required pieces is missing. Look at the top of the drawer for the mes
 
 The address isn't in `name@example.com` form. Check for typos, then press Enter again.
 
-### The recipient is already on the file's access list
+### A message says you've already shared this file with the recipient
 
 If you see **You have already shared this file with {recipient}**, the address is already on the file's recipient list. Use the **Share & Permissions Drawer** on the file to review or change that recipient's access instead.
 
