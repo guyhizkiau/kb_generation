@@ -25,9 +25,15 @@ On the **My Files** page, click **Share files**.
 
 The **Share Files** drawer opens on the right of the page with the first step, **Add items and Recipients**, already showing.
 
+![The My Files page — click Share files to open the drawer](screenshots/00-dashboard.png)
+
+![The Share Files drawer open with the upload area empty](screenshots/01-drawer-empty.png)
+
 ### 2. Add the file
 
 In the upload area at the top of the drawer, **Click or drag a file to this area to upload**. The file uploads as soon as you drop it; wait for the upload bar to finish before you continue.
+
+![test-document.pdf added to the upload list inside the drawer](screenshots/02-file-uploaded.png)
 
 To share a file you've already uploaded to **My Files**, close the drawer, click the **Share** action on the file's row, and skip to step 4.
 
@@ -38,6 +44,8 @@ Below the upload area, in the **Share with** block, the recipient field shows th
 Type the recipient's email address and press **Enter**. The address moves into a recipient row below the field.
 
 Repeat this for every recipient you want to add.
+
+![A recipient email appears in the Share with block after pressing Enter](screenshots/03-recipient-added.png)
 
 ### 4. Set each recipient's permission level
 
@@ -52,6 +60,8 @@ A Contributor or Co-owner can't override the policy: if the policy blocks downlo
 ### 5. Continue to the policy step
 
 Click **Next** at the bottom of the drawer to move to the **Select Policy** step.
+
+![The Select Policy step after clicking Next](screenshots/04-policy-step.png)
 
 ### 6. Pick a security policy
 
@@ -76,17 +86,25 @@ Skip this step if the policy you picked doesn't ask for either.
 
 Click **Share**. The drawer moves to the **Confirm** step and shows **Sharing Successful.** along with a one-line summary listing how many files were shared and who they went to.
 
+![The Confirm step showing Sharing Successful with the recipient summary table](screenshots/07-sharing-success.png)
+
 Each recipient receives a notification email with the protected link. The notification is sent automatically unless you turned off **Notify recipients** earlier in the flow.
 
 ### 9. Copy the protected link
 
 To send the link through another channel (a chat message, a calendar invite), click **Copy Link** on the **Confirm** step. SpecterX copies the link to your clipboard. The link is the same one every recipient received by email, and it's already governed by the policy you picked.
 
+![The copy-link icon in the recipient row of the Confirm step](screenshots/08-link-copied.png)
+
 ## After you share: the Share & Permissions Drawer
 
 To check who has access to a file you've already shared, or to change something after the share is live, open the **Share & Permissions Drawer** from **My Files**.
 
 1. In **My Files**, click the share icon on the file's row. The drawer opens on the right with the heading **Who has access**.
+
+![My Files showing the file row with the share icon](screenshots/09-my-files-after-share.png)
+
+![The Share and Permissions drawer showing Who has access](screenshots/10-permissions-drawer.png)
 
 2. From the drawer you can:
 
