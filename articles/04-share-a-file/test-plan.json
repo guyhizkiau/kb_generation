@@ -1,0 +1,194 @@
+{
+  "article_id": "04-share-a-file",
+  "preconditions": [
+    {
+      "kind": "browser_login",
+      "url": "https://app.specterx.com",
+      "credential": "SPECTERX_USERNAME / SPECTERX_PASSWORD"
+    }
+  ],
+  "steps": [
+    {
+      "id": "00-goto",
+      "description": "Navigate to SpecterX",
+      "backend": "browser",
+      "action": {"type": "goto", "url": "https://app.specterx.com", "wait_until": "domcontentloaded"},
+      "screenshot": {"after": false},
+      "verify": ""
+    },
+    {
+      "id": "00-email",
+      "description": "Fill email",
+      "backend": "browser",
+      "action": {"type": "fill", "placeholder": "Enter your email", "value_env": "SPECTERX_USERNAME"},
+      "screenshot": {"after": false},
+      "verify": ""
+    },
+    {
+      "id": "00-password",
+      "description": "Fill password",
+      "backend": "browser",
+      "action": {"type": "fill", "placeholder": "Enter your password", "value_env": "SPECTERX_PASSWORD"},
+      "screenshot": {"after": false},
+      "verify": ""
+    },
+    {
+      "id": "00-signin",
+      "description": "Click Sign In",
+      "backend": "browser",
+      "action": {"type": "click", "role": "button", "name": "Sign In"},
+      "screenshot": {"after": false},
+      "verify": ""
+    },
+    {
+      "id": "00-dashboard",
+      "description": "Wait for My Files",
+      "backend": "browser",
+      "action": {"type": "wait_for", "name": "My Files", "state": "visible"},
+      "screenshot": {"after": true, "filename": "00-dashboard.png", "focus": "My Files dashboard"},
+      "verify": "My Files"
+    },
+    {
+      "id": "01",
+      "description": "Click the Share files button on the My Files page (article Step 1: Open the Share files dialog)",
+      "backend": "browser",
+      "action": {"type": "click", "role": "button", "name": "Share files"},
+      "screenshot": {"after": true, "filename": "01-share-files-button.png", "focus": "My Files page with the Share files button highlighted in the top area"},
+      "verify": "The Share files dialog begins to open"
+    },
+    {
+      "id": "02",
+      "description": "Wait for the Share files dialog to be fully open",
+      "backend": "browser",
+      "action": {"type": "wait_for", "role": "dialog", "name": "Share files", "state": "visible"},
+      "screenshot": {"after": true, "filename": "02-share-dialog-open.png", "focus": "Share files dialog with the upload area visible"},
+      "verify": "The Share files dialog is open and the upload drop zone is visible"
+    },
+    {
+      "id": "03",
+      "description": "Upload test-document.pdf using the file input in the Share files dialog (article Step 2: Upload your file)",
+      "backend": "browser",
+      "action": {"type": "file_upload", "selector": "input[type='file']", "filename": "test-document.pdf"},
+      "screenshot": {"after": true, "filename": "03-upload-progress.png", "focus": "test-document.pdf uploading in the dialog with a progress bar visible"},
+      "verify": "test-document.pdf appears in the upload area with an upload progress indicator"
+    },
+    {
+      "id": "04",
+      "description": "Wait for test-document.pdf to finish uploading",
+      "backend": "browser",
+      "action": {"type": "wait_for", "selector_hint": "'test-document.pdf'", "state": "visible"},
+      "screenshot": {"after": true, "filename": "04-upload-complete.png", "focus": "test-document.pdf showing as fully uploaded in the Share files dialog with no active progress bar"},
+      "verify": "test-document.pdf is shown as uploaded with no active progress indicator"
+    },
+    {
+      "id": "05",
+      "description": "Type a recipient email address in the Add recipients field (article Step 3: Add a recipient)",
+      "backend": "browser",
+      "action": {"type": "fill", "placeholder": "Add recipients", "value_env": "SPECTERX_USERNAME"},
+      "screenshot": {"after": true, "filename": "05-recipient-typed.png", "focus": "Add recipients field with the email address typed, before pressing Enter"},
+      "verify": "The recipient email address is visible in the Add recipients field"
+    },
+    {
+      "id": "06",
+      "description": "Press Enter to confirm and add the recipient to the list",
+      "backend": "browser",
+      "action": {"type": "press", "key": "Enter"},
+      "screenshot": {"after": true, "filename": "06-recipient-added.png", "focus": "Recipient email appearing as a chip or row in the recipients list inside the Share files dialog"},
+      "verify": "The recipient email address appears as a chip or row in the recipients list"
+    },
+    {
+      "id": "07",
+      "description": "Click the permission dropdown next to the recipient to open it (article Step 4: Set recipient permission level)",
+      "backend": "browser",
+      "action": {"type": "click", "role": "combobox", "name": "Viewer"},
+      "screenshot": {"after": true, "filename": "07-permission-dropdown-open.png", "focus": "Permission dropdown open next to the recipient's email showing Viewer, Contributor, and Co-Owner options with Viewer highlighted"},
+      "verify": "The permission dropdown is open showing Viewer, Contributor, and Co-Owner options"
+    },
+    {
+      "id": "08",
+      "description": "Select Viewer from the permission dropdown",
+      "backend": "browser",
+      "action": {"type": "click", "role": "option", "name": "Viewer"},
+      "screenshot": {"after": true, "filename": "08-permission-viewer-selected.png", "focus": "Viewer selected as the permission level next to the recipient's email"},
+      "verify": "Viewer is selected as the permission level for the recipient"
+    },
+    {
+      "id": "09",
+      "description": "Click the security policy dropdown to open it (article Step 5: Select a security policy)",
+      "backend": "browser",
+      "action": {"type": "click", "role": "combobox", "name": "Policy"},
+      "screenshot": {"after": true, "filename": "09-policy-dropdown-open.png", "focus": "Policy dropdown open in the Share files dialog showing available security policy names"},
+      "verify": "The policy dropdown is open with a list of available security policies"
+    },
+    {
+      "id": "10",
+      "description": "Select the Standard security policy from the dropdown",
+      "backend": "browser",
+      "action": {"type": "click", "role": "option", "name": "Standard"},
+      "screenshot": {"after": true, "filename": "10-policy-selected.png", "focus": "A security policy selected and displayed in the policy field of the Share files dialog"},
+      "verify": "A security policy is selected and visible in the policy field"
+    },
+    {
+      "id": "11",
+      "description": "Click the Share button to create the protected link and send notification emails (article Step 7: Complete the share)",
+      "backend": "browser",
+      "action": {"type": "click", "role": "button", "name": "Share"},
+      "screenshot": {"after": true, "filename": "11-share-button-clicked.png", "focus": "Share files dialog with all fields filled — file, recipient, policy — and the Share button highlighted"},
+      "verify": "The share request is submitted and SpecterX is processing the protected link creation"
+    },
+    {
+      "id": "12",
+      "description": "Wait for the share confirmation screen showing the Copy link button",
+      "backend": "browser",
+      "action": {"type": "wait_for", "role": "button", "name": "Copy link", "state": "visible"},
+      "screenshot": {"after": true, "filename": "12-share-confirmation.png", "focus": "Share confirmation screen displaying the protected link and the Copy link button"},
+      "verify": "The share confirmation screen is visible with the protected link and the Copy link button"
+    },
+    {
+      "id": "13",
+      "description": "Click Copy link to copy the protected link to the clipboard (article Step 8: Copy the protected link)",
+      "backend": "browser",
+      "action": {"type": "click", "role": "button", "name": "Copy link"},
+      "screenshot": {"after": true, "filename": "13-link-copied.png", "focus": "Confirmation toast or message indicating the protected link was copied to clipboard"},
+      "verify": "A confirmation toast or message indicates the protected link was copied to the clipboard"
+    },
+    {
+      "id": "14",
+      "description": "Close the Share files confirmation and return to My Files",
+      "backend": "browser",
+      "action": {"type": "click", "role": "button", "name": "Done"},
+      "screenshot": {"after": false},
+      "verify": ""
+    },
+    {
+      "id": "15",
+      "description": "Wait for the My Files page to be visible after closing the dialog",
+      "backend": "browser",
+      "action": {"type": "wait_for", "role": "heading", "name": "My Files", "state": "visible"},
+      "screenshot": {"after": true, "filename": "15-my-files-after-share.png", "focus": "My Files page with test-document.pdf listed, showing the share icon next to it"},
+      "verify": "The My Files page is visible and test-document.pdf appears in the file list"
+    },
+    {
+      "id": "16",
+      "description": "Click the share icon next to test-document.pdf to open the Share & Permissions Drawer (article: After you share section)",
+      "backend": "browser",
+      "action": {"type": "click", "role": "button", "name": "Manage sharing"},
+      "screenshot": {"after": true, "filename": "16-share-icon.png", "focus": "Share icon highlighted next to test-document.pdf in the My Files list"},
+      "verify": "The Share & Permissions Drawer begins to open on the right side of the page"
+    },
+    {
+      "id": "17",
+      "description": "Verify the Share & Permissions Drawer shows the recipient, permission level, and policy",
+      "backend": "browser",
+      "action": {"type": "wait_for", "role": "complementary", "name": "Share & Permissions", "state": "visible"},
+      "screenshot": {"after": true, "filename": "17-permissions-drawer.png", "focus": "Share & Permissions Drawer open on the right, showing the recipient list with permission dropdowns and the Parent policy dropdown at the top"},
+      "verify": "The Share & Permissions Drawer is open and lists the recipient with their Viewer permission level and the applied security policy in the Parent policy dropdown"
+    }
+  ],
+  "postconditions": [
+    {
+      "kind": "cleanup",
+      "description": "Delete test-document.pdf from SpecterX to leave the tenant clean"
+    }
+  ]
+}
