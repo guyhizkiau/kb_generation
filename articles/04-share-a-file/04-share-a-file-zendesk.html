@@ -1,6 +1,6 @@
 <h1>Securely share a file from the SpecterX web platform</h1>
 <div style="font-size:0.875em;color:#57606a;margin:0.25rem 0 1.5rem;padding:0.5rem 0.75rem;background:#f6f8fa;border-radius:4px;border-left:3px solid #d0d7de;"><p>Audience: <strong>end-user</strong> &middot; Reading time: <strong>5 min</strong></p></div>
-<p>To send a file to someone outside SpecterX, open the <strong>Share Files</strong> drawer in <strong>My Files</strong>, upload the file, add the people you want to reach, pick a security policy, and click <strong>Share</strong>. SpecterX creates a protected link and sends each recipient a notification email; the policy you choose controls what they can do once they open it.</p>
+<p>If you need to send a file to someone outside SpecterX, the <strong>Share Files</strong> drawer handles the upload, the access controls, and the notification email. The security policy you pick determines what recipients can do with the file.</p>
 <h2>Before you start</h2>
 <p>You need:</p>
 <ul><li>An active SpecterX session in your browser. If you haven't signed in yet, see <a href="../01-log-in-to-specterx/01-log-in-to-specterx.html">Sign in to SpecterX</a>.</li><li>The file you want to share. It can be one you've already uploaded to <strong>My Files</strong>, or one from your computer that you upload as part of this flow.</li><li>The email address of each recipient.</li><li>A phone number for each recipient, in international format, if you plan to use a policy that requires SMS verification. Your administrator decides which policies require this.</li></ul>
@@ -44,14 +44,14 @@
 <h2>What recipients experience</h2>
 <p>Each recipient receives an email from an <code>@specterx.com</code> sender with a link to the protected file. When they click the link they land on the <strong>Recipient Page</strong> and verify their identity. For most recipients, this means entering a 6-digit code sent to their inbox. After verification, the file opens in the <strong>Secure Viewer</strong>.</p>
 <p>Whether they can download, forward, or print the file depends on the policy you picked in step 6, not on the role you gave them.</p>
-<p>Recipients don't need a SpecterX account; SpecterX provisions them automatically when you add them to the share.</p>
+<p>Recipients don't need a SpecterX account. SpecterX provisions them automatically when you add them to the share.</p>
 <h2>Troubleshooting</h2>
 <h3>The Share button stays disabled</h3>
 <p>One of the required pieces is missing. Look at the top of the drawer for the message it shows:</p>
 <ul><li><strong>Please add files to share</strong>. The upload didn't finish, or no file was added.</li><li><strong>Please add recipients to share</strong>. At least one recipient must be added.</li><li><strong>Recipient wasn't added. Please click on "Add" button</strong>. You typed an address but didn't press Enter to commit it.</li><li><strong>Some files are still uploading. Please wait until they finish uploading</strong>. Wait for the upload bar to finish.</li><li>A missing phone number or password banner. The selected policy needs that detail for every recipient.</li></ul>
 <h3>"Invalid email address" appears as you type a recipient</h3>
 <p>The address isn't in <code>name@example.com</code> form. Check for typos, then press Enter again.</p>
-<h3>The recipient is already on the file's access list</h3>
+<h3>A message says you've already shared this file with the recipient</h3>
 <p>If you see <strong>You have already shared this file with {recipient}</strong>, the address is already on the file's recipient list. Use the <strong>Share &amp; Permissions Drawer</strong> on the file to review or change that recipient's access instead.</p>
 <h3>A recipient says they didn't get the notification email</h3>
 <p>Ask them to check their spam or junk folder. The notification comes from an <code>@specterx.com</code> sender and may be routed through a transactional-email provider. If it still doesn't arrive after a few minutes, open the <strong>Share &amp; Permissions Drawer</strong>, confirm the recipient's email address is correct, and remove and re-add the recipient if it needs correcting.</p>
