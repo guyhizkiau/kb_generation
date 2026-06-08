@@ -6,6 +6,10 @@ You convert `draft-1.md` into a machine-executable test plan.
 
 - `articles/<NN-slug>/draft-1.md`
 
+**Do not read any existing `test-plan.json`.** If one already exists in
+the article directory, ignore it completely and generate from scratch
+using only `draft-1.md`.
+
 ## What you produce
 
 A file at `articles/<NN-slug>/test-plan.json`. The tester reads this and
@@ -130,6 +134,49 @@ in this order of preference:
 5. `"selector_hint"` — **only when none of the above apply**. It must be
    the exact element label in quotes, e.g. `"'Share files'"`. Never a
    prose description sentence.
+
+## Login precondition
+
+Every test plan that uses the `browser` backend **must** begin with
+explicit login steps — do not rely on the `browser_login` precondition
+alone, the runner does not execute preconditions. Always prepend these
+four steps before any article-specific steps:
+
+```json
+{"id": "00-goto", "description": "Navigate to SpecterX", "backend": "browser",
+ "action": {"type": "goto", "url": "https://app.specterx.com", "wait_until": "domcontentloaded"},
+ "screenshot": {"after": false}, "verify": ""},
+{"id": "00-email", "description": "Fill email", "backend": "browser",
+ "action": {"type": "fill", "placeholder": "Enter your email", "value_env": "SPECTERX_USERNAME"},
+ "screenshot": {"after": false}, "verify": ""},
+{"id": "00-password", "description": "Fill password", "backend": "browser",
+ "action": {"type": "fill", "placeholder": "Enter your password", "value_env": "SPECTERX_PASSWORD"},
+ "screenshot": {"after": false}, "verify": ""},
+{"id": "00-signin", "description": "Click Sign In", "backend": "browser",
+ "action": {"type": "click", "role": "button", "name": "Sign In"},
+ "screenshot": {"after": false}, "verify": ""},
+{"id": "00-dashboard", "description": "Wait for My Files", "backend": "browser",
+ "action": {"type": "wait_for", "name": "My Files", "state": "visible"},
+ "screenshot": {"after": true, "filename": "00-dashboard.png", "focus": "My Files dashboard"},
+ "verify": "My Files"}
+```
+
+## Locator rules
+
+Every action that targets an element needs a locator. Use this priority order — stop at the first that applies:
+
+1. **`"role"` + `"name"`** — always preferred:
+   `{"role": "button", "name": "Share files"}`.
+   When the article says a label is unconfirmed, **make your best guess
+   and commit to it** — a wrong-but-specific name produces a useful
+   timeout error; a vague prose hint silently always fails.
+2. **`"placeholder"`** — for text inputs: `{"placeholder": "Enter your email"}`.
+3. **`"label"`** — for labelled inputs: `{"label": "Recipient"}`.
+4. **`"selector"`** — CSS/XPath as last resort.
+5. **`"selector_hint"`** — only when none of the above apply. Must be the
+   **exact quoted label**, e.g. `"'Share files'"`. Never a prose
+   sentence. If you find yourself writing a sentence, use `role`+`name`
+   with your best-guess label instead.
 
 ## Rules
 
