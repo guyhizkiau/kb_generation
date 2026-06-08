@@ -34,7 +34,8 @@ executes each step against the live system.
       "backend": "browser",
       "action": {
         "type": "click",
-        "selector_hint": "Share button in file row for example.pdf"
+        "role": "button",
+        "name": "Share"
       },
       "screenshot": {
         "after": true,
@@ -84,13 +85,55 @@ app.specterx.com.
 - Right-click context menus from the desktop
 - Any taskbar/system tray interaction
 
+## Browser action types
+
+Each browser step has an `action` object with a `type`. Use one of:
+
+- `goto` — `url` (+ optional `wait_until`). Navigate to a URL.
+- `click` — locator. Click an element.
+- `fill` — locator + `value` or `value_env`. Type into an input
+  (clears first). Use `value_env` to read a secret from an env var
+  (e.g. `"value_env": "SPECTERX_PASSWORD"`); never inline secrets.
+- `type` — locator + `value` + optional `"confirm": "Enter"`. Same as
+  `fill`; with `confirm` it presses Enter afterward.
+- `select` — locator + `value`. Choose from a dropdown (native
+  `<select>` or a custom one).
+- `file_upload` — locator + one of:
+  - `filename` — a single file under `tester/fixtures/`.
+  - `filenames` — a list of files under `tester/fixtures/` (multi-select).
+  - `folder` — a subdirectory under `tester/fixtures/`; uploads every
+    file inside it (whole-folder upload).
+  Available fixtures: `test-document.pdf`, `test-document-2.pdf`,
+  `test-document-3.pdf`, `test-report.txt`, `test-image.png`, and the
+  folder `sample-folder/`.
+- `clear` — locator. Clear an input field.
+- `hover` — locator. Hover over an element.
+- `navigate` — `url` OR a locator. Goto a URL, or click a close/back
+  element when no URL is given.
+- `press` — `key`, e.g. `"Enter"`. Press a keyboard key.
+- `wait_for` — locator + optional `state` (default `"visible"`). Wait
+  for an element to reach a state.
+- `download` — locator + optional `save_as`. Click a download trigger
+  and save the resulting file.
+
+## Locators
+
+Every action that targets an element (everything except `goto`,
+`press`, and URL-based `navigate`) needs a locator. Provide exactly one,
+in this order of preference:
+
+1. `"role"` + `"name"` — most reliable:
+   `{"role": "button", "name": "Share files"}`.
+2. `"placeholder"` — for text inputs: `{"placeholder": "Enter your email"}`.
+3. `"label"` — for labelled inputs: `{"label": "Recipient"}`.
+4. `"selector"` — a CSS/XPath selector, as a last resort.
+5. `"selector_hint"` — **only when none of the above apply**. It must be
+   the exact element label in quotes, e.g. `"'Share files'"`. Never a
+   prose description sentence.
+
 ## Rules
 
 - One step per JSON entry; do not bundle.
-- `selector_hint` is a natural-language description, not a CSS
-  selector. The browser backend uses Playwright accessibility tree +
-  the hint to find the element. Be descriptive: "the blue Share button
-  in the top-right of the file detail panel", not just "Share".
 - `verify` is a checkable condition the tester will assert. Be
   concrete: "A dialog titled 'Share' is visible", not "the share
   thing happens".
