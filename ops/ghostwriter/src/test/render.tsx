@@ -4,7 +4,7 @@ import { MantineProvider } from '@mantine/core'
 import { Notifications } from '@mantine/notifications'
 import { ModalsProvider } from '@mantine/modals'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ReaderProvider } from '@/context/ReaderContext'
+import { NavigationProvider } from '@/context/NavigationContext'
 
 function Providers({ children }: { children: ReactNode }) {
   const queryClient = new QueryClient({
@@ -15,7 +15,7 @@ function Providers({ children }: { children: ReactNode }) {
       <MantineProvider>
         <Notifications />
         <ModalsProvider>
-          <ReaderProvider>{children}</ReaderProvider>
+          <NavigationProvider>{children}</NavigationProvider>
         </ModalsProvider>
       </MantineProvider>
     </QueryClientProvider>

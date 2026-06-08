@@ -28,6 +28,7 @@ import { ConfirmDeleteModal } from '@/components/ConfirmDeleteModal'
 import { DeleteArticleModal } from '@/components/DeleteArticleModal'
 import { PhaseBadge } from '@/components/PhaseBadge'
 import { useReader } from '@/context/ReaderContext'
+import { useNavigation } from '@/context/NavigationContext'
 
 /** Strip API-enriched fields before PUT /api/queue. */
 export function toPersistableQueue(q: QueueData): Pick<QueueData, 'version' | 'clusters'> {
@@ -211,9 +212,9 @@ export function ArticlesView() {
   const mergeArticle = useMergeArticle()
   const deleteArticle = useDeleteArticle()
   const { openReader } = useReader()
+  const { clusterId: selectedCluster, setClusterId } = useNavigation()
 
   const [localQueue, setLocalQueue] = useState<QueueData | null>(null)
-  const [selectedCluster, setSelectedCluster] = useState<string | null>(null)
   const [dirty, setDirty] = useState(false)
   const [newSlug, setNewSlug] = useState('')
   const [newTitle, setNewTitle] = useState('')
@@ -449,13 +450,13 @@ export function ArticlesView() {
         children: <Text size="sm">Switch clusters without saving?</Text>,
         labels: { confirm: 'Switch', cancel: 'Stay' },
         onConfirm: () => {
-          setSelectedCluster(id)
+          setClusterId(id)
           setDirty(false)
           setLocalQueue(null)
         },
       })
     } else {
-      setSelectedCluster(id)
+      setClusterId(id)
     }
   }
 
