@@ -54,6 +54,15 @@ def append_feedback(slug: str, annotation: dict) -> dict:
     return {"ok": True, "annotation": annotation}
 
 
+def delete_feedback(slug: str) -> bool:
+    """Delete the entire annotation file for *slug*. Returns True if removed."""
+    fp = feedback_path(slug)
+    if fp.exists():
+        fp.unlink()
+        return True
+    return False
+
+
 def remove_feedback(slug: str, ann_id: str) -> dict:
     """Remove one annotation by ``id``."""
     if not ann_id:

@@ -178,6 +178,75 @@ def local_append_feedback(payload: dict) -> tuple[int, dict]:
     return code, result
 
 
+def _git_local(*args: str) -> subprocess.CompletedProcess:
+    return subprocess.run(
+        ["git", *args], cwd=str(REPO_ROOT), capture_output=True, text=True,
+    )
+
+
+def local_delete_article(slug: str, remove_from_plan: bool) -> tuple[int, dict]:
+    """Inline fallback for DELETE /api/articles/<slug> when control is offline."""
+    slug = (slug or "").strip()
+    if not _qs.SLUG_RE.match(slug):
+        return 400, {"ok": False, "error": f"invalid slug '{slug}'"}
+
+    merged = False
+    try:
+        merged = _qs.article_is_merged(slug)
+    except Exception:
+        pass
+
+    try:
+        res = _ghq.close_article_pr(slug, repo=GITHUB_REPO)
+        if not res.get("ok"):
+            print(f"[ghostwriter-shim] close PR for {slug} failed: {res.get('error')}")
+    except Exception as exc:
+        print(f"[ghostwriter-shim] close_article_pr({slug}) raised: {exc}")
+
+    _git_local("branch", "-D", f"article/{slug}")
+    _git_local("branch", "-rd", f"origin/article/{slug}")
+
+    pushed = False
+    push_failed = False
+    push_error = ""
+    if merged:
+        _git_local("rm", "-r", "--quiet", f"articles/{slug}")
+        _qs.delete_article_dir(slug)
+        _git_local("commit", "-m", f"chore(article): delete {slug}")
+        push = _git_local("push", "origin", "main")
+        if push.returncode == 0:
+            pushed = True
+        else:
+            push_failed = True
+            push_error = (push.stderr or "git push failed").strip()
+    else:
+        _qs.delete_article_dir(slug)
+
+    try:
+        _fb.delete_feedback(slug)
+    except Exception as exc:
+        print(f"[ghostwriter-shim] delete feedback for {slug} failed: {exc}")
+
+    removed_from_plan = False
+    if remove_from_plan:
+        try:
+            removed_from_plan = _qs.remove_article_from_queue(slug)
+        except Exception as exc:
+            print(f"[ghostwriter-shim] remove {slug} from queue failed: {exc}")
+
+    result = {
+        "ok": True,
+        "slug": slug,
+        "merged": merged,
+        "removed_from_plan": removed_from_plan,
+        "pushed": pushed,
+    }
+    if push_failed:
+        result["push_failed"] = True
+        result["error"] = push_error
+    return 200, result
+
+
 def local_remove_feedback(slug: str, ann_id: str) -> tuple[int, dict]:
     if not slug:
         return 400, {"ok": False, "error": "slug required"}
@@ -435,11 +504,32 @@ class ShimHandler(BaseHTTPRequestHandler):
             except Exception:
                 pass  # fall through to local handler
 
+        if path.startswith("/api/articles/") and self._control_up():
+            try:
+                code, raw = proxy_request("DELETE", path, query=parsed.query)
+                if 200 <= code < 300:
+                    self._send_bytes(code, raw)
+                    return
+            except urllib.error.HTTPError as exc:
+                if exc.code not in (404, 405, 501):
+                    self._send_bytes(exc.code, exc.read())
+                    return
+            except Exception:
+                pass  # fall through to local handler
+
         if path == "/api/feedback":
             qs = parse_qs(parsed.query)
             slug = qs.get("slug", [""])[0]
             ann_id = qs.get("id", [""])[0]
             code, result = local_remove_feedback(slug, ann_id)
+            self._send_json(result, code)
+            return
+
+        if path.startswith("/api/articles/"):
+            qs = parse_qs(parsed.query)
+            slug = path[len("/api/articles/"):].strip("/")
+            remove_from_plan = qs.get("remove_from_plan", ["false"])[0].lower() == "true"
+            code, result = local_delete_article(slug, remove_from_plan)
             self._send_json(result, code)
             return
 

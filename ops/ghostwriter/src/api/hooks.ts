@@ -117,6 +117,21 @@ export function useMergeArticle() {
   })
 }
 
+export function useDeleteArticle() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ slug, removeFromPlan }: { slug: string; removeFromPlan: boolean }) =>
+      apiFetch(
+        `/api/articles/${encodeURIComponent(slug)}?remove_from_plan=${removeFromPlan}`,
+        { method: 'DELETE' },
+      ),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['queue'] })
+      qc.invalidateQueries({ queryKey: ['status'] })
+    },
+  })
+}
+
 // ── feedback ─────────────────────────────────────────────────────────────────
 
 export function useFeedback(slug: string) {
