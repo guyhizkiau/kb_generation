@@ -19,15 +19,16 @@ export interface PhaseBadgeProps {
   phase: string
   lastUpdate?: string
   running?: boolean
+  forceActivity?: boolean
 }
 
 /**
  * Pipeline phase badge with optional elapsed-time and running/idle indicator
  * for in-progress phases.
  */
-export function PhaseBadge({ phase, lastUpdate, running }: PhaseBadgeProps) {
+export function PhaseBadge({ phase, lastUpdate, running, forceActivity }: PhaseBadgeProps) {
   const color = PHASE_COLORS[phase] ?? 'gray'
-  const showActivity = IN_PROGRESS_PHASES.has(phase)
+  const showActivity = IN_PROGRESS_PHASES.has(phase) || forceActivity === true
   const elapsed = showActivity && lastUpdate ? formatPhaseElapsed(lastUpdate) : null
   const isIdle = running === false && showActivity
 

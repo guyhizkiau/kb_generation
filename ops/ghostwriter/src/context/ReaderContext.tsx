@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
+import { useNavigation } from '@/context/NavigationContext'
 
 interface ReaderContextValue {
   readerSlug: string | null
@@ -6,23 +6,12 @@ interface ReaderContextValue {
   closeReader: () => void
 }
 
-const ReaderContext = createContext<ReaderContextValue | null>(null)
-
-export function ReaderProvider({ children }: { children: ReactNode }) {
-  const [readerSlug, setReaderSlug] = useState<string | null>(null)
-
-  const openReader = useCallback((slug: string) => setReaderSlug(slug), [])
-  const closeReader = useCallback(() => setReaderSlug(null), [])
-
-  return (
-    <ReaderContext.Provider value={{ readerSlug, openReader, closeReader }}>
-      {children}
-    </ReaderContext.Provider>
-  )
-}
-
+/**
+ * Backward-compatible reader API. The reader overlay state now lives in the
+ * URL-backed {@link useNavigation} store; this hook is a thin selector so
+ * existing call sites keep working.
+ */
 export function useReader(): ReaderContextValue {
-  const ctx = useContext(ReaderContext)
-  if (!ctx) throw new Error('useReader must be used within ReaderProvider')
-  return ctx
+  const { readerSlug, openReader, closeReader } = useNavigation()
+  return { readerSlug, openReader, closeReader }
 }
