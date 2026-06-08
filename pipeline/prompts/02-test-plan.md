@@ -186,13 +186,28 @@ These are confirmed from `web-client/src/components/` — use them exactly, do n
 |-----------|----------------|
 | Sign In form submit button | `"selector": "button[type='submit']"` |
 | Share Files drawer file upload input | `"selector": "input[data-testid='uploadDrawer_dragdropArea']"` |
+| Share Files drawer recipient email input | `"selector": "[data-testid='uploadDrawer_emailField'] input"` |
+| Share Files drawer Next button | `"selector": "[data-testid='uploadDrawer_nextButton']"` |
+| Share Files drawer Share button (PolicyStep) | `"selector": "[data-testid='uploadDrawer_shareButton']"` |
+| Share Files drawer Done/close button (success screen) | `"selector": "[data-testid='uploadDrawer_Done']"` |
+| Copy link icon button (success screen file row) | `"selector": "[data-testid='uploadDrawer_copyIcon']"` |
+| My Files — Who Has Access / permissions icon on file row | `"selector": "[data-testid='myFiles_WhoHasAccess']"` |
 
 **File upload note**: The Share Files drawer uses Ant Design's `<Dragger>` with
-`openFileDialogOnClick={false}`, so clicking the drag area does NOT open a file picker.
-The hidden `input[type='file']` has `data-testid="uploadDrawer_dragdropArea"`. Always use
+`openFileDialogOnClick={false}` and `webkitdirectory` on the input. `browser_runner.py`
+handles this automatically: if `set_input_files` fails with a webkitdirectory error it
+strips the attribute and retries. Always use
 `"selector": "input[data-testid='uploadDrawer_dragdropArea']"` for file uploads in this drawer.
 The visible text "Choose a file or drag it here" is in a `div`, not the `input` — do not
 use `selector_hint` for file uploads.
+
+**Policy step note**: After clicking Next, `applyRules` runs asynchronously. If any rule
+auto-assigns a policy to the uploaded file, the "Choose Policy" section is hidden and
+`[data-testid='uploadDrawer_policyDropdown']` never appears. Add a
+`{"type": "wait_for", "selector": "[data-testid='uploadDrawer_shareButton']", "state": "visible", "timeout_ms": 30000}`
+step after Next to wait for rules to finish loading before interacting with the policy step.
+The Share button (`uploadDrawer_shareButton`) appears once rules complete regardless of
+whether a policy was auto-assigned.
 
 **Before writing any test-plan step that interacts with a SpecterX UI element**, grep the
 codebase first:
