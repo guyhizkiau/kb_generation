@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
-  Box, Group, Text, Button, ScrollArea, Stack, Anchor, Title, Skeleton,
+  Box, Group, Text, Button, ScrollArea, Stack, Anchor, Title, Skeleton, Alert,
 } from '@mantine/core'
 import { IconArrowLeft } from '@tabler/icons-react'
 import { notifications } from '@mantine/notifications'
@@ -28,6 +28,15 @@ export function ArticleReaderOverlay({ slug, onClose }: ArticleReaderOverlayProp
   const mergeArticle = useMergeArticle()
   const dismissAnnotation = useDismissAnnotation()
   const [previewState, setPreviewState] = useState<PreviewState>('loading')
+  const [justTriggered, setJustTriggered] = useState(false)
+  const prevClaudeRunning = useRef(false)
+  useEffect(() => {
+    const current = queueData?.claude_running ?? false
+    if (prevClaudeRunning.current && !current) setJustTriggered(false)
+    prevClaudeRunning.current = current
+  }, [queueData?.claude_running])
+
+  const revisionInProgress = justTriggered || trigger.isPending || queueData?.claude_running === true
 
   const article = queueData?.clusters
     .flatMap((c) => c.articles)
@@ -113,12 +122,14 @@ export function ArticleReaderOverlay({ slug, onClose }: ArticleReaderOverlayProp
             issue: article?.feedback_issue ?? '',
           },
           {
-            onSuccess: () =>
+            onSuccess: () => {
+              setJustTriggered(true)
               notifications.show({
                 title: 'Launched',
                 message: `Revision started for ${slug}`,
                 color: 'teal',
-              }),
+              })
+            },
             onError: (e) =>
               notifications.show({ title: 'Error', message: e.message, color: 'red' }),
           },
@@ -206,8 +217,14 @@ export function ArticleReaderOverlay({ slug, onClose }: ArticleReaderOverlayProp
             </Anchor>
           )}
           {activeAnnotations.length > 0 && (
-            <Button size="sm" color="teal" onClick={handleAccept}>
-              Accept all → revise
+            <Button
+              size="sm"
+              color="teal"
+              loading={revisionInProgress}
+              disabled={revisionInProgress}
+              onClick={handleAccept}
+            >
+              {revisionInProgress ? 'Revision in progress…' : 'Accept all → revise'}
             </Button>
           )}
           <Button size="xs" variant="light" onClick={() => refetch()}>
@@ -232,6 +249,11 @@ export function ArticleReaderOverlay({ slug, onClose }: ArticleReaderOverlayProp
           <Text fw={600} px="md" py="sm" size="sm">
             Comments ({activeAnnotations.length})
           </Text>
+          {revisionInProgress && (
+            <Alert color="yellow" mx="md" mb="sm" title="Revision in progress…">
+              Buttons disabled until Claude finishes.
+            </Alert>
+          )}
           <ScrollArea flex={1} px="md" pb="md">
             {fbLoading ? (
               <Text c="dimmed" size="sm">Loading…</Text>
@@ -247,6 +269,7 @@ export function ArticleReaderOverlay({ slug, onClose }: ArticleReaderOverlayProp
                   key={ann.id}
                   ann={ann}
                   onAccept={handleAccept}
+                  disabled={revisionInProgress}
                   onDismiss={() =>
                     dismissAnnotation.mutate(
                       { slug, id: ann.id },

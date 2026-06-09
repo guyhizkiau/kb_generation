@@ -76,6 +76,7 @@ export interface StatusData {
     previews_posted: number
   }
   recent_log: string[]
+  task_log: string[]
 }
 
 // ── queue ────────────────────────────────────────────────────────────────────
