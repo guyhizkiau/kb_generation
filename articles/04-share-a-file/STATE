@@ -1,5 +1,5 @@
-PHASE=FINALIZING
+PHASE=PR_OPEN
 LAST_UPDATE=2026-06-09T11:05:00Z
-NEXT_ACTION=run voice-pass and open revision PR
+NEXT_ACTION=await re-review of cycle-2 revision on PR #13
 REVISION_CYCLE=2
 FEEDBACK_ISSUE=
