@@ -58,6 +58,7 @@ class TriggerTests(unittest.TestCase):
             })
         self.assertTrue(result["ok"])
         self.assertEqual(result["revision_cycle"], 1)
+        self.assertEqual(result["annotation_count"], 1)
         import feedback_store as fb
         fb_data = fb.read_feedback(slug)
         self.assertEqual(len(fb_data), 1)
@@ -68,6 +69,106 @@ class TriggerTests(unittest.TestCase):
         self.assertEqual(fields["REVISION_CYCLE"], "1")
         self.assertEqual(fields["FEEDBACK_ISSUE"], "99")
         launch.assert_called_once_with(slug, "revise-from-feedback")
+
+    def test_handle_trigger_feedback_preserves_inline_annotations_no_issue(self):
+        """Inline comments are not wiped when no GitHub issue is provided."""
+        import feedback_store as fb
+        slug = "01-log-in-to-specterx"
+        self.pw.WORKTREE_PATH.mkdir(parents=True, exist_ok=True)
+        fb.write_feedback(slug, [{"id": "inline-1", "body": [{"value": "clarify step 2"}]}])
+
+        with mock.patch.object(self.pw, "is_claude_running", return_value=False), \
+             mock.patch.object(self.pw, "_launch_phase") as launch, \
+             mock.patch.object(self.pw, "ensure_worktree"), \
+             mock.patch.object(self.pw, "git_worktree"):
+            result = self.pw._handle_trigger({
+                "slug": slug, "reason": "feedback", "issue": "",
+            })
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["annotation_count"], 1)
+        stored = fb.read_feedback(slug)
+        self.assertEqual(len(stored), 1)
+        self.assertEqual(stored[0]["id"], "inline-1")
+        launch.assert_called_once_with(slug, "revise-from-feedback")
+        fields = self.pw._qs.read_state_fields(
+            self.pw.WORKTREE_PATH / "articles" / slug / "STATE",
+        )
+        self.assertEqual(fields["PHASE"], "REVISING")
+
+    def test_handle_trigger_feedback_empty_store_returns_error(self):
+        """Trigger with an empty feedback store and no issue returns ok=False,
+        does not modify STATE, and does not launch Claude."""
+        import feedback_store as fb
+        slug = "01-log-in-to-specterx"
+        self.pw.WORKTREE_PATH.mkdir(parents=True, exist_ok=True)
+        fb.write_feedback(slug, [])
+
+        with mock.patch.object(self.pw, "is_claude_running", return_value=False), \
+             mock.patch.object(self.pw, "_launch_phase") as launch, \
+             mock.patch.object(self.pw, "ensure_worktree"), \
+             mock.patch.object(self.pw, "git_worktree"):
+            result = self.pw._handle_trigger({
+                "slug": slug, "reason": "feedback", "issue": "",
+            })
+
+        self.assertFalse(result["ok"])
+        self.assertIn("No feedback", result.get("error", ""))
+        launch.assert_not_called()
+        # STATE must not have been updated to REVISING.
+        state_path = self.pw.WORKTREE_PATH / "articles" / slug / "STATE"
+        if state_path.exists():
+            fields = self.pw._qs.read_state_fields(state_path)
+            self.assertNotEqual(fields.get("PHASE"), "REVISING")
+
+    def test_handle_trigger_feedback_dedup_already_queued(self):
+        """A second trigger while a feedback-launch is already queued returns
+        ok=False without duplicating the queue entry."""
+        import feedback_store as fb
+        slug = "01-log-in-to-specterx"
+        self.pw.WORKTREE_PATH.mkdir(parents=True, exist_ok=True)
+        fb.write_feedback(slug, [{"id": "inline-1", "body": [{"value": "fix typo"}]}])
+        # Pre-load the queue with a pending feedback-launch for this slug.
+        self.pw._manual_trigger_set.append({"slug": slug, "reason": "feedback-launch", "issue": ""})
+
+        with mock.patch.object(self.pw, "is_claude_running", return_value=True), \
+             mock.patch.object(self.pw, "_launch_phase") as launch, \
+             mock.patch.object(self.pw, "ensure_worktree"), \
+             mock.patch.object(self.pw, "git_worktree"):
+            result = self.pw._handle_trigger({
+                "slug": slug, "reason": "feedback", "issue": "",
+            })
+
+        self.assertFalse(result["ok"])
+        self.assertIn("already queued", result.get("error", "").lower())
+        launch.assert_not_called()
+        # Must not have added a second entry for this slug.
+        queued = [t for t in self.pw._manual_trigger_set
+                  if t.get("slug") == slug and t.get("reason") == "feedback-launch"]
+        self.assertEqual(len(queued), 1)
+
+    def test_merge_feedback_dedup_by_id(self):
+        """merge_feedback never loses existing annotations and dedupes by id."""
+        import feedback_store as fb
+        slug = "01-log-in-to-specterx"
+        fb.write_feedback(slug, [
+            {"id": "existing-1", "body": [{"value": "first comment"}]},
+        ])
+        merged = fb.merge_feedback(slug, [
+            {"id": "existing-1", "body": [{"value": "should be ignored"}]},
+            {"id": "new-2", "body": [{"value": "new comment"}]},
+        ])
+        self.assertEqual(len(merged), 2)
+        ids = {a["id"] for a in merged}
+        self.assertIn("existing-1", ids)
+        self.assertIn("new-2", ids)
+        # The original value of existing-1 must be preserved (not overwritten).
+        orig = next(a for a in merged if a["id"] == "existing-1")
+        self.assertEqual(orig["body"][0]["value"], "first comment")
+
+        # Calling again with only known ids should be idempotent.
+        merged2 = fb.merge_feedback(slug, [{"id": "existing-1"}, {"id": "new-2"}])
+        self.assertEqual(len(merged2), 2)
 
     def test_manual_drain_launches_selected_slug(self):
         self.pw._manual_trigger_set.append({

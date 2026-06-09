@@ -1193,7 +1193,9 @@ def _handle_trigger(data: dict) -> dict:
         if not fields:
             return {"ok": False, "error": f"no STATE file for {slug}"}
 
-        annotations: list = []
+        # Collect annotations from the linked GitHub issue (if any).
+        # These are merged into the existing store rather than replacing it.
+        issue_annotations: list = []
         if issue:
             try:
                 r = subprocess.run(
@@ -1207,13 +1209,28 @@ def _handle_trigger(data: dict) -> dict:
                         m = re.search(r"```json\n(.*?)\n```", body_text, re.DOTALL)
                         if m:
                             try:
-                                annotations.append(json.loads(m.group(1)))
+                                issue_annotations.append(json.loads(m.group(1)))
                             except json.JSONDecodeError:
                                 pass
             except Exception as exc:
                 log(f"  WARNING: could not fetch issue {issue} annotations: {exc}")
 
-        _fb.write_feedback(slug, annotations)
+        # Merge issue annotations into the existing inline-comment store
+        # (dedupe by id). Inline comments written via POST /api/feedback are
+        # never wiped, even when issue is empty or produces no JSON blocks.
+        merged = _fb.merge_feedback(slug, issue_annotations)
+
+        if not merged:
+            return {"ok": False, "error": f"No feedback to revise for {slug}"}
+
+        # Dedup: do not launch a second revision while one is already queued
+        # or Claude is actively running a revise-from-feedback for this slug.
+        already_queued = any(
+            t.get("slug") == slug and t.get("reason") == "feedback-launch"
+            for t in _manual_trigger_set
+        )
+        if already_queued:
+            return {"ok": False, "error": f"Revision already queued for {slug}"}
 
         ensure_worktree()
         branch = f"article/{slug}"
@@ -1240,7 +1257,8 @@ def _handle_trigger(data: dict) -> dict:
 
         return {"ok": True, "reason": reason,
                 "phase": "revise-from-feedback",
-                "revision_cycle": rc + 1}
+                "revision_cycle": rc + 1,
+                "annotation_count": len(merged)}
 
     return {"ok": False, "error": f"unknown reason '{reason}'"}
 

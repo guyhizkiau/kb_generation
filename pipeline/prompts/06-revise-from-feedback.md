@@ -66,6 +66,18 @@ Leave these unchanged.
    python3 pipeline/build_index.py
    ```
 
+6. Clear the feedback store for this slug so resolved annotations do not linger
+   or re-trigger a second revision cycle:
+   ```python
+   import json, os, pathlib
+   fb_dir = os.environ.get("GHOSTWRITER_FEEDBACK_DIR") or "/home/ubuntu/ghostwriter-feedback"
+   pathlib.Path(fb_dir, "<slug>.json").write_text("[]\n")
+   ```
+   (On local dev the path is `.ghostwriter/feedback/<slug>.json` — set
+   `GHOSTWRITER_FEEDBACK_DIR` accordingly or use `feedback_store.write_feedback`.)
+   Orphaned annotations are recorded in the resolution summary above and do not
+   need to be re-resolved; they should be cleared here along with the resolved ones.
+
 ## State transitions
 
 After all annotations are resolved:
