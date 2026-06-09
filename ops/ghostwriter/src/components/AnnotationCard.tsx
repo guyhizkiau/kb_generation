@@ -1,16 +1,18 @@
-import { Card, Text, Group, Stack, Button, Box } from '@mantine/core'
+import { Card, Text, Group, Stack, Button, Box, Tooltip } from '@mantine/core'
 import type { Annotation } from '@/api/hooks'
 
 export interface AnnotationCardProps {
   ann: Annotation
   onAccept?: () => void
   onDismiss?: () => void
+  disabled?: boolean
 }
 
 export function AnnotationCard({
   ann,
   onAccept,
   onDismiss,
+  disabled = false,
 }: AnnotationCardProps) {
   const comment = ann.body.map((b) => b.value).join(' ')
   const selector = ann.target?.selector
@@ -59,12 +61,24 @@ export function AnnotationCard({
           </Text>
           {onAccept && onDismiss && (
             <Group gap="xs" justify="flex-end">
-              <Button size="xs" variant="subtle" color="gray" onClick={onDismiss}>
+              <Button size="xs" variant="subtle" color="gray" onClick={onDismiss} disabled={disabled}>
                 Dismiss
               </Button>
-              <Button size="xs" color="teal" onClick={onAccept}>
-                Accept → revise
-              </Button>
+              <Tooltip
+                label="Revision in progress"
+                disabled={!disabled}
+                withArrow
+              >
+                <Button
+                  size="xs"
+                  color="teal"
+                  onClick={onAccept}
+                  disabled={disabled}
+                  title={disabled ? 'Revision in progress' : undefined}
+                >
+                  Accept → revise
+                </Button>
+              </Tooltip>
             </Group>
           )}
         </Group>
