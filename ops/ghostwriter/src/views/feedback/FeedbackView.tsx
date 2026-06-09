@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import {
   Grid, Card, Text, Badge, Group, Stack, Button,
   Title, Box, NavLink, ScrollArea, Anchor, Alert,
@@ -23,7 +24,19 @@ export function FeedbackView() {
 
   const { data: feedbackData, isLoading: fbLoading } = useFeedback(selectedSlug ?? '')
 
-  const revisionInProgress = queueData?.claude_running === true
+  // Bridge the polling gap: set true immediately on trigger success, clear once
+  // the queue confirms claude_running has cycled back to false.
+  const [justTriggered, setJustTriggered] = useState(false)
+  const prevClaudeRunning = useRef(false)
+  useEffect(() => {
+    const current = queueData?.claude_running ?? false
+    if (prevClaudeRunning.current && !current) {
+      setJustTriggered(false)
+    }
+    prevClaudeRunning.current = current
+  }, [queueData?.claude_running])
+
+  const revisionInProgress = justTriggered || trigger.isPending || queueData?.claude_running === true
 
   const articlesWithFeedback =
     queueData?.clusters
@@ -59,12 +72,14 @@ export function FeedbackView() {
             issue: activeArticle?.feedback_issue ?? '',
           },
           {
-            onSuccess: () =>
+            onSuccess: () => {
+              setJustTriggered(true)
               notifications.show({
                 title: 'Launched',
                 message: `Revision started for ${selectedSlug}`,
                 color: 'teal',
-              }),
+              })
+            },
             onError: (e) =>
               notifications.show({ title: 'Error', message: e.message, color: 'red' }),
           },
