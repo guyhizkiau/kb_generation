@@ -202,7 +202,8 @@ def write_status(state: dict, iteration: int, next_poll_at: float) -> None:
             "merges_handled":     sum(1 for h in handled if h.startswith("merge-handled-")),
             "previews_posted":    sum(1 for h in handled if h.startswith("preview-posted-")),
         },
-        "recent_log": _tail_log(40),
+        "recent_log": _tail_log(200),
+        "task_log": _tail_log_file(TASK_LOG_FILE, 200),
     }
     dest = STATUS_DIR / "status.json"
     tmp = dest.with_suffix(".tmp")
@@ -225,8 +226,12 @@ def _clear_failure(state: dict, cid: str):
 
 
 def _tail_log(n: int) -> list[str]:
+    return _tail_log_file(LOG_FILE, n)
+
+
+def _tail_log_file(path: Path, n: int) -> list[str]:
     try:
-        lines = LOG_FILE.read_text(errors="replace").splitlines()
+        lines = path.read_text(errors="replace").splitlines()
         return lines[-n:]
     except Exception:
         return []

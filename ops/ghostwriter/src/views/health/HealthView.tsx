@@ -1,10 +1,28 @@
 import {
   Grid, Card, Text, Badge, Group, Stack, Progress, Table,
-  Button, Code, ScrollArea, Title, Box, Anchor,
+  Button, Code, ScrollArea, Title, Box, Anchor, Tabs,
 } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { useStatus, usePollNow, useRetry } from '@/api/hooks'
 import { githubPullUrl } from '@/api/github'
+import { useEffect, useRef } from 'react'
+
+function LogPanel({ lines }: { lines: string[] }) {
+  const viewportRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    // Auto-scroll to bottom whenever lines change
+    if (viewportRef.current) {
+      viewportRef.current.scrollTop = viewportRef.current.scrollHeight
+    }
+  }, [lines])
+  return (
+    <ScrollArea h={520} viewportRef={viewportRef}>
+      <Code block style={{ fontSize: '11px', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>
+        {lines.length > 0 ? lines.join('\n') : '(empty)'}
+      </Code>
+    </ScrollArea>
+  )
+}
 
 function StatusBadge({ label, ok }: { label: string; ok: boolean }) {
   return (
@@ -176,14 +194,28 @@ export function HealthView() {
         </Card>
       )}
 
-      {/* Live log */}
+      {/* Logs */}
       <Card withBorder>
-        <Text fw={600} mb="xs">Recent log</Text>
-        <ScrollArea h={280}>
-          <Code block style={{ fontSize: '11px', whiteSpace: 'pre-wrap' }}>
-            {(data.recent_log ?? []).join('\n')}
-          </Code>
-        </ScrollArea>
+        <Tabs defaultValue={data.task_log?.length ? 'task' : 'daemon'}>
+          <Tabs.List mb="sm">
+            <Tabs.Tab value="daemon">
+              Daemon log
+              <Text span size="xs" c="dimmed" ml={6}>({data.recent_log?.length ?? 0} lines)</Text>
+            </Tabs.Tab>
+            <Tabs.Tab value="task">
+              Claude output
+              {data.task_log?.length ? (
+                <Badge size="xs" color="teal" ml={6}>{data.task_log.length}</Badge>
+              ) : null}
+            </Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value="daemon">
+            <LogPanel lines={data.recent_log ?? []} />
+          </Tabs.Panel>
+          <Tabs.Panel value="task">
+            <LogPanel lines={data.task_log ?? []} />
+          </Tabs.Panel>
+        </Tabs>
       </Card>
     </Stack>
   )
