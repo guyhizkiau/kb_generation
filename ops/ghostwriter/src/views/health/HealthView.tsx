@@ -10,10 +10,13 @@ import { useEffect, useRef } from 'react'
 function LogPanel({ lines }: { lines: string[] }) {
   const viewportRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    // Auto-scroll to bottom whenever lines change
-    if (viewportRef.current) {
-      viewportRef.current.scrollTop = viewportRef.current.scrollHeight
-    }
+    // Defer to the next animation frame so the browser has finished laying
+    // out the new content before we read scrollHeight.
+    const id = requestAnimationFrame(() => {
+      const el = viewportRef.current
+      if (el) el.scrollTop = el.scrollHeight
+    })
+    return () => cancelAnimationFrame(id)
   }, [lines])
   return (
     <ScrollArea h={520} viewportRef={viewportRef}>
