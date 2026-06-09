@@ -1338,11 +1338,13 @@ def _handle_trigger(data: dict) -> dict:
             git_worktree("checkout", branch, check=False)
             git_worktree("pull", "origin", branch, check=False)
         else:
-            # Branch was deleted (article merged / Done). Create a fresh revision
-            # branch from main. Force-delete any stale local branch first so
-            # "checkout -b" doesn't fail on a leftover from a previous bad run.
-            git_worktree("branch", "-D", branch, check=False)
-            git_worktree("checkout", "-b", branch, "origin/main", check=False)
+            # Branch was deleted (Done/Merged). Force-create/reset to origin/main.
+            # -B creates or resets the branch (handles stale local branch and
+            # works even when the worktree is currently on that branch).
+            # -f discards any dirty working-tree changes (e.g. a leftover
+            # STATE=REVISING from a prior failed run that would otherwise block
+            # the checkout with "would be overwritten").
+            git_worktree("checkout", "-f", "-B", branch, "origin/main", check=False)
 
         state_path = WORKTREE_PATH / "articles" / slug / "STATE"
         try:
