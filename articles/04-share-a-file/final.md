@@ -79,8 +79,8 @@ If no policy in the list fits the share, ask your administrator to add one.
 
 Some policies require an additional piece of information per recipient before SpecterX will create the link:
 
-- **Phone (SMS) verification.** An **Add phone number** action appears next to each recipient. Click it and enter the recipient's phone number in international format, for example `+1 555 000 1234`.
-- **Personal secret.** An **Add password** action appears next to each recipient. Click it and enter the secret you've agreed with the recipient out of band.
+- **Phone (SMS) verification**. An **Add phone number** action appears next to each recipient. Click it and enter the recipient's phone number in international format, for example `+1 555 000 1234`.
+- **Personal secret**. An **Add password** action appears next to each recipient. Click it and enter the secret you've agreed with the recipient out of band.
 
 If any required detail is missing, the banner **One or more of the recipients' phone numbers are missing. Please complete them.** stays at the top of the drawer and **Share** stays disabled.
 
