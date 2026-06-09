@@ -1331,8 +1331,18 @@ def _handle_trigger(data: dict) -> dict:
 
         ensure_worktree()
         branch = f"article/{slug}"
-        git_worktree("checkout", branch, check=False)
-        git_worktree("pull", "origin", branch, check=False)
+        git_worktree("fetch", "origin", check=False)  # refresh remote refs
+        remote_head = git_worktree("ls-remote", "--heads", "origin", branch, check=False)
+        if remote_head:
+            # Branch still exists on remote (article is in-progress or re-opened).
+            git_worktree("checkout", branch, check=False)
+            git_worktree("pull", "origin", branch, check=False)
+        else:
+            # Branch was deleted (article merged / Done). Create a fresh revision
+            # branch from main. Force-delete any stale local branch first so
+            # "checkout -b" doesn't fail on a leftover from a previous bad run.
+            git_worktree("branch", "-D", branch, check=False)
+            git_worktree("checkout", "-b", branch, "origin/main", check=False)
 
         state_path = WORKTREE_PATH / "articles" / slug / "STATE"
         try:
