@@ -47,9 +47,24 @@ Read `test-notes.md` start to finish. For each step in your draft:
 
 ## Format additions
 
-Real screenshots use `![](screenshots/NN-filename.png)` Markdown image
-syntax, immediately under the step they illustrate. No more `>
-Screenshot: ...` placeholders in draft-2.
+Real screenshots use `![alt text](screenshots/NN-filename.png)` Markdown
+image syntax. No more `> Screenshot: ...` placeholders in draft-2.
+
+**Screenshot placement rule — enforce this on every step:**
+
+- **Before a click instruction**: put a close-up screenshot of the element
+  the user is supposed to click (the button, icon, or link). The alt text
+  should describe the element: `![The share icon on the file row](…)`.
+- **After a click instruction**: put a screenshot showing the result
+  (the panel, dialog, or state change that follows).
+- If the draft had both placeholders but the tester only produced one
+  screenshot, add the missing screenshot step to `test-plan.json` and
+  re-run the tester rather than silently dropping the close-up.
+
+The tester supports element-level close-ups via the `"element"` field in
+the screenshot spec (see `pipeline/prompts/02-test-plan.md`). When a step
+needs a close-up of a specific UI element, use this instead of a full-page
+screenshot.
 
 ## When tests flagged "couldn't verify"
 

@@ -63,6 +63,15 @@ they'll have at the end.>
   in. Be specific about what should be visible: not "screenshot of
   dashboard" but "screenshot of dashboard with the Share button
   highlighted in the top-right".
+- **Close-up before the click, result after.** Whenever you tell the
+  reader to click, tap, or press a specific UI element, put a screenshot
+  placeholder *before* the instruction that shows a close-up of that
+  element (the button, icon, or link they need to find). Then put a
+  screenshot placeholder *after* the instruction that shows the result
+  of the click. Two placeholders per click step: `> Screenshot
+  (close-up): the X icon on the file row` and `> Screenshot (result):
+  the panel that opens after clicking`. The tester fills these in using
+  the element-level close-up feature.
 - **Active voice, second person.** "Click Share", not "The Share button
   should be clicked".
 - **No marketing copy.** This is a how-to, not a product page. Don't

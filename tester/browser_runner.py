@@ -238,7 +238,15 @@ class BrowserRunner:
             target.fill(value, timeout=timeout)
         elif kind == "type":
             target = self._locate(action, timeout=timeout)
-            target.fill(action.get("value", ""), timeout=timeout)
+            value = action.get("value")
+            if value is None and action.get("value_env"):
+                env_name = action["value_env"]
+                value = os.environ.get(env_name)
+                if value is None:
+                    raise ValueError(
+                        f"type: env var {env_name!r} not set; export it before running"
+                    )
+            target.fill(value or "", timeout=timeout)
             if "enter" in str(action.get("confirm", "")).lower():
                 page.keyboard.press("Enter")
         elif kind == "navigate":
@@ -272,7 +280,18 @@ class BrowserRunner:
                         raise FileNotFoundError(f"test fixture folder is empty: {folder_path}")
                     target.set_input_files(files, timeout=timeout)
             else:
-                target.set_input_files(self._resolve_upload_files(action), timeout=timeout)
+                files = self._resolve_upload_files(action)
+                try:
+                    target.set_input_files(files, timeout=timeout)
+                except Exception as e:
+                    if "[webkitdirectory]" in str(e):
+                        # Playwright refuses to set individual files on webkitdirectory
+                        # inputs. Temporarily remove the attribute so set_input_files
+                        # succeeds; the app's onChange handler fires as normal.
+                        target.evaluate("el => el.removeAttribute('webkitdirectory')")
+                        target.set_input_files(files, timeout=timeout)
+                    else:
+                        raise
         elif kind == "clear":
             self._locate(action, timeout=timeout).clear(timeout=timeout)
         elif kind == "hover":
@@ -373,8 +392,27 @@ class BrowserRunner:
     def _capture(self, step_id: str, spec: dict[str, Any]) -> str:
         filename = spec.get("filename") or f"{step_id}-after.png"
         out = self.screenshots_dir / filename
+        # Always wait 3 s before capturing so animations and lazy-loading settle
+        self.page.wait_for_timeout(3000)
         try:
-            self.page.screenshot(path=str(out), full_page=bool(spec.get("full_page", False)))
+            element_selector = spec.get("element")
+            if element_selector:
+                # Close-up of a specific element with padding for context
+                loc = self.page.locator(element_selector).first
+                bbox = loc.bounding_box()
+                if bbox:
+                    pad_x, pad_y = 60, 30
+                    clip = {
+                        "x": max(0.0, bbox["x"] - pad_x),
+                        "y": max(0.0, bbox["y"] - pad_y),
+                        "width": bbox["width"] + pad_x * 2,
+                        "height": bbox["height"] + pad_y * 2,
+                    }
+                    self.page.screenshot(path=str(out), clip=clip)
+                else:
+                    loc.screenshot(path=str(out))
+            else:
+                self.page.screenshot(path=str(out), full_page=bool(spec.get("full_page", False)))
         except Exception as exc:
             log.warning("screenshot failed for step %s: %s", step_id, exc)
             return ""
