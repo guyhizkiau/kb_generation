@@ -1,6 +1,6 @@
 # test-notes — 04-share-a-file
 
-Generated: 2026-06-08T14:55:16+00:00
+Generated: 2026-06-09T12:32:16+00:00
 
 ## Step 00-goto — ok
 
@@ -72,7 +72,12 @@ Generated: 2026-06-08T14:55:16+00:00
 ## Step 07-click-share — ok
 
 - backend: `browser`
-- observation: title='My Files - SpecterX'; url=https://app.specterx.com/my-files; verify('Sharing success or shared-successfully message is visible')=not-visible
+- observation: title='My Files - SpecterX'; url=https://app.specterx.com/my-files
+
+## Step 07a-wait-sharing-success — ok
+
+- backend: `browser`
+- observation: title='My Files - SpecterX'; url=https://app.specterx.com/my-files; verify('Shared successfully screen is visible — loading is complete')=not-visible
 - screenshot: `screenshots/07-sharing-success.png`
 
 ## Step 08-copy-link — ok

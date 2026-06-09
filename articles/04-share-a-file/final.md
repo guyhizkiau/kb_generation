@@ -88,9 +88,9 @@ Skip this step if the policy you picked doesn't ask for either.
 
 ### 8. Send the share
 
-Click **Share**. The drawer moves to the **Confirm** step and shows **Sharing Successful** along with a one-line summary listing how many files were shared and who they went to.
+Click **Share**. The drawer moves to the **Confirm** step and shows **Shared successfully** along with a one-line summary listing how many files were shared and who they went to.
 
-![The Confirm step showing Sharing Successful with the recipient summary table](screenshots/07-sharing-success.png)
+![The Confirm step showing Shared successfully with the recipient summary table](screenshots/07-sharing-success.png)
 
 Each recipient receives a notification email with the protected link. SpecterX sends it automatically unless you turned off **Notify recipients** earlier in the flow.
 
@@ -157,7 +157,7 @@ Ask them to check their spam or junk folder. The notification comes from an `@sp
 
 ### A recipient sees "Access denied" on the Recipient Page
 
-The address on the protected link may not match the address the recipient used to verify. Open the **Share & Permissions Drawer**, check the address you have on file, and correct it if needed. If the address is right but they still can't open the file, the policy may require a verification method the recipient hasn't completed, for example a phone number that hasn't been entered for them.
+The address on the protected link may not match the address the recipient used to verify. Open the **Share & Permissions Drawer**, check the address you have on file, and correct it if needed. If the address is right but they still can't open the file, the policy may require a verification method the recipient hasn't completed, for example a phone number you haven't entered for them.
 
 ## Related articles
 
