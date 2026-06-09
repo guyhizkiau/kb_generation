@@ -63,6 +63,20 @@ def delete_feedback(slug: str) -> bool:
     return False
 
 
+def merge_feedback(slug: str, new_annotations: list) -> list:
+    """Merge *new_annotations* into the existing store for *slug*.
+
+    Existing annotations are always preserved. Items from *new_annotations*
+    whose ``id`` is already present are skipped (dedupe). Returns the full
+    merged list (existing + added).
+    """
+    existing = read_feedback(slug)
+    existing_ids = {a.get("id") for a in existing}
+    merged = existing + [a for a in new_annotations if a.get("id") not in existing_ids]
+    write_feedback(slug, merged)
+    return merged
+
+
 def remove_feedback(slug: str, ann_id: str) -> dict:
     """Remove one annotation by ``id``."""
     if not ann_id:

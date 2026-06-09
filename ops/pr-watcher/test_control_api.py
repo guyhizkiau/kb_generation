@@ -131,20 +131,32 @@ class ControlApiTests(unittest.TestCase):
         self.assertIn("errors", payload)
 
     def test_post_trigger_feedback(self):
+        import feedback_store as fb
+        slug = "01-log-in-to-specterx"
+        # Pre-seed the store so the empty-feedback guard does not block the trigger.
+        fb.write_feedback(slug, [{"id": "inline-1", "body": [{"value": "fix intro"}]}])
+        self.addCleanup(lambda: fb.write_feedback(slug, []))
+        # Clear any stale feedback-launch entries from prior tests.
+        self.pw._manual_trigger_set[:] = [
+            t for t in self.pw._manual_trigger_set
+            if not (t.get("slug") == slug and t.get("reason") == "feedback-launch")
+        ]
+
         self.pw.WORKTREE_PATH.mkdir(parents=True, exist_ok=True)
         with mock.patch.object(self.pw, "is_claude_running", return_value=True), \
              mock.patch.object(self.pw, "_launch_phase"), \
              mock.patch.object(self.pw, "ensure_worktree"), \
              mock.patch.object(self.pw, "git_worktree"):
             code, payload, _ = self._req("POST", "/api/queue/trigger", {
-                "slug": "01-log-in-to-specterx",
+                "slug": slug,
                 "reason": "feedback",
                 "issue": "42",
             })
         self.assertEqual(code, 200)
         self.assertTrue(payload["ok"])
+        self.assertGreaterEqual(payload.get("annotation_count", 0), 1)
         fields = self.pw._qs.read_state_fields(
-            self.pw.WORKTREE_PATH / "articles" / "01-log-in-to-specterx" / "STATE",
+            self.pw.WORKTREE_PATH / "articles" / slug / "STATE",
         )
         self.assertEqual(fields["PHASE"], "REVISING")
         self.assertEqual(fields["REVISION_CYCLE"], "1")

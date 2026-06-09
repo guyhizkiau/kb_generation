@@ -235,7 +235,7 @@ export function ArticlesView() {
       queryFn: () => apiFetch<{ slug: string; annotations: unknown[] }>(
         `/api/feedback?slug=${art.slug}`,
       ),
-      staleTime: 30_000,
+      staleTime: 5_000,
     })),
   })
 

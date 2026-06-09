@@ -102,7 +102,13 @@ export function useTrigger() {
   return useMutation({
     mutationFn: (data: { slug: string; reason: 'manual' | 'feedback'; issue?: string }) =>
       apiFetch('/api/queue/trigger', { method: 'POST', body: JSON.stringify(data) }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['queue'] }),
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: ['queue'] })
+      qc.invalidateQueries({ queryKey: ['status'] })
+      if (variables.reason === 'feedback') {
+        qc.invalidateQueries({ queryKey: ['feedback', variables.slug] })
+      }
+    },
   })
 }
 
