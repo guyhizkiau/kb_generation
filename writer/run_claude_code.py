@@ -37,6 +37,18 @@ PHASE_TO_PROMPT = {
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
+# Extra tool allowances beyond the global baseline, keyed by phase.
+# The revise-from-feedback phase needs to spawn sub-processes (voice-pass,
+# render, index) and commit the result, so it gets python3 + git on top of
+# the standard Read/Write/Edit/Glob/Grep/Bash(ls|cat|date|mkdir) baseline.
+PHASE_EXTRA_ALLOW: dict[str, list[str]] = {
+    "revise-from-feedback": [
+        "Bash(python3 *)",
+        "Bash(python *)",
+        "Bash(git *)",
+    ],
+}
+
 
 def article_dir(slug: str) -> Path:
     """Resolve the article working directory.
@@ -75,7 +87,7 @@ def assemble_prompt(slug: str, phase: str) -> str:
     return header + body
 
 
-def build_command(slug: str, prompt: str, model: str | None, extra_allow: list[str]) -> list[str]:
+def build_command(slug: str, prompt: str, phase: str, model: str | None, extra_allow: list[str]) -> list[str]:
     allow = [
         "Read",
         "Write",
@@ -86,7 +98,7 @@ def build_command(slug: str, prompt: str, model: str | None, extra_allow: list[s
         "Bash(cat *)",
         "Bash(date *)",
         "Bash(mkdir *)",
-    ] + extra_allow
+    ] + PHASE_EXTRA_ALLOW.get(phase, []) + extra_allow
     cmd = [
         "claude",
         "-p",
@@ -136,7 +148,7 @@ def main(argv: list[str] | None = None) -> int:
     log_path = log_dir / f"{stamp}-{args.phase}.log"
 
     prompt = assemble_prompt(slug, args.phase)
-    cmd = build_command(slug, prompt, args.model, args.allow)
+    cmd = build_command(slug, prompt, args.phase, args.model, args.allow)
 
     printable = " ".join(shlex.quote(c) for c in cmd[:2] + ["<prompt>"] + cmd[3:])
     print(f"[writer] article={slug} phase={args.phase} model={args.model}", flush=True)
