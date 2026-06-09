@@ -1139,6 +1139,21 @@ def _maybe_advance_phase(branch: str, state: dict) -> None:
 
 def _launch_phase(slug: str, phase: str):
     """Launch a specific pipeline phase for an article (detached)."""
+    # Extra bash tool allowances beyond run_claude_code.py's global baseline.
+    # revise-from-feedback needs to spawn sub-processes (voice-pass, render,
+    # index) and git-commit the result.  We pass these here so the shell script
+    # carries the right permissions regardless of which version of
+    # run_claude_code.py is checked out in the worktree (article branch vs main).
+    PHASE_EXTRA_ALLOW: dict[str, list[str]] = {
+        "revise-from-feedback": [
+            "Bash(python3 *)",
+            "Bash(python *)",
+            "Bash(git *)",
+        ],
+    }
+    extra_allow_flags = " ".join(
+        f"--allow '{a}'" for a in PHASE_EXTRA_ALLOW.get(phase, [])
+    )
     ensure_worktree()
     launcher = (
         "#!/bin/bash\n"
@@ -1151,7 +1166,8 @@ def _launch_phase(slug: str, phase: str):
         f"sudo -u ubuntu git pull origin article/{slug} 2>/dev/null || true\n"
         f"/opt/specterx-kb-venv/bin/python3 writer/run_claude_code.py"
         f" --article {slug} --phase {phase}"
-        f" >> /home/ubuntu/{slug}-{phase}.log 2>&1\n"
+        + (f" {extra_allow_flags}" if extra_allow_flags else "")
+        + f" >> /home/ubuntu/{slug}-{phase}.log 2>&1\n"
         f'echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] phase {phase} exited $?"'
         f" >> /home/ubuntu/{slug}-{phase}.log\n"
     )
