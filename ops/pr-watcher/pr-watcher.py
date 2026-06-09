@@ -204,6 +204,7 @@ def write_status(state: dict, iteration: int, next_poll_at: float) -> None:
         },
         "recent_log": _tail_log(200),
         "task_log": _tail_log_file(TASK_LOG_FILE, 200),
+        **_latest_phase_log(300),
     }
     dest = STATUS_DIR / "status.json"
     tmp = dest.with_suffix(".tmp")
@@ -235,6 +236,28 @@ def _tail_log_file(path: Path, n: int) -> list[str]:
         return lines[-n:]
     except Exception:
         return []
+
+
+def _latest_phase_log(n: int) -> dict:
+    """Return the tail of the most recently modified <slug>-<phase>.log file.
+
+    These are written by _launch_phase for each article phase run (e.g.
+    04-share-a-file-revise-from-feedback.log).  The pr-watcher.log and
+    pr-watcher-task.log files are excluded.
+    """
+    excluded = {LOG_FILE.name, TASK_LOG_FILE.name}
+    import glob as _glob
+    candidates = [
+        Path(p) for p in _glob.glob("/home/ubuntu/*-*.log")
+        if Path(p).name not in excluded
+    ]
+    if not candidates:
+        return {"phase_log": [], "phase_log_source": ""}
+    latest = max(candidates, key=lambda p: p.stat().st_mtime)
+    return {
+        "phase_log": _tail_log_file(latest, n),
+        "phase_log_source": latest.name,
+    }
 
 
 def git(*args, check=True):

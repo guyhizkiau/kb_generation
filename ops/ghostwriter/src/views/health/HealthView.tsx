@@ -196,16 +196,22 @@ export function HealthView() {
 
       {/* Logs */}
       <Card withBorder>
-        <Tabs defaultValue={data.task_log?.length ? 'task' : 'daemon'}>
+        <Tabs defaultValue={data.task_log?.length ? 'task' : data.phase_log?.length ? 'phase' : 'daemon'}>
           <Tabs.List mb="sm">
             <Tabs.Tab value="daemon">
               Daemon log
               <Text span size="xs" c="dimmed" ml={6}>({data.recent_log?.length ?? 0} lines)</Text>
             </Tabs.Tab>
             <Tabs.Tab value="task">
-              Claude output
+              Claude output (PR comments)
               {data.task_log?.length ? (
                 <Badge size="xs" color="teal" ml={6}>{data.task_log.length}</Badge>
+              ) : null}
+            </Tabs.Tab>
+            <Tabs.Tab value="phase">
+              Phase log
+              {data.phase_log_source ? (
+                <Text span size="xs" c="dimmed" ml={6}>{data.phase_log_source}</Text>
               ) : null}
             </Tabs.Tab>
           </Tabs.List>
@@ -214,6 +220,9 @@ export function HealthView() {
           </Tabs.Panel>
           <Tabs.Panel value="task">
             <LogPanel lines={data.task_log ?? []} />
+          </Tabs.Panel>
+          <Tabs.Panel value="phase">
+            <LogPanel lines={data.phase_log ?? []} />
           </Tabs.Panel>
         </Tabs>
       </Card>

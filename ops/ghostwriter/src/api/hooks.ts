@@ -77,6 +77,8 @@ export interface StatusData {
   }
   recent_log: string[]
   task_log: string[]
+  phase_log: string[]
+  phase_log_source: string
 }
 
 // ── queue ────────────────────────────────────────────────────────────────────
