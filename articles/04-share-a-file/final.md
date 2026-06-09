@@ -47,6 +47,8 @@ Repeat this for every recipient you want to add.
 
 ![A recipient email appears in the Share with block after pressing Enter](screenshots/03-recipient-added.png)
 
+Below the recipient list, a **Notify recipients** checkbox controls whether SpecterX sends each recipient a notification email when you click **Share**. The checkbox is selected by default. Clear it only if you plan to distribute the protected link yourself, for example by copying it in step 9.
+
 ### 4. Set each recipient's permission level
 
 Each recipient row has a role dropdown set to **Viewer** by default. Open the dropdown and select the level you want:
@@ -92,7 +94,7 @@ Click **Share**. The drawer moves to the **Confirm** step and shows **Shared suc
 
 ![The Confirm step showing Shared successfully with the recipient summary table](screenshots/07-sharing-success.png)
 
-Each recipient receives a notification email with the protected link. SpecterX sends it automatically unless you turned off **Notify recipients** earlier in the flow.
+If you left **Notify recipients** checked in step 3, each recipient receives a notification email with the protected link.
 
 ### 9. Copy the protected link
 
