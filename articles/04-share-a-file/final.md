@@ -6,7 +6,7 @@ estimated-reading-time: 5 min
 
 # Securely share a file from the SpecterX web platform
 
-To share files from SpecterX, use the **Share Files** drawer on the **My Files** page. The policy you pick controls what recipients can do with the files.
+To share files from SpecterX, open the **Share Files** drawer on the **My Files** page. The policy you pick determines what recipients can do with the files.
 
 ## Before you start
 
@@ -49,7 +49,7 @@ Repeat this for every recipient you want to add.
 
 ### 4. Set each recipient's permission level
 
-Each recipient row has a role dropdown set to **Viewer** by default. Open the dropdown and pick the level you want:
+Each recipient row has a role dropdown set to **Viewer** by default. Open the dropdown and select the level you want:
 
 - **Viewer**. Can view the file. This is the default.
 - **Contributor**. Can view and edit the file's content. Whether they can also download depends on the policy you select in step 6.
@@ -59,7 +59,7 @@ A Contributor or Co-owner can't override the policy: if the policy blocks downlo
 
 ### 5. Continue to the policy step
 
-Click **Next** at the bottom of the drawer. SpecterX checks your organization's auto-protection rules before presenting policy options. The drawer shows **Setting up secure sharing** briefly while this runs.
+Click **Next** at the bottom of the drawer. SpecterX checks your organization's auto-protection rules before presenting policy options. The drawer shows **Setting up secure sharing** briefly while the check runs.
 
 ![The Setting up secure sharing screen while SpecterX applies your organization's auto-protection rules](screenshots/04-policy-step.png)
 
@@ -67,7 +67,7 @@ When the check finishes, the **Select Policy** step appears.
 
 ### 6. Pick a security policy
 
-From the **Choose Policy** dropdown, pick the policy that matches the sensitivity of the file. Your administrator defines the available policies. The dropdown shows only those allowed for your account.
+From the **Choose Policy** dropdown, select the policy that matches the sensitivity of the file. Your administrator defines the available policies. The dropdown shows only those allowed for your account.
 
 ![The Choose Policy dropdown open, showing available policies](screenshots/05-policy-dropdown-open.png)
 

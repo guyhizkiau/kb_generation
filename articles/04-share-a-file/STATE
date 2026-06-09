@@ -1,5 +1,5 @@
-PHASE=PR_OPEN
-LAST_UPDATE=2026-06-09T12:00:00Z
-NEXT_ACTION=push the voice-pass commit and request review
-REVISION_CYCLE=5
+PHASE=TESTING
+LAST_UPDATE=2026-06-09T12:30:00Z
+NEXT_ACTION=run tester to retake 07-sharing-success.png — step 07a-wait-sharing-success waits for Sharing Successful heading before capture
+REVISION_CYCLE=6
 FEEDBACK_ISSUE=

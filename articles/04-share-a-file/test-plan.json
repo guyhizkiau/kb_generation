@@ -191,18 +191,33 @@
     },
     {
       "id": "07-click-share",
-      "description": "Click Share to complete sharing",
+      "description": "Click Share to initiate sharing",
       "backend": "browser",
       "action": {
         "type": "click",
         "selector": "[data-testid='uploadDrawer_shareButton']"
       },
       "screenshot": {
+        "after": false
+      },
+      "verify": ""
+    },
+    {
+      "id": "07a-wait-sharing-success",
+      "description": "Wait for Sharing Successful confirmation screen before capturing screenshot — previous capture caught the loading state instead of the finished state",
+      "backend": "browser",
+      "action": {
+        "type": "wait_for",
+        "name": "Sharing Successful",
+        "state": "visible"
+      },
+      "screenshot": {
         "after": true,
         "filename": "07-sharing-success.png",
-        "focus": "Sharing success screen with shared files summary"
+        "focus": "Sharing Successful confirmation screen with recipient summary table"
       },
-      "verify": "Sharing success or shared-successfully message is visible"
+      "verify": "Sharing Successful heading is visible — loading is complete",
+      "timeout_ms": 30000
     },
     {
       "id": "08-copy-link",
