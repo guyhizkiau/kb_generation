@@ -1,5 +1,5 @@
-PHASE=TESTING
-LAST_UPDATE=2026-06-09T13:10:00Z
-NEXT_ACTION=run tester to capture 11-who-has-access.png screenshot
-REVISION_CYCLE=8
+PHASE=PR_OPEN
+LAST_UPDATE=2026-06-09T14:00:00Z
+NEXT_ACTION=push the voice-pass commit and request review
+REVISION_CYCLE=9
 FEEDBACK_ISSUE=

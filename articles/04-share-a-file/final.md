@@ -153,7 +153,7 @@ If you see **You have already shared this file with {recipient}**, the address i
 
 ### A recipient says they didn't get the notification email
 
-Ask them to check their spam or junk folder. The notification comes from an `@specterx.com` sender and may be routed through a transactional-email provider. If it still doesn't arrive after a few minutes, open the **Share & Permissions Drawer**, confirm the recipient's email address is correct, and remove and re-add the recipient if it needs correcting.
+Ask them to check their spam or junk folder. The notification comes from an `@specterx.com` sender and may be routed through a transactional-email provider. If it still doesn't arrive after a few minutes, open the **Share & Permissions Drawer**, confirm the recipient's email address is correct, then remove and re-add them with the right address if it's wrong.
 
 ### A recipient sees "Access denied" on the Recipient Page
 

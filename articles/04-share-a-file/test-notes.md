@@ -1,6 +1,6 @@
 # test-notes — 04-share-a-file
 
-Generated: 2026-06-09T12:32:16+00:00
+Generated: 2026-06-09T13:07:19+00:00
 
 ## Step 00-goto — ok
 
@@ -103,3 +103,9 @@ Generated: 2026-06-09T12:32:16+00:00
 - backend: `browser`
 - observation: title='My Files - SpecterX'; url=https://app.specterx.com/my-files; verify('Share & Permissions Drawer shows Who has access')=not-visible
 - screenshot: `screenshots/10-permissions-drawer.png`
+
+## Step 11-who-has-access — ok
+
+- backend: `browser`
+- observation: title='My Files - SpecterX'; url=https://app.specterx.com/my-files; verify('Who has access view is visible with the test recipient listed')=not-visible
+- screenshot: `screenshots/11-who-has-access.png`
