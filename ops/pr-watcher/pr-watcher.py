@@ -1182,16 +1182,43 @@ def _launch_phase(slug: str, phase: str):
         f"--allow '{a}'" for a in PHASE_EXTRA_ALLOW.get(phase, [])
     )
 
-    # Post-success shell commands appended after the phase exits 0.
-    # For revise-from-feedback: clear the feedback store (prevents re-trigger
-    # loops) then push Claude's commit(s) to the remote branch.  Both actions
-    # are daemon-owned so they happen even if Claude forgets to do them.
     FB_DIR = "/home/ubuntu/ghostwriter-feedback"
+
+    # Pre-launch shell commands that run BEFORE Claude, after the worktree is
+    # ready.  For revise-from-feedback: snapshot the annotation IDs currently
+    # in the store so the post-success step can do a selective clear rather
+    # than wiping the whole store (which would destroy annotations added while
+    # Claude was running).
+    PHASE_PRE_LAUNCH: dict[str, str] = {
+        "revise-from-feedback": (
+            f"python3 << 'PYEOF'\n"
+            f"import json, pathlib\n"
+            f"p = pathlib.Path('{FB_DIR}/{slug}.json')\n"
+            f"ids = [a.get('id','') for a in (json.loads(p.read_text()) if p.exists() else []) if a.get('id')]\n"
+            f"pathlib.Path('/home/ubuntu/.{slug}-fb-snapshot.json').write_text(json.dumps(ids))\n"
+            f"PYEOF\n"
+        ),
+    }
+    pre_launch = PHASE_PRE_LAUNCH.get(phase, "")
+
+    # Post-success shell commands appended after the phase exits 0.
+    # For revise-from-feedback: selectively clear only the annotations that
+    # were present at launch (preserving any added during the run), then push
+    # Claude's commit(s) to the remote branch.
     PHASE_POST_SUCCESS: dict[str, str] = {
         "revise-from-feedback": (
-            f'echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] clearing feedback store"'
+            f'echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] clearing handled feedback"'
             f" >> /home/ubuntu/{slug}-{phase}.log\n"
-            f'echo "[]" > {FB_DIR}/{slug}.json\n'
+            f"python3 << 'PYEOF'\n"
+            f"import json, pathlib\n"
+            f"fb = pathlib.Path('{FB_DIR}/{slug}.json')\n"
+            f"snap_file = pathlib.Path('/home/ubuntu/.{slug}-fb-snapshot.json')\n"
+            f"snap = set(json.loads(snap_file.read_text())) if snap_file.exists() else set()\n"
+            f"anns = json.loads(fb.read_text()) if fb.exists() else []\n"
+            f"remaining = [a for a in anns if a.get('id','') not in snap]\n"
+            f"fb.write_text(json.dumps(remaining))\n"
+            f"PYEOF\n"
+            f"rm -f '/home/ubuntu/.{slug}-fb-snapshot.json'\n"
             f'echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] pushing to origin"'
             f" >> /home/ubuntu/{slug}-{phase}.log\n"
             f"sudo -u ubuntu git push origin article/{slug}"
@@ -1212,7 +1239,8 @@ def _launch_phase(slug: str, phase: str):
         f"sudo -u ubuntu git checkout article/{slug} 2>/dev/null || "
         f"sudo -u ubuntu git checkout -b article/{slug}\n"
         f"sudo -u ubuntu git pull origin article/{slug} 2>/dev/null || true\n"
-        f"/opt/specterx-kb-venv/bin/python3 writer/run_claude_code.py"
+        + (pre_launch if pre_launch else "")
+        + f"/opt/specterx-kb-venv/bin/python3 writer/run_claude_code.py"
         f" --article {slug} --phase {phase}"
         + (f" {extra_allow_flags}" if extra_allow_flags else "")
         + f" >> /home/ubuntu/{slug}-{phase}.log 2>&1\n"
