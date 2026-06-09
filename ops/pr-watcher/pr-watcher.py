@@ -1140,10 +1140,9 @@ def _maybe_advance_phase(branch: str, state: dict) -> None:
 def _launch_phase(slug: str, phase: str):
     """Launch a specific pipeline phase for an article (detached)."""
     # Extra bash tool allowances beyond run_claude_code.py's global baseline.
-    # revise-from-feedback needs to spawn sub-processes (voice-pass, render,
-    # index) and git-commit the result.  We pass these here so the shell script
-    # carries the right permissions regardless of which version of
-    # run_claude_code.py is checked out in the worktree (article branch vs main).
+    # revise-from-feedback needs git to commit its changes.  We pass these here
+    # so the shell script carries the right permissions regardless of which
+    # version of run_claude_code.py is checked out in the worktree.
     PHASE_EXTRA_ALLOW: dict[str, list[str]] = {
         "revise-from-feedback": [
             "Bash(python3 *)",
@@ -1154,6 +1153,27 @@ def _launch_phase(slug: str, phase: str):
     extra_allow_flags = " ".join(
         f"--allow '{a}'" for a in PHASE_EXTRA_ALLOW.get(phase, [])
     )
+
+    # Post-success shell commands appended after the phase exits 0.
+    # For revise-from-feedback: clear the feedback store (prevents re-trigger
+    # loops) then push Claude's commit(s) to the remote branch.  Both actions
+    # are daemon-owned so they happen even if Claude forgets to do them.
+    FB_DIR = "/home/ubuntu/ghostwriter-feedback"
+    PHASE_POST_SUCCESS: dict[str, str] = {
+        "revise-from-feedback": (
+            f'echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] clearing feedback store"'
+            f" >> /home/ubuntu/{slug}-{phase}.log\n"
+            f'echo "[]" > {FB_DIR}/{slug}.json\n'
+            f'echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] pushing to origin"'
+            f" >> /home/ubuntu/{slug}-{phase}.log\n"
+            f"sudo -u ubuntu git push origin article/{slug}"
+            f" >> /home/ubuntu/{slug}-{phase}.log 2>&1\n"
+            f'echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] push exited $?"'
+            f" >> /home/ubuntu/{slug}-{phase}.log\n"
+        ),
+    }
+    post_success = PHASE_POST_SUCCESS.get(phase, "")
+
     ensure_worktree()
     launcher = (
         "#!/bin/bash\n"
@@ -1168,8 +1188,13 @@ def _launch_phase(slug: str, phase: str):
         f" --article {slug} --phase {phase}"
         + (f" {extra_allow_flags}" if extra_allow_flags else "")
         + f" >> /home/ubuntu/{slug}-{phase}.log 2>&1\n"
-        f'echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] phase {phase} exited $?"'
+        f"_PHASE_EXIT=$?\n"
+        f'echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] phase {phase} exited $_PHASE_EXIT"'
         f" >> /home/ubuntu/{slug}-{phase}.log\n"
+        + (
+            f"if [ \"$_PHASE_EXIT\" -eq 0 ]; then\n{post_success}fi\n"
+            if post_success else ""
+        )
     )
     lpath = Path(f"/home/ubuntu/run-{slug}-{phase}.sh")
     lpath.write_text(launcher)

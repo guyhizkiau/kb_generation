@@ -51,11 +51,13 @@ Leave these unchanged.
 1. Read `articles/<slug>/final.md` and `.ghostwriter/feedback/<slug>.json`
    (VM path: `/home/ubuntu/ghostwriter-feedback/<slug>.json`).
 2. For each annotation, classify selector type and resolve per the rules above.
-3. After all resolutions, run the voice pass to re-enforce style:
-   ```
-   python writer/run_claude_code.py --article <slug> --phase voice-pass
-   ```
-   The voice pass (04a-voice-pass.md) applies STYLE_GUIDE.md §2.4, §3, §10, §13, §13a, §14.
+3. Apply the voice-pass style rules **inline** (do not spawn a subprocess):
+   - No em dashes (—) — split into two sentences instead (§13a).
+   - No semicolons joining independent clauses — split into sentences (§13a).
+   - Active voice, second person throughout (§3).
+   - No banned phrases: "straightforward", "simple", "just", "easy", "powerful" (§10).
+   - UI element names in **bold**, keyboard shortcuts in `code` (§2.4).
+   - Check cross-references between steps are still accurate after edits (§14).
 4. Re-render HTML previews (ALWAYS — even prose-only changes):
    ```
    python3 pipeline/render_html.py articles/<slug>/
@@ -66,23 +68,17 @@ Leave these unchanged.
    python3 pipeline/build_index.py
    ```
 
-6. Clear the feedback store for this slug so resolved annotations do not linger
-   or re-trigger a second revision cycle. Use the **Write tool** to overwrite the
-   store with an empty array:
-   - On the VM (production): `/home/ubuntu/ghostwriter-feedback/<slug>.json`
-   - On local dev: `.ghostwriter/feedback/<slug>.json`
-
-   Write exactly this content: `[]`
-
-   Orphaned annotations are recorded in the resolution summary above and do not
-   need to be re-resolved; they should be cleared here along with the resolved ones.
+   > **Note:** The feedback store (`/home/ubuntu/ghostwriter-feedback/<slug>.json`)
+   > is cleared automatically by the daemon after this phase exits successfully.
+   > Do NOT clear it yourself — the daemon owns that step.
 
 ## State transitions
 
 After all annotations are resolved:
 
-- Text-only changes (no test-plan steps modified) → set `PHASE=FINALIZING`
-  (voice-pass then sets `PHASE=PR_OPEN` when it opens the revision PR)
+- Text-only changes (no test-plan steps modified) → set `PHASE=PR_OPEN`
+  (the daemon pushes the commit to the remote branch automatically after
+  this phase exits; no separate voice-pass subprocess is needed)
 - Test-plan steps added or changed → set `PHASE=TESTING`
 - Blocked / ambiguous and nothing committed → set `PHASE=BLOCKED`
 
