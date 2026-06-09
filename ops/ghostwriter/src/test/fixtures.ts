@@ -55,4 +55,6 @@ export const mockStatus: StatusData = {
   },
   recent_log: ['[2026-06-01] Poll #5', '[2026-06-01] idle'],
   task_log: [],
+  phase_log: [],
+  phase_log_source: '',
 }
