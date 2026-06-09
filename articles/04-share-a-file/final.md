@@ -6,7 +6,7 @@ estimated-reading-time: 5 min
 
 # Securely share a file from the SpecterX web platform
 
-If you need to share one or more files with someone, the **Share Files** drawer handles the upload, the access controls, and the security policy. The security policy you pick determines what recipients can do with the files.
+If you need to share files with someone, use the **Share Files** drawer on the **My Files** page. The policy you pick controls what recipients can do with the files.
 
 ## Before you start
 
@@ -88,11 +88,11 @@ Skip this step if the policy you picked doesn't ask for either.
 
 ### 8. Send the share
 
-Click **Share**. The drawer moves to the **Confirm** step and shows **Sharing Successful.** along with a one-line summary listing how many files were shared and who they went to.
+Click **Share**. The drawer moves to the **Confirm** step and shows **Sharing Successful** along with a one-line summary listing how many files were shared and who they went to.
 
 ![The Confirm step showing Sharing Successful with the recipient summary table](screenshots/07-sharing-success.png)
 
-Each recipient receives a notification email with the protected link. The notification is sent automatically unless you turned off **Notify recipients** earlier in the flow.
+Each recipient receives a notification email with the protected link. SpecterX sends it automatically unless you turned off **Notify recipients** earlier in the flow.
 
 ### 9. Copy the protected link
 
