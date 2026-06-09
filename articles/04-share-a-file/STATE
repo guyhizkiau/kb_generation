@@ -1,5 +1,5 @@
 PHASE=PR_OPEN
-LAST_UPDATE=2026-06-09T11:15:00Z
-NEXT_ACTION=push the revise-from-feedback commit and request re-review
-REVISION_CYCLE=3
+LAST_UPDATE=2026-06-09T11:16:27Z
+NEXT_ACTION=push the voice-pass commit and request review
+REVISION_CYCLE=4
 FEEDBACK_ISSUE=

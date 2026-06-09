@@ -6,7 +6,7 @@ estimated-reading-time: 5 min
 
 # Securely share a file from the SpecterX web platform
 
-If you need to share files with someone, use the **Share Files** drawer on the **My Files** page. The policy you pick controls what recipients can do with the files.
+To share files from SpecterX, use the **Share Files** drawer on the **My Files** page. The policy you pick controls what recipients can do with the files.
 
 ## Before you start
 
@@ -73,7 +73,7 @@ From the **Choose Policy** dropdown, pick the policy that matches the sensitivit
 
 If a Platform Governance Rule applies to this share, the policy is already chosen and the heading reads **Choose or Review Policy** instead. You can review the assigned policy but you can't change it.
 
-If no policy in the list fits the share, ask your administrator to add one. Don't pick a permissive policy as a fallback.
+If no policy in the list fits the share, ask your administrator to add one.
 
 ### 7. Enter any extra recipient details the policy needs
 
