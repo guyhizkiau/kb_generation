@@ -1,6 +1,6 @@
 import {
   Grid, Card, Text, Badge, Group, Stack, Button,
-  Title, Box, NavLink, ScrollArea, Anchor,
+  Title, Box, NavLink, ScrollArea, Anchor, Alert,
 } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { modals } from '@mantine/modals'
@@ -22,6 +22,8 @@ export function FeedbackView() {
   const { feedbackSlug: selectedSlug, setFeedbackSlug } = useNavigation()
 
   const { data: feedbackData, isLoading: fbLoading } = useFeedback(selectedSlug ?? '')
+
+  const revisionInProgress = queueData?.claude_running === true
 
   const articlesWithFeedback =
     queueData?.clusters
@@ -150,12 +152,24 @@ export function FeedbackView() {
                       </Badge>
                     )}
                   {activeAnnotations.length > 0 && (
-                    <Button size="sm" color="teal" onClick={handleAccept}>
+                    <Button
+                      size="sm"
+                      color="teal"
+                      onClick={handleAccept}
+                      disabled={revisionInProgress}
+                      title={revisionInProgress ? 'Revision in progress' : undefined}
+                    >
                       Accept all → revise
                     </Button>
                   )}
                 </Group>
               </Group>
+
+              {revisionInProgress && (
+                <Alert color="yellow" mb="sm" title="Revision in progress…">
+                  Claude is currently processing a revision. Buttons are disabled until it finishes.
+                </Alert>
+              )}
 
               {activeAnnotations.length === 0 ? (
                 <Text c="dimmed">
@@ -168,6 +182,7 @@ export function FeedbackView() {
                       key={ann.id}
                       ann={ann}
                       onAccept={handleAccept}
+                      disabled={revisionInProgress}
                       onDismiss={() => {
                         if (!selectedSlug) return
                         dismissAnnotation.mutate(
