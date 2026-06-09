@@ -199,7 +199,7 @@ export function HealthView() {
 
       {/* Logs */}
       <Card withBorder>
-        <Tabs defaultValue={data.task_log?.length ? 'task' : data.phase_log?.length ? 'phase' : 'daemon'}>
+        <Tabs defaultValue="phase">
           <Tabs.List mb="sm">
             <Tabs.Tab value="daemon">
               Daemon log
