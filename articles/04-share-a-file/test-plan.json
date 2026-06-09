@@ -280,6 +280,22 @@
         "focus": "Share & Permissions Drawer open showing Who has access"
       },
       "verify": "Share & Permissions Drawer shows Who has access"
+    },
+    {
+      "id": "11-who-has-access",
+      "description": "Click Who has access to open the recipient management view",
+      "backend": "browser",
+      "action": {
+        "type": "click",
+        "role": "button",
+        "name": "Who has access"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "11-who-has-access.png",
+        "focus": "Who has access view listing recipients with role dropdowns and Revoke actions"
+      },
+      "verify": "Who has access view is visible with the test recipient listed"
     }
   ],
   "postconditions": [

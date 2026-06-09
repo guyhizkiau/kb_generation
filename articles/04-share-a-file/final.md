@@ -98,8 +98,6 @@ Each recipient receives a notification email with the protected link. SpecterX s
 
 To send the link through another channel (a chat message, a calendar invite), click **Copy Link** on the **Confirm** step. SpecterX copies the link to your clipboard. The link is the same one every recipient received by email, and it's already governed by the policy you picked.
 
-![The copy-link icon in the recipient row of the Confirm step](screenshots/08-link-copied.png)
-
 ## After you share: the Share & Permissions panel
 
 To check who has access to a file you've already shared, or to change something after the share is live, use the **Share & Permissions** panel from **My Files**.
@@ -113,6 +111,8 @@ To check who has access to a file you've already shared, or to change something 
 ![The Share with panel showing the active share link and the Who has access option](screenshots/10-permissions-drawer.png)
 
    Click **Who has access** at the top of the panel to see all recipients and their current access level.
+
+![The Who has access view listing recipients with role dropdowns and Revoke actions](screenshots/11-who-has-access.png)
 
 2. From the **Who has access** view you can:
 
