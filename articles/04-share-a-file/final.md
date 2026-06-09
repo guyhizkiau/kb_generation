@@ -6,7 +6,7 @@ estimated-reading-time: 5 min
 
 # Securely share a file from the SpecterX web platform
 
-If you need to send a file to someone outside SpecterX, the **Share Files** drawer handles the upload, the access controls, and the notification email. The security policy you pick determines what recipients can do with the file.
+If you need to send a file to someone, the **Share Files** drawer handles the upload, the access controls, the security policy, and the notification email. The security policy you pick determines what recipients can do with the file.
 
 ## Before you start
 
@@ -25,13 +25,13 @@ On the **My Files** page, click **Share files**.
 
 The **Share Files** drawer opens on the right of the page with the first step, **Add items and Recipients**, already showing.
 
-![The My Files page — click Share files to open the drawer](screenshots/00-dashboard.png)
+![The My Files page with the Share files button](screenshots/00-dashboard.png)
 
 ![The Share Files drawer open with the upload area empty](screenshots/01-drawer-empty.png)
 
 ### 2. Add the file
 
-In the upload area at the top of the drawer, **Click or drag a file to this area to upload**. The file uploads as soon as you drop it; wait for the upload bar to finish before you continue.
+In the upload area at the top of the drawer, **Click or drag a file to this area to upload**. The file uploads as soon as you drop it. Wait for the upload bar to finish before you continue.
 
 ![test-document.pdf added to the upload list inside the drawer](screenshots/02-file-uploaded.png)
 
@@ -59,15 +59,15 @@ A Contributor or Co-owner can't override the policy: if the policy blocks downlo
 
 ### 5. Continue to the policy step
 
-Click **Next** at the bottom of the drawer. SpecterX checks your organisation's auto-protection rules before presenting policy options — the drawer shows **Setting up secure sharing** briefly while this runs.
+Click **Next** at the bottom of the drawer. SpecterX checks your organization's auto-protection rules before presenting policy options. The drawer shows **Setting up secure sharing** briefly while this runs.
 
-![The Setting up secure sharing screen while SpecterX applies your organisation's auto-protection rules](screenshots/04-policy-step.png)
+![The Setting up secure sharing screen while SpecterX applies your organization's auto-protection rules](screenshots/04-policy-step.png)
 
 When the check finishes, the **Select Policy** step appears.
 
 ### 6. Pick a security policy
 
-From the **Choose Policy** dropdown, pick the policy that matches the sensitivity of the file. Your administrator defines the available policies; the dropdown shows only those allowed for your account.
+From the **Choose Policy** dropdown, pick the policy that matches the sensitivity of the file. Your administrator defines the available policies. The dropdown shows only those allowed for your account.
 
 ![The Choose Policy dropdown open, showing available policies](screenshots/05-policy-dropdown-open.png)
 
@@ -104,11 +104,11 @@ To send the link through another channel (a chat message, a calendar invite), cl
 
 To check who has access to a file you've already shared, or to change something after the share is live, use the **Share & Permissions** panel from **My Files**.
 
-1. In **My Files**, find the file you shared. Each row has action icons at the right edge — look for the outward-pointing arrow (the share icon).
+1. In **My Files**, find the file you shared. Each row has action icons at the right edge. Look for the outward-pointing arrow (the share icon).
 
-![The share icon on the file row — click it to open the sharing panel](screenshots/09-share-icon.png)
+![The share icon on the file row](screenshots/09-share-icon.png)
 
-   Click the share icon. The **Share with** panel opens in the centre of the page, showing the current share link and a **Who has access** option at the top right.
+   Click the share icon. The **Share with** panel opens in the center of the page, showing the current share link and a **Who has access** option at the top right.
 
 ![The Share with panel showing the active share link and the Who has access option](screenshots/10-permissions-drawer.png)
 
@@ -125,7 +125,7 @@ Changes take effect the next time the recipient opens the protected link. Anyone
 
 ## What recipients experience
 
-Each recipient receives an email from an `@specterx.com` sender with a link to the protected file. When they click the link they land on the **Recipient Page** and verify their identity. For most recipients, this means entering a 6-digit code sent to their inbox. After verification, the file opens in the **Secure Viewer**.
+Each recipient receives an email from an `@specterx.com` sender with a link to the protected file. When they click the link, they land on the **Recipient Page** and verify their identity. For most recipients, this means entering a 6-digit code sent to their inbox. After verification, the file opens in the **Secure Viewer**.
 
 Whether they can download, forward, or print the file depends on the policy you picked in step 6, not on the role you gave them.
 
