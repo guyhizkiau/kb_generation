@@ -6,14 +6,14 @@ estimated-reading-time: 5 min
 
 # Securely share a file from the SpecterX web platform
 
-If you need to send a file to someone, the **Share Files** drawer handles the upload, the access controls, the security policy, and the notification email. The security policy you pick determines what recipients can do with the file.
+If you need to share one or more files with someone, the **Share Files** drawer handles the upload, the access controls, and the security policy. The security policy you pick determines what recipients can do with the files.
 
 ## Before you start
 
 You need:
 
 - An active SpecterX session in your browser. If you haven't signed in yet, see [Sign in to SpecterX](../01-log-in-to-specterx/01-log-in-to-specterx.html).
-- The file you want to share. It can be one you've already uploaded to **My Files**, or one from your computer that you upload as part of this flow.
+- The file or files you want to share. They can be files already in **My Files**, new uploads from your computer, or a mix of both.
 - The email address of each recipient.
 - A phone number for each recipient, in international format, if you plan to use a policy that requires SMS verification. Your administrator decides which policies require this.
 
@@ -29,13 +29,13 @@ The **Share Files** drawer opens on the right of the page with the first step, *
 
 ![The Share Files drawer open with the upload area empty](screenshots/01-drawer-empty.png)
 
-### 2. Add the file
+### 2. Add files
 
 In the upload area at the top of the drawer, **Click or drag a file to this area to upload**. The file uploads as soon as you drop it. Wait for the upload bar to finish before you continue.
 
 ![test-document.pdf added to the upload list inside the drawer](screenshots/02-file-uploaded.png)
 
-To share a file you've already uploaded to **My Files**, close the drawer, click the **Share** action on the file's row, and skip to step 4.
+If your files are already in **My Files**, you don't need to start here. Go to the **My Files** page, select the file or files you want to share, and click **Share files**, or click the **Share** action on a single file's row. The drawer opens with those files pre-loaded. You can add more files in the upload area if needed, then continue with step 3.
 
 ### 3. Add a recipient
 
@@ -52,7 +52,7 @@ Repeat this for every recipient you want to add.
 Each recipient row has a role dropdown set to **Viewer** by default. Open the dropdown and pick the level you want:
 
 - **Viewer**. Can view the file. This is the default.
-- **Contributor**. Can view and edit the file's content. Whether they can also download depends on the policy you select in step 5.
+- **Contributor**. Can view and edit the file's content. Whether they can also download depends on the policy you select in step 6.
 - **Co-owner**. Can view, edit, reshare the file with new recipients, and read the file's audit log.
 
 A Contributor or Co-owner can't override the policy: if the policy blocks downloads, even a Co-owner sees the same Secure Viewer with no download button.
