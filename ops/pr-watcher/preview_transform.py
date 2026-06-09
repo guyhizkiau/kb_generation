@@ -225,15 +225,17 @@ def load_preview_html_from_ref(
 
 
 def resolve_preview_html(repo_root: Path, slug: str, origin: str) -> tuple[int, str]:
-    """Serve preview from the article branch ref when in-progress, else main tree."""
+    """Serve preview from the article branch ref when one exists, else main tree.
+
+    A Done article may have an open revision branch (new feedback cycle), so
+    we check for the branch *before* falling back to main — not after a
+    TERMINAL_PHASES gate that would skip it entirely.
+    """
     try:
         import queue_store as qs
     except ImportError:
         return load_preview_html(repo_root, slug, origin)
 
-    main_fields = qs.read_state_fields(qs.article_state_path(slug))
-    if main_fields.get("PHASE", "UNKNOWN") in qs.TERMINAL_PHASES:
-        return load_preview_html(repo_root, slug, origin)
     ref = qs.article_ref(slug)
     if ref:
         code, html = load_preview_html_from_ref(repo_root, slug, origin, ref)
