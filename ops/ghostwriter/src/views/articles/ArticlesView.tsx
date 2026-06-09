@@ -185,8 +185,14 @@ function SortableArticleRow({
             running={claudeRunning}
             forceActivity={isActive}
           />
-          <Tooltip label="Write this next">
-            <ActionIcon size="xs" color="teal" variant="subtle" onClick={() => onWriteNext(art.slug)}>
+          <Tooltip label={claudeRunning ? 'Revision in progress' : 'Write this next'} withArrow>
+            <ActionIcon
+              size="xs"
+              color="teal"
+              variant="subtle"
+              disabled={claudeRunning}
+              onClick={() => onWriteNext(art.slug)}
+            >
               ▶
             </ActionIcon>
           </Tooltip>
@@ -617,13 +623,21 @@ export function ArticlesView() {
 
                 {nextPlannableSlug && (
                   <Group mt="md" justify="flex-end">
-                    <Button
-                      size="sm"
-                      color="teal"
-                      onClick={() => handleWriteNext(nextPlannableSlug)}
+                    <Tooltip
+                      label="Revision in progress"
+                      disabled={!queue.claude_running}
+                      withArrow
                     >
-                      Write next → {nextPlannableSlug}
-                    </Button>
+                      <Button
+                        size="sm"
+                        color="teal"
+                        loading={!!queue.claude_running}
+                        disabled={!!queue.claude_running}
+                        onClick={() => handleWriteNext(nextPlannableSlug)}
+                      >
+                        {queue.claude_running ? 'Revision in progress…' : `Write next → ${nextPlannableSlug}`}
+                      </Button>
+                    </Tooltip>
                   </Group>
                 )}
               </Card>
