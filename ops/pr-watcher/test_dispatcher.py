@@ -122,6 +122,27 @@ class DispatcherTests(unittest.TestCase):
         self._dispatch("01-a")
         self.assertEqual(self.launches, [("01-a", "draft")])
 
+    def test_dispatch_relaunches_after_phase_reentry(self):
+        # A second feedback cycle re-enters REVISING months later; the
+        # dedupe key must be fresh per phase entry, not per slug+phase.
+        d = self._mk_article("01-a", "REVISING", REVISION_CYCLE="1")
+        self._dispatch("01-a")
+        self.assertEqual(self.launches, [("01-a", "revise-from-feedback")])
+        # Simulate the cycle completing and a later re-entry: STATE gets a
+        # new LAST_UPDATE (forced here; in production minutes pass).
+        state_file = d / "STATE"
+        text = state_file.read_text().replace(
+            "REVISION_CYCLE=1", "REVISION_CYCLE=2"
+        )
+        text = "\n".join(
+            "LAST_UPDATE=2027-01-01T00:00:00Z" if l.startswith("LAST_UPDATE=") else l
+            for l in text.splitlines()
+        ) + "\n"
+        state_file.write_text(text)
+        self._dispatch("01-a")
+        self.assertEqual(self.launches[-1], ("01-a", "revise-from-feedback"))
+        self.assertEqual(len(self.launches), 2)
+
     def test_dispatch_testing_runs_test_plan_then_tester(self):
         d = self._mk_article("01-a", "TESTING")
         self._dispatch("01-a")

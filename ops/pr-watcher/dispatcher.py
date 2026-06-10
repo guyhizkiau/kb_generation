@@ -18,7 +18,7 @@ from store.machine import (  # noqa: E402
 )
 from store.paths import article_dir
 from store.queue import load_queue
-from store.state import write_state
+from store.state import read_state, write_state
 
 
 def map_phase(phase: str) -> str:
@@ -97,7 +97,12 @@ def dispatch_idle(
 
 
 def _dedupe_key(slug: str, action: str) -> str:
-    return f"phase-dispatch-{slug}-{action}"
+    # LAST_UPDATE changes on every STATE write, so the key is fresh each
+    # time the article (re-)enters a phase. Without it, a second feedback
+    # cycle, a re-verification, or an unblock-retry of the same slug+phase
+    # would be dedupe-blocked forever.
+    stamp = read_state(slug).get("LAST_UPDATE", "")
+    return f"phase-dispatch-{slug}-{action}-{stamp}"
 
 
 def _launch(slug, phase, launch_phase, state, save_state, log, pre_transition=None):
@@ -107,7 +112,9 @@ def _launch(slug, phase, launch_phase, state, save_state, log, pre_transition=No
     if pre_transition:
         transition(slug, pre_transition[0])
     launch_phase(slug, phase)
-    state.setdefault("handled", []).append(key)
+    handled = state.setdefault("handled", [])
+    handled.append(key)
+    del handled[:-500]  # bound state-file growth
     save_state(state)
     log(f"  [{slug}] Dispatched phase {phase}")
 
@@ -134,7 +141,7 @@ def _dispatch_testing(slug, adir, launch_phase, run_tester, is_claude_running, s
 
 
 def _dispatch_revising(slug, launch_phase, state, save_state, log):
-    fields = __import__("store.state", fromlist=["read_state"]).read_state(slug)
+    fields = read_state(slug)
     try:
         rc = int(fields.get("REVISION_CYCLE", "0"))
     except ValueError:

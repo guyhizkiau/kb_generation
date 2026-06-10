@@ -64,6 +64,28 @@ sudo rsync -a ../../dist/ghostwriter/ /home/ubuntu/pr-watcher-web/ghostwriter/
 # No pip install needed — store/ is importable from repo root
 ```
 
+**VM-local state the repo can't fix — check all three:**
+
+```bash
+# 1. Unset GHOSTWRITER_FEEDBACK_DIR everywhere it might be exported
+#    (start-pr-watcher.sh, ~/.config/specterx-kb/.env, the systemd unit).
+#    If it stays set, feedback silently keeps writing to
+#    /home/ubuntu/ghostwriter-feedback/ instead of articles/<slug>/feedback.json
+#    — restoring the two-sources-of-truth problem this refactor removes.
+grep -rn GHOSTWRITER_FEEDBACK_DIR /home/ubuntu/start-pr-watcher.sh \
+    /home/ubuntu/.config/specterx-kb/.env /etc/systemd/system/pr-watcher.service
+
+# 2. Reset the worktree — it may still sit on a (soon-deleted) article branch
+#    with dirty files; the phase launcher has no `set -e` and would carry on.
+cd /home/ubuntu/kb_generation-work
+sudo -u ubuntu git checkout -f main && sudo -u ubuntu git pull origin main
+
+# 3. Disable the n8n annotation-intake workflow on the n8n instance.
+#    Deleting ops/n8n/wf1-annotation-intake.json from the repo does not stop
+#    the deployed workflow; if left running it will keep mirroring
+#    annotations into GitHub issues that nothing reads anymore.
+```
+
 Do **not** start the daemon yet if you still have open `article/*` PRs —
 run migration first (§3).
 

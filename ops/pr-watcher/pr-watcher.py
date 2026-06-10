@@ -241,6 +241,12 @@ def _launch_phase(slug: str, phase: str):
     # so the shell script carries the right permissions regardless of which
     # version of run_claude_code.py is checked out in the worktree.
     PHASE_EXTRA_ALLOW: dict[str, list[str]] = {
+        # Research needs Playwright (venv python) for competitor scraping
+        # and UI recon — without it the three-competitor gate blocks.
+        "research": [
+            "Bash(python3 *)",
+            "Bash(python *)",
+        ],
         "revise-from-feedback": [
             "Bash(python3 *)",
             "Bash(python *)",

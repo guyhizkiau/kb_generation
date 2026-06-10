@@ -59,6 +59,12 @@ PHASE_TRANSITIONS: dict[str, tuple[str, str]] = {
 }
 
 PHASE_EXTRA_ALLOW: dict[str, list[str]] = {
+    # Research scrapes competitor KBs and does UI recon via Playwright
+    # (venv python) — without these the competitor gate can never pass.
+    "research": [
+        "Bash(python3 *)",
+        "Bash(python *)",
+    ],
     "revise-from-feedback": [
         "Bash(python3 *)",
         "Bash(python *)",
