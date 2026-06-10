@@ -13,7 +13,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from store.machine import LEGACY_MAP, current_phase, transition  # noqa: E402
+from store.machine import LEGACY_MAP, current_phase, normalize_legacy  # noqa: E402
 from store.paths import article_dir, repo_root  # noqa: E402
 from store.queue import load_queue  # noqa: E402
 from store.state import read_state, write_state  # noqa: E402
@@ -42,6 +42,33 @@ def _article_refs() -> list[tuple[str, str]]:
     return refs
 
 
+def _ref_is_merged(ref: str) -> bool:
+    """True when *ref* is already contained in main (nothing to land)."""
+    r = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", ref, "main"],
+        cwd=str(repo_root()),
+        capture_output=True,
+    )
+    return r.returncode == 0
+
+
+def _phase_at_ref(slug: str, ref: str) -> str:
+    """PHASE an article will have after landing *ref*, legacy-mapped."""
+    r = subprocess.run(
+        ["git", "show", f"{ref}:articles/{slug}/STATE"],
+        cwd=str(repo_root()),
+        capture_output=True,
+        text=True,
+    )
+    if r.returncode != 0:
+        return "UNKNOWN"
+    for line in r.stdout.splitlines():
+        if line.startswith("PHASE="):
+            raw = line.split("=", 1)[1].strip()
+            return LEGACY_MAP.get(raw, raw)
+    return "UNKNOWN"
+
+
 def _backfill_verified(slug: str) -> None:
     fields = read_state(slug)
     if current_phase(slug) != "PUBLISHED":
@@ -68,8 +95,13 @@ def migrate(*, dry_run: bool = False, root: Path | None = None) -> None:
             pass
     refs = _article_refs()
     print(f"Found {len(refs)} article branch refs")
+    landed: dict[str, str] = {}
     for slug, ref in refs:
+        if _ref_is_merged(ref):
+            print(f"  skip {slug} — {ref} already merged into main")
+            continue
         print(f"  land {slug} from {ref}")
+        landed[slug] = ref
         if not dry_run:
             _git("checkout", "main")
             _git("checkout", ref, "--", f"articles/{slug}/")
@@ -79,9 +111,14 @@ def migrate(*, dry_run: bool = False, root: Path | None = None) -> None:
     for cluster in q.get("clusters", []):
         for art in cluster.get("articles", []):
             slug = art["slug"]
-            if not (article_dir(slug) / "STATE").exists():
-                continue
-            phase = current_phase(slug)
+            if dry_run and slug in landed:
+                # Predict the post-landing phase from the branch ref so the
+                # dry-run plan matches what the real run will do.
+                phase = _phase_at_ref(slug, landed[slug])
+            else:
+                if not (article_dir(slug) / "STATE").exists():
+                    continue
+                phase = current_phase(slug)
             if phase not in ("PUBLISHED", "SKIPPED"):
                 in_flight.append(slug)
 
@@ -99,14 +136,37 @@ def migrate(*, dry_run: bool = False, root: Path | None = None) -> None:
             slug = art["slug"]
             if not (article_dir(slug) / "STATE").exists():
                 continue
+            if dry_run and slug in landed:
+                # Post-landing the STATE comes from the branch ref.
+                mapped = _phase_at_ref(slug, landed[slug])
+                print(f"  map {slug} (from {landed[slug]}) → {mapped}")
+                continue
             fields = read_state(slug)
             raw = fields.get("PHASE", "")
             mapped = LEGACY_MAP.get(raw, raw)
             if mapped != raw:
                 print(f"  map {slug} {raw} → {mapped}")
                 if not dry_run:
-                    transition(slug, mapped)
-            _backfill_verified(slug)
+                    normalize_legacy(slug)
+            if not dry_run:
+                _backfill_verified(slug)
+
+    # Seed explicit QUEUED STATE for unstarted queue articles — the old
+    # pipeline created STATE lazily; the dispatcher and Ghostwriter expect
+    # STATE files to be authoritative.
+    for cluster in q.get("clusters", []):
+        for art in cluster.get("articles", []):
+            slug = art["slug"]
+            if (article_dir(slug) / "STATE").exists():
+                continue
+            print(f"  seed {slug} → QUEUED")
+            if not dry_run:
+                article_dir(slug).mkdir(parents=True, exist_ok=True)
+                write_state(slug, {
+                    "PHASE": "QUEUED",
+                    "CLUSTER": cluster.get("id", ""),
+                    "NEXT_ACTION": "",
+                })
 
     fb_dir = root / ".ghostwriter" / "feedback" if root else repo_root() / ".ghostwriter" / "feedback"
     if fb_dir.exists():
@@ -130,7 +190,8 @@ def migrate(*, dry_run: bool = False, root: Path | None = None) -> None:
 
     print("\nOperator cleanup (not executed):")
     for slug, _ in refs:
-        print(f"  gh pr close --comment 'superseded by single-branch pipeline'  # article/{slug}")
+        if slug in landed:
+            print(f"  gh pr close article/{slug} --comment 'superseded by single-branch pipeline'")
         print(f"  git push origin --delete article/{slug}")
 
 

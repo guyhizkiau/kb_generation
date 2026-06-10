@@ -62,6 +62,21 @@ def current_phase(slug: str) -> str:
     return LEGACY_MAP.get(raw, raw)
 
 
+def normalize_legacy(slug: str) -> str:
+    """Rewrite a legacy PHASE value to its new-set equivalent.
+
+    Administrative rename, not a lifecycle move — bypasses TRANSITIONS on
+    purpose (PUBLISHED → PUBLISHED is not a transition). No-op for
+    new-set values.
+    """
+    raw = read_state(slug).get("PHASE", "")
+    mapped = LEGACY_MAP.get(raw)
+    if mapped is None:
+        return raw
+    write_state(slug, {"PHASE": mapped})
+    return mapped
+
+
 def transition(slug: str, to_phase: str, *, extra: dict[str, str] | None = None) -> dict[str, str]:
     """Validate and apply a PHASE transition; return resulting STATE fields."""
     fields = read_state(slug)

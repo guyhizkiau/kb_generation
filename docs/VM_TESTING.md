@@ -36,14 +36,20 @@ All commands must exit 0 before deploying.
 
 ## 2. Deploy code to VM (before migration)
 
+**Merge the `pipeline/single-branch-refactor` PR into `main` first.** The
+migration script ends with the working tree on `main`, and the daemon
+imports `store/` from the repo root — both require the refactor code to be
+on `main` before anything runs on the VM.
+
 Use AWS SSM (see `ops/pr-watcher/README.md` § Deploy). On the VM:
 
 ```bash
 sudo systemctl stop pr-watcher
 
 cd /home/ubuntu/kb_generation
-sudo -u ubuntu git fetch origin pipeline/single-branch-refactor
-sudo -u ubuntu git checkout pipeline/single-branch-refactor
+sudo -u ubuntu git fetch origin main
+sudo -u ubuntu git checkout main
+sudo -u ubuntu git pull origin main
 
 # Copy daemon + dashboard
 cp ops/pr-watcher/pr-watcher.py /home/ubuntu/pr-watcher.py
@@ -137,19 +143,23 @@ end-to-end under the new model:
 
 ## 5. Rollback
 
-If migration or first article fails:
+If migration or first article fails (after the PR is merged, `main` IS the
+refactor code — roll back by SHA, not by branch):
 
 ```bash
 sudo systemctl stop pr-watcher
 cd /home/ubuntu/kb_generation
-sudo -u ubuntu git checkout main
-sudo -u ubuntu git pull origin main
-cp /home/ubuntu/kb_generation/ops/pr-watcher/pr-watcher.py /home/ubuntu/pr-watcher.py
+# <pre-merge-sha> = last main commit before the refactor merge
+sudo -u ubuntu git checkout <pre-merge-sha>
+cp ops/pr-watcher/pr-watcher.py /home/ubuntu/pr-watcher.py
 sudo systemctl start pr-watcher
 ```
 
-Article branches/PRs are only deleted by operator cleanup commands —
-rollback to `main` restores the old daemon code path.
+Article branches/PRs are only deleted by the operator cleanup commands, so
+they still exist until you ran those — do not run cleanup until the first
+supervised article has completed end-to-end. A botched migration commit on
+`main` is reverted with `git revert <migration-sha>` (one commit per phase
+convention: the migration is a single commit).
 
 ---
 

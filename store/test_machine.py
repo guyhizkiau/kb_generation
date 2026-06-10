@@ -12,6 +12,7 @@ from store.machine import (
     active_article,
     block,
     current_phase,
+    normalize_legacy,
     resume,
     transition,
     unblock,
@@ -87,3 +88,17 @@ class MachineTests(unittest.TestCase):
             "APPROVED_BY": "guy", "APPROVED_AT": "2026-06-01T00:00:00Z",
         })
         self.assertEqual(result["APPROVED_BY"], "guy")
+
+    def test_normalize_legacy_rewrites_value(self):
+        self._init(self._slug(), "DONE")
+        self.assertEqual(normalize_legacy(self._slug()), "PUBLISHED")
+        self.assertEqual(current_phase(self._slug()), "PUBLISHED")
+
+    def test_normalize_legacy_noop_for_new_set(self):
+        self._init(self._slug(), "TESTING")
+        self.assertEqual(normalize_legacy(self._slug()), "TESTING")
+
+    def test_transition_rejects_identity_move(self):
+        self._init(self._slug(), "PUBLISHED")
+        with self.assertRaises(InvalidTransition):
+            transition(self._slug(), "PUBLISHED")

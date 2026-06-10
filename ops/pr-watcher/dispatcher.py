@@ -18,19 +18,28 @@ from store.machine import (  # noqa: E402
 )
 from store.paths import article_dir
 from store.queue import load_queue
+from store.state import write_state
 
 
 def map_phase(phase: str) -> str:
     return LEGACY_MAP.get(phase, phase)
 
 
-def first_queued_slug() -> str | None:
+def first_queued_slug() -> tuple[str, str] | None:
+    """Return (slug, cluster_id) of the next QUEUED or unstarted article.
+
+    Articles added to the queue have no STATE file until the pipeline
+    touches them — treat a missing STATE as QUEUED, else the daemon
+    idles forever once explicit QUEUED articles run out.
+    """
     q = load_queue()
     for cluster in q.get("clusters", []):
         for art in cluster.get("articles", []):
             slug = art["slug"]
+            if not (article_dir(slug) / "STATE").exists():
+                return slug, cluster.get("id", "")
             if map_phase(current_phase(slug)) == "QUEUED":
-                return slug
+                return slug, cluster.get("id", "")
     return None
 
 
@@ -78,8 +87,11 @@ def dispatch_idle(
         return
     if queue_reverification():
         return
-    slug = first_queued_slug()
-    if slug:
+    picked = first_queued_slug()
+    if picked:
+        slug, cluster_id = picked
+        if not (article_dir(slug) / "STATE").exists():
+            write_state(slug, {"PHASE": "QUEUED", "CLUSTER": cluster_id, "NEXT_ACTION": ""})
         transition(slug, "RESEARCHING")
         _launch(slug, "research", launch_phase, state, save_state, log)
 
