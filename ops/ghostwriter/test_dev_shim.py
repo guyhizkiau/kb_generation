@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
+import tempfile
 import threading
 import unittest
 import urllib.request
@@ -24,6 +26,10 @@ def _load_shim():
 class DevShimTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        # Isolate feedback writes — without this, POST /api/feedback lands
+        # in the real repo's articles/<slug>/feedback.json.
+        cls._fb_tmp = tempfile.TemporaryDirectory()
+        os.environ["GHOSTWRITER_FEEDBACK_DIR"] = cls._fb_tmp.name
         cls.shim = _load_shim()
         cls.shim.ShimHandler.use_control = False
         cls.server = ThreadingHTTPServer(("127.0.0.1", 0), cls.shim.ShimHandler)
@@ -36,6 +42,8 @@ class DevShimTests(unittest.TestCase):
     def tearDownClass(cls):
         cls.server.shutdown()
         cls.shim.SIM.cancel_timer()
+        os.environ.pop("GHOSTWRITER_FEEDBACK_DIR", None)
+        cls._fb_tmp.cleanup()
 
     def _get_json(self, path: str) -> dict:
         with urllib.request.urlopen(f"{self.base}{path}") as resp:
