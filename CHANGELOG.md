@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026-06-10 — Single-branch status-driven pipeline
+
+- Replaced per-article PR branches with commits on `main` and a `PHASE`
+  state machine (`store/machine.py`).
+- pr-watcher now dispatches phases via `dispatcher.py` (serial: one
+  active article at a time) instead of polling GitHub PRs.
+- Review flow: `IN_REVIEW` → approve (`POST /api/queue/approve`) →
+  publish (`pipeline/publish/`). Request changes via
+  `POST /api/queue/request-changes`.
+- New STATE fields: `VERIFIED_AS_OF`, `APPROVED_BY`/`APPROVED_AT`,
+  `REWORK_REASON`. Feedback annotations at
+  `articles/<slug>/feedback.json`.
+- Deterministic research gate (`pipeline/gates.py`), re-verification
+  (`pipeline/reverify.py`), and re-lint (`pipeline/relint.py`).
+- Updated `WORKFLOW.md`, `CLAUDE.md`, `ops/pr-watcher/README.md`,
+  `writer/README.md`, and `pipeline/prompts/README.md`.
+
 ## 2026-05-26 — Drop unused orchestrator/infra
 
 - Removed `orchestrator/` (never implemented; article phases run via `writer/` and an agent or operator).

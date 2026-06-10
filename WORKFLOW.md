@@ -14,8 +14,8 @@
 > - [`docs/LESSONS_LEARNED.md`](docs/LESSONS_LEARNED.md) — durable
 >   "we hit this wall once" notes. Saves rediscovering the same bugs.
 > - [`ops/pr-watcher/README.md`](ops/pr-watcher/README.md) — operational
->   runbook for the autonomous bot that drives this pipeline when an
->   article PR is open.
+>   runbook for the status-driven daemon that dispatches pipeline phases
+>   on `main` (one article at a time).
 > - [`editorial/STYLE_GUIDE.md`](editorial/STYLE_GUIDE.md) — the voice,
 >   structure, and anti-patterns canon. Updated continuously from
 >   approved articles.
@@ -32,13 +32,15 @@ output of a 5-stage pipeline:
 
 ```
 Stage 0  ─►  Stage 1   ─►  Stage 2   ─►  Stage 3  ─►  Stage 4  ─►  Stage 5
-once       per-cluster   per-article    draft       validate    PR + review
-                         (parallel)
+once       per-cluster   per-article    draft       validate    review → publish
+                         (serial)
 ```
 
 - Stage 0 is **done once** at project start
 - Stage 1 is **done once per cluster** (a cluster is up to 5 articles)
-- Stages 2–5 are **done per article**
+- Stages 2–5 are **done per article**, **one article at a time** on `main`
+  (see §11). The pr-watcher dispatcher picks up the next `QUEUED` slug
+  only when no other article is in an active phase.
 
 There is no pre-existing house style. **You build the style as you go**,
 from approved articles. The first 3 approved articles establish it; the
@@ -332,8 +334,8 @@ Three login articles, in this exact order:
    article, not a procedural one — establishes the style for overview
    articles)
 
-After all three are approved and merged, **stop**. Do not start
-cluster 2. Run the style extraction (§9) and wait for Guy to confirm
+After all three are approved and published, **stop**. Do not start
+cluster 2. Run the style extraction (§10) and wait for Guy to confirm
 he's happy with `STYLE_GUIDE.md`. Only then continue to cluster 2.
 
 ### 5.2 Cluster 2
@@ -346,8 +348,9 @@ Pre-planned to be the 5-article Share files cluster:
 4. Revoke access to a shared file
 5. Set how long a file stays accessible
 
-Cluster 2 is your first batch — write all 5 in parallel (within bot
-limits), open 5 PRs.
+Cluster 2 is your first multi-article cluster — all five articles are
+queued in `clusters/queue.json` and processed **serially** by the
+dispatcher (one active article at a time).
 
 ### 5.3 Scenario setup for cluster 1
 
@@ -738,7 +741,8 @@ specterx-build: <build>
 - **Don't pad.** A 4-step article is 4 steps.
 - **Apply the competitor coverage checklist** — for each item, decide
   in or out. Note your decisions briefly in the draft as `<!-- coverage
-  decision: yes/no, reason -->` comments. These get stripped before PR.
+  decision: yes/no, reason -->` comments. These get stripped before
+  submit-for-review.
 - **Respect the shape budget** from `competitor-coverage.md`. If the
   draft is materially longer or has more screenshots than the
   competitor median, cut before submitting. Login-style articles in
@@ -753,12 +757,9 @@ specterx-build: <build>
 
 ### 7.3 After writing the draft
 
-Update `articles/<NN-slug>/STATE`:
-```
-PHASE=TESTING
-LAST_UPDATE=<ISO>
-NEXT_ACTION=generate test-plan.json from draft-1.md
-```
+The `draft` phase runner (`writer/run_claude_code.py`) transitions
+`PHASE` from `DRAFTING` → `TESTING` when `draft-1.md` exists. Do not
+edit `STATE` by hand during an automated run.
 
 ---
 
@@ -780,8 +781,8 @@ For each approved article, check:
 Make the edits directly in the relevant `articles/*/final.md` files and
 re-render the corresponding `articles/*/NN-slug.html` (run
 `python3 pipeline/render_html.py articles/NN-slug/`). Commit these
-back-link changes in the same PR as the new article, under the message
-prefix `cross-link:`.
+back-link changes on `main` in the same commit series as the new article,
+under the message prefix `cross-link:`.
 
 **B. Forward-link from this article to previous articles**
 
@@ -792,14 +793,14 @@ article.
 
 **Scope of back-linking**
 
-- Check only approved (merged) articles under `articles/*/`. Drafts
-  in progress are out of scope.
+- Check only published (`PHASE=PUBLISHED`) articles under `articles/*/`.
+  In-progress drafts are out of scope.
 - Link the first occurrence per article only — do not hyperlink every
   mention of a term.
 - Do not force a link where the mention is incidental or the context
   would not benefit the reader.
-- If no back-link opportunity exists, note that explicitly in the PR
-  description under "Cross-linking: none needed."
+- If no back-link opportunity exists, note that explicitly in the
+  review notes under "Cross-linking: none needed."
 
 
 ## 8. Stage 4 — Validate
@@ -856,7 +857,7 @@ shares, etc.) to leave the tenant in the cluster's baseline state.
 
 ---
 
-## 9. Stage 5 — Revise, PR, review
+## 9. Stage 5 — Revise, submit for review, approve, publish
 
 ### 9.1 Revise → `draft-2.md`
 
@@ -951,54 +952,45 @@ Anti-patterns:
 - Do not paste the preview `.html` into ZenDesk (it will render unstyled).
 - Do not add `<style>` blocks inside ZenDesk's editor (stripped on save).
 
-### 9.4 Open PR
+### 9.4 Submit for review (`IN_REVIEW`)
 
-Create branch `article/<NN-slug>`, commit:
+The `voice-pass` phase is the last automated writer step. On success the
+runner transitions `PHASE` from `FINALIZING` → `IN_REVIEW` and commits
+on `main`:
+
 - `articles/<NN-slug>/final.md`
-- `articles/<NN-slug>/<NN-slug>.html` — standalone preview (run `pipeline/render_html.py`)
-- `articles/<NN-slug>/<NN-slug>-zendesk.html` — ZenDesk import (auto-generated by same script)
-- `articles/<NN-slug>/screenshots/*.png` (only chosen ones, not `_all/`)
 - `articles/<NN-slug>/test-notes.md` (for the reviewer)
-- `articles/index.html` — regenerated by `python3 pipeline/build_index.py`
+- `articles/<NN-slug>/screenshots/*.png` (only chosen ones, not `_all/`)
+- `articles/<NN-slug>/STATE`
 
-PR body template:
+HTML previews (`<slug>.html`, `<slug>-zendesk.html`, `articles/index.html`)
+are **not** written until approve/publish (§9.6).
 
-```markdown
-## Article NN: <Title>
+The article appears in Ghostwriter with a **Review** action. Reviewers
+read `final.md` in the in-browser preview and leave inline annotations
+(stored in `articles/<NN-slug>/feedback.json`).
 
-Cluster: <cluster-id>
-Validated against: SpecterX build <X>, <date>
+Review checklist (for humans):
 
-### What this PR contains
-- `articles/<NN-slug>/final.md` — the article
-- `articles/<NN-slug>/screenshots/` — <N> images
-- `articles/<NN-slug>/test-notes.md` — observations from execution
-
-### Tests performed
-<bulleted list of high-level flow stages with PASS / BLOCKED indicators>
-
-### Coverage decisions
-<from the competitor checklist; what was included or excluded and why>
-
-### Glossary terms proposed
-<new terms this article would add to canon/GLOSSARY.md>
-
-### Known limitations
-<from test-notes; anything that couldn't be verified>
-
-### How to review
-1. Read `final.md` end to end on the GitHub web view
+1. Read `final.md` end to end in the Ghostwriter reader
 2. For each screenshot, check it matches the step text
 3. Leave inline comments on any step that's wrong, unclear, or wordy
-4. Use "Request changes" to send revisions back to the pipeline
-5. Approve and merge when ready
-```
+4. Use **Request changes** to send the article back to the pipeline, or
+   **Approve** when ready (§9.6)
+
+> **Historical note:** Earlier pipeline versions opened per-article
+> `article/<NN-slug>` PRs on GitHub. That flow is retired; all article
+> work now commits directly to `main` behind the `PHASE` state machine.
 
 ### 9.5 Process review feedback — fix the root cause first
 
-When the PR gets "Request changes", read the comments, use
-`pipeline/prompts/04-revise-from-pr-comments.md`. Push updates to the same
-branch. Re-request review.
+When a reviewer requests changes (`POST /api/queue/request-changes` from
+Ghostwriter, or accumulated annotations in `feedback.json`), the daemon
+transitions `IN_REVIEW` → `REVISING`, bumps `REVISION_CYCLE`, and
+launches `revise-from-feedback` (prompt:
+`pipeline/prompts/06-revise-from-feedback.md`). For the canonical-target
+workflow below, treat inline annotations the same way you would have
+treated historical GitHub PR review comments.
 
 **The principle: resolve the comment as a whole, not just locally.** Most
 review feedback is not unique to one article — it reflects a rule that
@@ -1027,7 +1019,7 @@ rule.
 2. **Generalize when applicable, else justify.** If a canonical file
    applies, edit *that file first* and commit it on its own
    (`docs(canon|style|taxonomy|scope): …`). If the comment is genuinely
-   article-specific, record a one-line justification in the PR reply and
+   article-specific, record a one-line justification in the review reply and
    proceed article-only — do not invent contrived canon edits.
 3. **Apply to the article from the updated canon.** Re-read the canonical
    file you just edited and fix the article *from it* (not from memory).
@@ -1063,33 +1055,56 @@ A failed validation is direct evidence the new rule was insufficient; the
 correct response is to make the **rule** better, never to paper over the
 single article.
 
-### 9.6 After merge
+### 9.6 Approve and publish
+
+Approval is a control-plane action, not a git merge:
+
+```bash
+# Ghostwriter "Approve" button, or:
+curl -X POST http://<vm>/api/queue/approve \
+  -H 'Content-Type: application/json' \
+  -d '{"slug": "<NN-slug>", "reviewer": "guy"}'
+```
+
+The daemon:
+
+1. Transitions `IN_REVIEW` → `APPROVED`, recording `APPROVED_BY` and
+   `APPROVED_AT` in `STATE`.
+2. Runs the publish adapter (`pipeline/publish/`) — renders HTML, rebuilds
+   `articles/index.html`, transitions `APPROVED` → `PUBLISHED`.
+3. Commits outputs on `main` (`feat(article): <slug> — approved by …`
+   then `feat(article): <slug> — published (save adapter)`).
+
+If publish fails (adapter error), the article stays at `APPROVED`. Retry
+with `POST /api/queue/publish {"slug": "<NN-slug>"}`.
+
+On revision cycles (`REVISION_CYCLE > 0`), publish sets
+`PUBLISH_STALE=true` — the Zendesk copy needs re-pasting.
+
+### 9.7 After publish
 
 This is the key moment for canon growth:
 
-1. **Add proposed glossary terms** from the PR description to
-   `canon/GLOSSARY.md`. Commit on a separate branch
-   `canon/glossary-update-after-NN-<slug>`, PR for fast approval.
-2. **Check approved-article count.** If this is the 5th, 10th, 15th,
-   ... approved article: run the style extraction (§10).
+1. **Add proposed glossary terms** from the review notes to
+   `canon/GLOSSARY.md`. Commit on `main`
+   (`docs(canon): glossary — after NN-slug`).
+2. **Check published-article count.** If this is the 5th, 10th, 15th,
+   ... published article: run the style extraction (§10).
 3. **Update the cluster STATE.** If all articles in the cluster are
-   merged, mark cluster COMPLETE.
+   published, mark cluster COMPLETE.
 4. **Process any DO_NOT_DOCUMENT additions** the bot or reviewer
    identified.
 5. **Update `references/competitors/INDEX.json`** if new vendor pages
    were scraped during this article's research.
 6. **Back-link previous articles.** If the cross-linking pass in §7.2
-   was not completed during drafting (e.g. the article was the first in
-   a cluster), do it now: scan all approved `articles/*/final.md` files,
-   update Related articles sections and inline hyperlinks where needed,
-   re-render affected articles (`python3 pipeline/render_html.py articles/NN-slug/`),
-   and open a fast-track PR titled `cross-link: NN-slug back-links`.
-7. **Rebuild the article index:**
-   ```bash
-   python3 pipeline/build_index.py
-   ```
-   Commit `articles/index.html` on the same branch (or the cross-link PR).
-   This keeps the overview page current for the nginx preview server.
+   was not completed during drafting, do it now: scan all published
+   `articles/*/final.md` files, update Related articles sections and
+   inline hyperlinks where needed, re-render affected articles
+   (`python3 pipeline/render_html.py articles/NN-slug/`), and commit on
+   `main` with prefix `cross-link:`.
+7. The publish step already rebuilds `articles/index.html`; re-run
+   `python3 pipeline/build_index.py` only if back-links changed other
+   articles after publish.
 
 ---
 
@@ -1110,43 +1125,101 @@ Pattern categories to extract:
 5. **Vocabulary** — which terms are canonical for which concepts
    (this feeds GLOSSARY.md too).
 6. **What we explicitly don't do** — anti-patterns observed across
-   PR comments ("we never say 'simply'", "we never start a step with
+   review feedback ("we never say 'simply'", "we never start a step with
    'Now,'", etc.).
 7. **Article archetypes** — by article 10–15, we should be able to
    identify 3–5 distinct skeletons: procedural how-to, overview/
    concept, reference table, troubleshooting, integration setup.
 
-After the extraction runs, **open a PR with the updated
-`STYLE_GUIDE.md` and wait for Guy's approval before continuing to the
-next article.** The first style guide PR (after article 5) is the
-most important review of the entire project. Guy should treat it as
-making the editorial decisions for the next 100 articles.
+After the extraction runs, **commit the updated `STYLE_GUIDE.md` on
+`main` and wait for Guy's approval before continuing to the next
+article.** The first style-guide update (after article 5) is the most
+important review of the entire project. Guy should treat it as making
+the editorial decisions for the next 100 articles.
 
 ---
 
 ## 11. The article state machine
 
-Each article's `STATE` file tracks:
+Authoritative implementation: `store/machine.py`. Only the writer,
+tester, dispatcher, and control-plane API may call `transition()` —
+never edit `PHASE` by hand mid-run.
+
+Each article's `articles/<NN-slug>/STATE` file tracks:
 
 ```
 PHASE=<phase>
 CLUSTER=<cluster-id>
 LAST_UPDATE=<ISO>
 NEXT_ACTION=<short description>
+VERIFIED_AS_OF=<ISO>          # set by tester on successful verification
+APPROVED_BY=<reviewer>        # set on approve
+APPROVED_AT=<ISO>             # set on approve
+REWORK_REASON=<text>          # set on re-verification or re-lint
+REVISION_CYCLE=<int>          # feedback-driven revision count
+PUBLISH_STALE=true|false      # Zendesk copy stale after revision publish
+BLOCKED_REASON=<text>         # when PHASE=BLOCKED
+RESUME_PHASE=<phase>          # phase to return to after unblock
 ```
 
-Phases (in order):
-- `PLANNED` — in the plan but not yet started
-- `RESEARCHING` — Stage 2 in progress
-- `DRAFTING` — Stage 3 in progress
-- `TESTING` — Stage 4 in progress
-- `REVISING` — Stage 5.1 in progress
-- `FINALIZING` — Stage 5.2 second test pass
-- `PR_OPEN` — PR opened, awaiting review
-- `PR_REVISION_NEEDED` — review requested changes
-- `MERGED` — done, contributing to canon
-- `BLOCKED` — waiting for human input (with `BLOCKED_REASON`)
-- `SKIPPED` — matched DO_NOT_DOCUMENT (with reason)
+### Phases and allowed transitions
+
+| From | To |
+|---|---|
+| `QUEUED` | `RESEARCHING`, `SKIPPED` |
+| `RESEARCHING` | `DRAFTING` |
+| `DRAFTING` | `TESTING` |
+| `TESTING` | `REVISING` |
+| `REVISING` | `FINALIZING` |
+| `FINALIZING` | `IN_REVIEW` |
+| `IN_REVIEW` | `APPROVED`, `REVISING` |
+| `APPROVED` | `PUBLISHED` |
+| `PUBLISHED` | `REVISING`, `TESTING` |
+| `BLOCKED` | *(resume via `RESUME_PHASE`)* |
+| `SKIPPED` | *(terminal)* |
+
+Legacy `PHASE` values are mapped on read (`PLANNED`→`QUEUED`,
+`PR_OPEN`→`IN_REVIEW`, `PR_REVISION_NEEDED`→`REVISING`,
+`MERGED`/`DONE`→`PUBLISHED`).
+
+### Serial processing
+
+Only one article may be in an **active** phase at a time
+(`RESEARCHING`, `DRAFTING`, `TESTING`, `REVISING`, `FINALIZING`,
+`IN_REVIEW`, `APPROVED`, `BLOCKED`). `store.machine.active_article()`
+returns the in-flight slug; the writer refuses to start when another
+article is active (exit code 3 unless `KB_SERIAL_OVERRIDE=1`).
+
+The pr-watcher `dispatcher.py` reads `PHASE` and launches the next
+automated step (research → draft → test-plan → tester → revise →
+voice-pass → publish retry). When no article is active,
+`dispatch_idle()` may queue stale-article re-verification or transition
+the next `QUEUED` slug from `clusters/queue.json` to `RESEARCHING`.
+
+### Deterministic gates (`pipeline/gates.py`)
+
+After the `research` phase completes, `check_research_gate()` verifies
+`research/competitor-coverage.md` has an `## Articles read` section with
+≥3 bullet entries. Failure blocks the article (`PHASE=BLOCKED`).
+
+### Re-verification (`pipeline/reverify.py`)
+
+Published articles go stale when:
+
+- `VERIFIED_AS_OF` is missing or older than 90 days, or
+- `product/CURRENT_RELEASE` `RELEASED_AT` is newer than `VERIFIED_AS_OF`.
+
+When idle, the dispatcher queues the oldest stale article:
+`PUBLISHED` → `TESTING` with `REWORK_REASON` set. The tester re-runs
+the plan and stamps a fresh `VERIFIED_AS_OF` on success.
+
+### Re-lint (`pipeline/relint.py`)
+
+When a commit on `main` touches style assets (`editorial/STYLE_GUIDE.md`,
+`canon/GLOSSARY.md`, `product/COMPONENT_TAXONOMY.md`,
+`editorial/lint_rules.json`), run `relint_catalog()` against all
+published/approved articles. Violations write `relint-report.json` and
+set `REWORK_REASON` on the affected slug(s).
 
 ---
 
@@ -1183,61 +1256,51 @@ These are non-negotiable. Treat any conflict with them as a stop-and-ask.
 Order of escalation:
 
 1. Re-read the relevant section of this document.
-2. Check the last 3 approved articles for how a similar situation was
+2. Check the last 3 published articles for how a similar situation was
    handled.
 3. Search `references/internal/` and `~/specterx-codebase/` for
    answers.
-4. Post a question as a comment on the current PR (Guy will see it
-   alongside the article).
-5. If no PR is open yet, open a dedicated `pipeline-questions` issue
-   on the KB repo.
+4. Leave a note in Ghostwriter on the article in `IN_REVIEW`, or set
+   `PHASE=BLOCKED` with a `BLOCKED_REASON` the dispatcher will surface.
+5. Open a dedicated `pipeline-questions` issue on the KB repo.
 
 Do **not**: improvise on infrastructure, change the workflow defined
-here without a PR to this document first, or write articles that
+here without committing an update to this document first, or write articles that
 contradict the canon without flagging it.
 
 ---
 
-## §11 — Revision cycle (feedback-driven re-entry)
+## 14. Revision cycle (feedback-driven re-entry)
 
-### 11.1 New STATE fields
+### 14.1 Feedback on published articles
 
-Each article STATE file may contain these additional fields:
-
-| Field | Type | Default | Description |
-|---|---|---|---|
-| `REVISION_CYCLE` | int | 0 | Number of feedback-driven revision cycles completed. 0 = never revised via feedback. |
-| `FEEDBACK_ISSUE` | GitHub issue ref | "" | The review-thread issue that triggered the current/last revision cycle. |
-| `PUBLISH_STALE` | bool | false | Set to `true` when a revised article's PR merges — the Zendesk copy is now stale and needs re-pasting. Cleared manually after Zendesk is updated. |
-
-### 11.2 Post-merge state-machine cycle
-
-A merged article can re-enter the pipeline via the Ghostwriter Feedback view:
+A published article can re-enter the pipeline from Ghostwriter:
 
 ```
-MERGED → REVISING → FINALIZING → PR_OPEN → MERGED
+PUBLISHED → REVISING → FINALIZING → IN_REVIEW → APPROVED → PUBLISHED
 ```
 
-Triggered by `POST /api/queue/trigger {reason: "feedback", slug, issue}` from the Ghostwriter SPA or curl.
+Triggered by `POST /api/queue/trigger {"reason": "feedback", "slug": "…"}`
+or `POST /api/queue/request-changes` on a published article.
 
 Steps the daemon performs:
-1. Materializes annotations from the GitHub review-thread issue → `.ghostwriter/feedback/<slug>.json` (VM: `/home/ubuntu/ghostwriter-feedback/<slug>.json`)
-2. Bumps `REVISION_CYCLE` in STATE on the article branch (worktree checkout)
-3. Sets `FEEDBACK_ISSUE=<issue-ref>` in STATE
-4. Sets `PHASE=REVISING` in STATE
-5. Launches `revise-from-feedback` phase via `writer/run_claude_code.py`
-6. The phase prompt chains to `voice-pass`, then re-renders HTML, then opens a new PR
 
-### 11.3 Re-merge guard
+1. Reads annotations from `articles/<slug>/feedback.json`
+2. Bumps `REVISION_CYCLE` in `STATE`
+3. Sets `PHASE=REVISING`
+4. Launches `revise-from-feedback` via `writer/run_claude_code.py`
+5. Chains to `voice-pass` → `IN_REVIEW` for another review round
 
-When the revision PR merges (second or later merge of the same article):
-- `check_merged_prs` detects `REVISION_CYCLE > 0`
-- Sets `PUBLISH_STALE=true` in STATE (signals Zendesk needs re-pasting)
-- Does NOT advance the cluster queue (the cluster already advanced on the first merge)
+### 14.2 Re-publish guard
 
-### 11.4 PUBLISH_STALE lifecycle
+When a revision is approved and published (`REVISION_CYCLE > 0`):
 
-- Set to `true` automatically by the daemon on revision re-merge.
-- Shown as a badge in the Ghostwriter Queue and Feedback views.
+- Publish sets `PUBLISH_STALE=true` (Zendesk copy needs re-pasting)
+- The cluster queue does **not** re-advance (it already advanced on
+  first publish)
+
+### 14.3 PUBLISH_STALE lifecycle
+
+- Set automatically on revision publish.
+- Shown as a badge in Ghostwriter.
 - Cleared manually once the article has been re-pasted to Zendesk.
-  Future: `POST /api/queue/published {slug}` will clear it (out of scope for this plan).
