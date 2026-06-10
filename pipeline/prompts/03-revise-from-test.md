@@ -80,10 +80,4 @@ This becomes a flag for Guy to look at carefully in the PR.
 
 ## When you're done
 
-Save `draft-2.md`. Update STATE:
-
-```
-PHASE=FINALIZING
-LAST_UPDATE=<ISO>
-NEXT_ACTION=tester does final pass to capture clean screenshots
-```
+Save `draft-2.md` and exit. The pipeline runner advances STATE.

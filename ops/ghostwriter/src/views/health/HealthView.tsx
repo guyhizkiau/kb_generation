@@ -96,7 +96,10 @@ export function HealthView() {
         <Card withBorder>
           <Text fw={600} mb="xs">Active task</Text>
           <Text size="sm">
-            PR #{data.current_task.pr_number} · step: {data.current_task.step}
+            step: {data.current_task.step}
+            {data.current_task.comment_id && (
+              <> · id: {data.current_task.comment_id}</>
+            )}
           </Text>
           <Progress mt="xs" value={50} color="teal" animated />
         </Card>
@@ -111,12 +114,10 @@ export function HealthView() {
         </Card>
       )}
 
-      {/* Open PRs */}
-      <Card withBorder>
-        <Text fw={600} mb="xs">Open PRs ({data.open_prs.length})</Text>
-        {data.open_prs.length === 0 ? (
-          <Text size="sm" c="dimmed">None</Text>
-        ) : (
+      {/* Open PRs — legacy field; always empty in single-branch mode */}
+      {data.open_prs.length > 0 && (
+        <Card withBorder>
+          <Text fw={600} mb="xs">Open PRs ({data.open_prs.length})</Text>
           <Table striped highlightOnHover>
             <Table.Thead>
               <Table.Tr>
@@ -138,21 +139,14 @@ export function HealthView() {
                     </Anchor>
                   </Table.Td>
                   <Table.Td>
-                    <Anchor
-                      href={githubPullUrl(pr.number)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      size="sm"
-                    >
-                      <Code>{pr.branch}</Code>
-                    </Anchor>
+                    <Code>{pr.branch}</Code>
                   </Table.Td>
                 </Table.Tr>
               ))}
             </Table.Tbody>
           </Table>
-        )}
-      </Card>
+        </Card>
+      )}
 
       {/* Failed comments */}
       {data.failed_comments.length > 0 && (
@@ -164,7 +158,6 @@ export function HealthView() {
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>ID</Table.Th>
-                <Table.Th>PR</Table.Th>
                 <Table.Th>Failure</Table.Th>
                 <Table.Th>Action</Table.Th>
               </Table.Tr>
@@ -173,7 +166,6 @@ export function HealthView() {
               {data.failed_comments.map((fc) => (
                 <Table.Tr key={fc.comment_id}>
                   <Table.Td><Code>{fc.comment_id}</Code></Table.Td>
-                  <Table.Td>#{fc.pr_number}</Table.Td>
                   <Table.Td>{fc.failure}</Table.Td>
                   <Table.Td>
                     <Button

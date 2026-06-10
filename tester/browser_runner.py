@@ -192,6 +192,16 @@ class BrowserRunner:
     # ---- step execution -----------------------------------------------------
 
     def run_step(self, step: dict[str, Any]) -> StepResult:
+        result = self._run_step_once(step)
+        if result.ok:
+            return result
+        try:
+            self.page.keyboard.press("Escape")
+        except Exception:
+            pass
+        return self._run_step_once(step)
+
+    def _run_step_once(self, step: dict[str, Any]) -> StepResult:
         step_id = str(step.get("id", "??"))
         desc = str(step.get("description", ""))
         action = step.get("action") or {}

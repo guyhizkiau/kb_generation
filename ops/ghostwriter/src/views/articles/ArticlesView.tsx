@@ -18,11 +18,11 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import {
-  useQueue, useSaveQueue, useTrigger, useMergeArticle, useDeleteArticle,
+  useQueue, useSaveQueue, useTrigger, useApproveArticle,
+  useRequestChanges, useDeleteArticle,
 } from '@/api/hooks'
 import { apiFetch } from '@/api/client'
 import type { QueueData, ArticleEntry, Cluster } from '@/api/hooks'
-import { githubPullUrl } from '@/api/github'
 import { partitionArticles } from '@/lib/articlePhase'
 import { ConfirmDeleteModal } from '@/components/ConfirmDeleteModal'
 import { DeleteArticleModal } from '@/components/DeleteArticleModal'
@@ -45,10 +45,8 @@ export function toPersistableQueue(q: QueueData): Pick<QueueData, 'version' | 'c
   }
 }
 
-const MERGED_PHASES = new Set(['MERGED', 'DONE'])
-
-function canMergeArticle(art: ArticleEntry): boolean {
-  return !!art.pr_number && !MERGED_PHASES.has(art.phase)
+function canApproveArticle(art: ArticleEntry): boolean {
+  return art.phase === 'IN_REVIEW'
 }
 
 function ReviewArticleRow({
@@ -57,7 +55,8 @@ function ReviewArticleRow({
   claudeRunning,
   isActive,
   onReview,
-  onMerge,
+  onApprove,
+  onRequestChanges,
   onDelete,
 }: {
   art: ArticleEntry
@@ -65,7 +64,8 @@ function ReviewArticleRow({
   claudeRunning?: boolean
   isActive?: boolean
   onReview: () => void
-  onMerge: () => void
+  onApprove: () => void
+  onRequestChanges: () => void
   onDelete: () => void
 }) {
   return (
@@ -103,6 +103,7 @@ function ReviewArticleRow({
             <Badge color="gray" size="xs">{commentCount} comments</Badge>
           )}
           {art.publish_stale && <Badge color="orange" size="xs">STALE</Badge>}
+          {art.rework_reason && <Badge color="red" size="xs">REWORK</Badge>}
           {art.revision_cycle > 0 && (
             <Badge color="violet" size="xs">cycle {art.revision_cycle}</Badge>
           )}
@@ -112,10 +113,15 @@ function ReviewArticleRow({
             running={claudeRunning}
             forceActivity={isActive}
           />
-          {canMergeArticle(art) && (
-            <Button size="xs" color="green" variant="light" onClick={onMerge}>
-              Approve & push
-            </Button>
+          {canApproveArticle(art) && (
+            <>
+              <Button size="xs" color="green" variant="light" onClick={onApprove}>
+                Approve
+              </Button>
+              <Button size="xs" color="orange" variant="light" onClick={onRequestChanges}>
+                Request changes
+              </Button>
+            </>
           )}
           <Button size="xs" color="teal" variant="light" onClick={onReview}>
             Review
@@ -215,7 +221,8 @@ export function ArticlesView() {
   const { data: queueData, isLoading } = useQueue()
   const saveQueue = useSaveQueue()
   const trigger = useTrigger()
-  const mergeArticle = useMergeArticle()
+  const approveArticle = useApproveArticle()
+  const requestChanges = useRequestChanges()
   const deleteArticle = useDeleteArticle()
   const { openReader } = useReader()
   const { clusterId: selectedCluster, setClusterId } = useNavigation()
@@ -384,46 +391,47 @@ export function ArticlesView() {
     })
   }
 
-  function handleMerge(art: ArticleEntry) {
-    if (!art.pr_number) return
-    const early = !['PR_OPEN', 'FINALIZING', 'MERGED', 'DONE'].includes(art.phase)
+  function handleApprove(art: ArticleEntry) {
     modals.openConfirmModal({
-      title: 'Approve and push this PR?',
+      title: 'Approve and publish?',
       children: (
         <Text size="sm">
-          Push{' '}
-          <strong>
-            <a href={githubPullUrl(art.pr_number)} target="_blank" rel="noreferrer">
-              PR #{art.pr_number}
-            </a>
-          </strong>{' '}
-          for <strong>{art.slug}</strong> into <code>main</code>?
-          {early && (
-            <>
-              {' '}
-              This article is still in <strong>{art.phase}</strong> — only push if you
-              intend to accept the current draft as-is.
-            </>
-          )}
+          Approve <strong>{art.slug}</strong> and publish to the catalog?
         </Text>
       ),
-      labels: { confirm: 'Push PR', cancel: 'Cancel' },
+      labels: { confirm: 'Approve', cancel: 'Cancel' },
       confirmProps: { color: 'green' },
       onConfirm: () =>
-        mergeArticle.mutate(
-          { slug: art.slug, pr_number: art.pr_number },
+        approveArticle.mutate(
+          { slug: art.slug, reviewer: 'reviewer' },
           {
             onSuccess: () =>
               notifications.show({
-                title: 'Pushed',
-                message: `PR #${art.pr_number} pushed for ${art.slug}`,
+                title: 'Published',
+                message: `${art.slug} approved and published`,
                 color: 'green',
               }),
             onError: (e) =>
-              notifications.show({ title: 'Push failed', message: e.message, color: 'red' }),
+              notifications.show({ title: 'Approve failed', message: e.message, color: 'red' }),
           },
         ),
     })
+  }
+
+  function handleRequestChanges(art: ArticleEntry) {
+    requestChanges.mutate(
+      { slug: art.slug, reason: 'reviewer requested changes' },
+      {
+        onSuccess: () =>
+          notifications.show({
+            title: 'Sent back',
+            message: `${art.slug} moved to REVISING`,
+            color: 'orange',
+          }),
+        onError: (e) =>
+          notifications.show({ title: 'Failed', message: e.message, color: 'red' }),
+      },
+    )
   }
 
   function handleWriteNext(slug: string) {
@@ -564,7 +572,8 @@ export function ArticlesView() {
                       }
                       isActive={queue.active_article === art.slug}
                       onReview={() => openReader(art.slug)}
-                      onMerge={() => handleMerge(art)}
+                      onApprove={() => handleApprove(art)}
+                      onRequestChanges={() => handleRequestChanges(art)}
                       onDelete={() => setDeleteArticleTarget(art.slug)}
                     />
                   ))

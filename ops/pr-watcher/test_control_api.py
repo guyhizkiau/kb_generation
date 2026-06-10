@@ -63,27 +63,13 @@ class ControlApiTests(unittest.TestCase):
         self.assertEqual(code, 200)
         self.assertTrue(payload["claude_running"])
 
-    def test_get_api_queue_includes_pr_number(self):
-        with mock.patch.object(self.pw._ghq, "open_prs_by_slug", return_value={"01-log-in-to-specterx": 99}):
-            code, payload, _ = self._req("GET", "/api/queue")
-        self.assertEqual(code, 200)
-        art = payload["clusters"][0]["articles"][0]
-        self.assertEqual(art.get("pr_number"), 99)
-
-    def test_post_queue_merge(self):
-        with mock.patch.object(self.pw._ghq, "merge_article_pr", return_value={"ok": True, "slug": "01-log-in-to-specterx", "pr_number": 8}), \
-             mock.patch.object(self.pw, "git"), \
-             mock.patch.object(self.pw, "ensure_worktree"), \
-             mock.patch.object(self.pw, "git_worktree"), \
-             mock.patch.object(self.pw, "check_merged_prs"), \
-             mock.patch.object(self.pw, "load_state", return_value={"handled": [], "failed_comments": {}}):
-            code, payload, _ = self._req("POST", "/api/queue/merge", {
-                "slug": "01-log-in-to-specterx",
-                "pr_number": 8,
-            })
-        self.assertEqual(code, 200)
-        self.assertTrue(payload["ok"])
-        self.assertEqual(payload["pr_number"], 8)
+    def test_post_queue_approve_wrong_phase(self):
+        code, payload, _ = self._req("POST", "/api/queue/approve", {
+            "slug": "01-log-in-to-specterx",
+            "reviewer": "guy",
+        })
+        self.assertEqual(code, 409)
+        self.assertFalse(payload["ok"])
 
     def test_options_cors_methods(self):
         req = urllib.request.Request(
@@ -156,7 +142,7 @@ class ControlApiTests(unittest.TestCase):
         self.assertTrue(payload["ok"])
         self.assertGreaterEqual(payload.get("annotation_count", 0), 1)
         fields = self.pw._qs.read_state_fields(
-            self.pw.WORKTREE_PATH / "articles" / slug / "STATE",
+            self.root / "articles" / slug / "STATE",
         )
         self.assertEqual(fields["PHASE"], "REVISING")
         self.assertEqual(fields["REVISION_CYCLE"], "1")
@@ -206,30 +192,6 @@ class ControlApiTests(unittest.TestCase):
         })
         self.assertTrue(payload2.get("deduped"))
 
-    def test_get_article_preview_from_branch_ref(self):
-        import subprocess
-        slug = "02-set-or-reset-password"
-        art = self.root / "articles" / slug
-        art.mkdir(parents=True, exist_ok=True)
-        (art / f"{slug}.html").write_text(
-            "<html><head></head><body><main>branch preview</main></body></html>"
-        )
-        subprocess.run(["git", "init"], cwd=self.root, capture_output=True, check=True)
-        subprocess.run(["git", "config", "user.email", "t@test"], cwd=self.root, check=True)
-        subprocess.run(["git", "config", "user.name", "t"], cwd=self.root, check=True)
-        subprocess.run(["git", "add", "-A"], cwd=self.root, capture_output=True, check=True)
-        subprocess.run(["git", "commit", "-m", "branch html"], cwd=self.root, capture_output=True, check=True)
-        subprocess.run(["git", "branch", f"article/{slug}"], cwd=self.root, check=True)
-        req = urllib.request.Request(
-            f"http://127.0.0.1:{self.port}/api/articles/{slug}/preview",
-            method="GET",
-        )
-        with urllib.request.urlopen(req) as resp:
-            self.assertEqual(resp.status, 200)
-            body = resp.read().decode()
-            self.assertIn("branch preview", body)
-            self.assertIn("ghostwriter-annotate.js", body)
-
     def _restore_queue(self):
         original = json.loads((self.root / "clusters" / "queue.json").read_text())
 
@@ -244,32 +206,21 @@ class ControlApiTests(unittest.TestCase):
         slug = "02-set-or-reset-password"
         fb.write_feedback(slug, [{"id": "x1"}])
         self.assertTrue(fb.feedback_path(slug).exists())
-        with mock.patch.object(self.pw._ghq, "close_article_pr",
-                               return_value={"ok": True, "pr_number": None}) as close, \
-             mock.patch.object(self.pw, "git") as git, \
-             mock.patch.object(self.pw, "git_worktree"):
+        with mock.patch.object(self.pw, "git"):
             code, payload, _ = self._req("DELETE", f"/api/articles/{slug}")
         self.assertEqual(code, 200)
         self.assertTrue(payload["ok"])
         self.assertFalse(payload["merged"])
         self.assertFalse(payload["removed_from_plan"])
-        close.assert_called_once()
         q = json.loads((self.root / "clusters" / "queue.json").read_text())
         slugs = [a["slug"] for c in q["clusters"] for a in c["articles"]]
         self.assertIn(slug, slugs)
-        # Prunes the stale remote-tracking ref so phase stops resolving from it.
-        called = [c.args for c in git.call_args_list]
-        self.assertIn(("branch", "-rd", f"origin/article/{slug}"), called)
-        # Removes the branch-independent annotation store.
         self.assertFalse(fb.feedback_path(slug).exists())
 
     def test_delete_article_remove_from_plan(self):
         self._restore_queue()
         slug = "02-set-or-reset-password"
-        with mock.patch.object(self.pw._ghq, "close_article_pr",
-                               return_value={"ok": True, "pr_number": None}), \
-             mock.patch.object(self.pw, "git"), \
-             mock.patch.object(self.pw, "git_worktree"):
+        with mock.patch.object(self.pw, "git"):
             code, payload, _ = self._req(
                 "DELETE", f"/api/articles/{slug}?remove_from_plan=true",
             )
@@ -291,10 +242,7 @@ class ControlApiTests(unittest.TestCase):
 
         self.addCleanup(restore_dir)
 
-        with mock.patch.object(self.pw._ghq, "close_article_pr",
-                               return_value={"ok": True, "pr_number": 5}), \
-             mock.patch.object(self.pw, "git") as git, \
-             mock.patch.object(self.pw, "git_worktree"):
+        with mock.patch.object(self.pw, "git") as git:
             code, payload, _ = self._req("DELETE", f"/api/articles/{slug}")
         self.assertEqual(code, 200)
         self.assertTrue(payload["merged"])
@@ -311,16 +259,10 @@ class ControlApiTests(unittest.TestCase):
         self.assertEqual(code, 400)
         self.assertFalse(payload["ok"])
 
-    def test_poll_now_and_retry_regression(self):
+    def test_poll_now_regression(self):
         code, payload, _ = self._req("POST", "/poll-now")
         self.assertEqual(code, 200)
         self.assertTrue(payload["ok"])
-        state_path = self.root / "state.json"
-        self.pw.STATE_FILE = state_path
-        state_path.write_text(json.dumps({"handled": ["issue-1"], "failed_comments": {}}))
-        code2, payload2, _ = self._req("POST", "/retry", {"comment_id": "issue-1"})
-        self.assertEqual(code2, 200)
-        self.assertTrue(payload2["ok"])
 
 
 if __name__ == "__main__":

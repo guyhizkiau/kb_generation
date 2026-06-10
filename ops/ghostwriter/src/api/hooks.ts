@@ -10,8 +10,8 @@ export interface ArticleEntry {
   revision_cycle: number
   publish_stale: boolean
   feedback_issue: string
+  rework_reason?: string
   last_update?: string
-  pr_number?: number
 }
 
 export interface Cluster {
@@ -115,11 +115,23 @@ export function useTrigger() {
   })
 }
 
-export function useMergeArticle() {
+export function useApproveArticle() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (data: { slug: string; pr_number?: number }) =>
-      apiFetch('/api/queue/merge', { method: 'POST', body: JSON.stringify(data) }),
+    mutationFn: (data: { slug: string; reviewer?: string }) =>
+      apiFetch('/api/queue/approve', { method: 'POST', body: JSON.stringify(data) }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['queue'] })
+      qc.invalidateQueries({ queryKey: ['status'] })
+    },
+  })
+}
+
+export function useRequestChanges() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: { slug: string; reason?: string }) =>
+      apiFetch('/api/queue/request-changes', { method: 'POST', body: JSON.stringify(data) }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['queue'] })
       qc.invalidateQueries({ queryKey: ['status'] })

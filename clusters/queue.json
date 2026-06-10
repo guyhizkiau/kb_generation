@@ -4,7 +4,6 @@
     {
       "id": "01-login",
       "title": "Logging in & account access",
-      "mode": "serial",
       "status": "done",
       "pause_after": true,
       "articles": [
@@ -16,7 +15,6 @@
     {
       "id": "02-share-files",
       "title": "Share files",
-      "mode": "serial",
       "status": "active",
       "pause_after": true,
       "articles": [

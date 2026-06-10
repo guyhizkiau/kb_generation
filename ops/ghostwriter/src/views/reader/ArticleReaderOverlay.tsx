@@ -6,12 +6,9 @@ import { IconArrowLeft } from '@tabler/icons-react'
 import { notifications } from '@mantine/notifications'
 import { modals } from '@mantine/modals'
 import { useQueryClient } from '@tanstack/react-query'
-import { useQueue, useFeedback, useTrigger, useMergeArticle, useDismissAnnotation, articlePreviewUrl } from '@/api/hooks'
-import { githubPullUrl } from '@/api/github'
+import { useQueue, useFeedback, useTrigger, useDismissAnnotation, articlePreviewUrl } from '@/api/hooks'
 import { AnnotationCard } from '@/components/AnnotationCard'
 import { PhaseBadge } from '@/components/PhaseBadge'
-
-const MERGED_PHASES = new Set(['MERGED', 'DONE'])
 
 type PreviewState = 'loading' | 'ready'
 
@@ -25,7 +22,6 @@ export function ArticleReaderOverlay({ slug, onClose }: ArticleReaderOverlayProp
   const { data: queueData } = useQueue()
   const { data: feedbackData, isLoading: fbLoading, refetch } = useFeedback(slug)
   const trigger = useTrigger()
-  const mergeArticle = useMergeArticle()
   const dismissAnnotation = useDismissAnnotation()
   const [previewState, setPreviewState] = useState<PreviewState>('loading')
   const [justTriggered, setJustTriggered] = useState(false)
@@ -59,50 +55,6 @@ export function ArticleReaderOverlay({ slug, onClose }: ArticleReaderOverlayProp
     window.addEventListener('message', onMessage)
     return () => window.removeEventListener('message', onMessage)
   }, [slug, refetch, queryClient])
-
-  function handleMerge() {
-    if (!article?.pr_number) return
-    const early = !['PR_OPEN', 'FINALIZING', 'MERGED', 'DONE'].includes(article.phase)
-    modals.openConfirmModal({
-      title: 'Approve and push this PR?',
-      children: (
-        <Text size="sm">
-          Push{' '}
-          <strong>
-            <a href={githubPullUrl(article.pr_number)} target="_blank" rel="noreferrer">
-              PR #{article.pr_number}
-            </a>
-          </strong>{' '}
-          for <strong>{slug}</strong> into <code>main</code>?
-          {early && (
-            <>
-              {' '}
-              This article is still in <strong>{article.phase}</strong> — only push if you
-              intend to accept the current draft as-is.
-            </>
-          )}
-        </Text>
-      ),
-      labels: { confirm: 'Push PR', cancel: 'Cancel' },
-      confirmProps: { color: 'green' },
-      onConfirm: () =>
-        mergeArticle.mutate(
-          { slug, pr_number: article.pr_number },
-          {
-            onSuccess: () => {
-              notifications.show({
-                title: 'Pushed',
-                message: `PR #${article.pr_number} pushed for ${slug}`,
-                color: 'green',
-              })
-              onClose()
-            },
-            onError: (e) =>
-              notifications.show({ title: 'Push failed', message: e.message, color: 'red' }),
-          },
-        ),
-    })
-  }
 
   function handleAccept() {
     modals.openConfirmModal({
@@ -197,16 +149,6 @@ export function ArticleReaderOverlay({ slug, onClose }: ArticleReaderOverlayProp
           )}
         </Group>
         <Group gap="xs">
-          {article?.pr_number && !MERGED_PHASES.has(article.phase) && (
-            <>
-              <Anchor size="xs" href={githubPullUrl(article.pr_number)} target="_blank">
-                PR #{article.pr_number}
-              </Anchor>
-              <Button size="sm" color="green" onClick={handleMerge}>
-                Approve & push
-              </Button>
-            </>
-          )}
           {article?.feedback_issue && (
             <Anchor
               size="xs"
@@ -220,74 +162,52 @@ export function ArticleReaderOverlay({ slug, onClose }: ArticleReaderOverlayProp
             <Button
               size="sm"
               color="teal"
-              loading={revisionInProgress}
               disabled={revisionInProgress}
               onClick={handleAccept}
             >
-              {revisionInProgress ? 'Revision in progress…' : 'Accept all → revise'}
+              Accept feedback
             </Button>
           )}
-          <Button size="xs" variant="light" onClick={() => refetch()}>
-            Refresh comments
-          </Button>
         </Group>
       </Group>
 
       <Box style={{ flex: 1, display: 'flex', minHeight: 0 }}>
-        <Box style={{ flex: 1, minWidth: 0 }}>
+        <Box style={{ flex: 3, minWidth: 0, borderRight: '1px solid rgba(0,0,0,0.06)' }}>
           {renderPreviewPane()}
         </Box>
-        <Box
-          w={320}
-          style={{
-            borderLeft: '1px solid rgba(0,0,0,0.06)',
-            background: '#fff',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          <Text fw={600} px="md" py="sm" size="sm">
-            Comments ({activeAnnotations.length})
+        <ScrollArea style={{ flex: 1, minWidth: 280, maxWidth: 360 }} p="md">
+          <Text size="xs" fw={600} c="dimmed" mb="sm">
+            ANNOTATIONS ({activeAnnotations.length})
           </Text>
+          {fbLoading && <Text size="sm" c="dimmed">Loading…</Text>}
+          {!fbLoading && activeAnnotations.length === 0 && (
+            <Text size="sm" c="dimmed">No annotations yet. Select text in the preview to add one.</Text>
+          )}
+          <Stack gap="sm">
+            {activeAnnotations.map((ann) => (
+              <AnnotationCard
+                key={ann.id}
+                ann={ann}
+                onAccept={handleAccept}
+                disabled={revisionInProgress}
+                onDismiss={() =>
+                  dismissAnnotation.mutate(
+                    { slug, id: ann.id },
+                    {
+                      onError: (e) =>
+                        notifications.show({ title: 'Dismiss failed', message: e.message, color: 'red' }),
+                    },
+                  )
+                }
+              />
+            ))}
+          </Stack>
           {revisionInProgress && (
-            <Alert color="yellow" mx="md" mb="sm" title="Revision in progress…">
-              Buttons disabled until Claude finishes.
+            <Alert color="teal" mt="md" title="Revision in progress">
+              Claude is revising this article from your feedback.
             </Alert>
           )}
-          <ScrollArea flex={1} px="md" pb="md">
-            {fbLoading ? (
-              <Text c="dimmed" size="sm">Loading…</Text>
-            ) : activeAnnotations.length === 0 ? (
-              <Stack gap="xs">
-                <Text c="dimmed" size="sm">
-                  Select text or an image in the article to add a comment.
-                </Text>
-              </Stack>
-            ) : (
-              activeAnnotations.map((ann) => (
-                <AnnotationCard
-                  key={ann.id}
-                  ann={ann}
-                  onAccept={handleAccept}
-                  disabled={revisionInProgress}
-                  onDismiss={() =>
-                    dismissAnnotation.mutate(
-                      { slug, id: ann.id },
-                      {
-                        onError: (e) =>
-                          notifications.show({
-                            title: 'Could not dismiss',
-                            message: e.message,
-                            color: 'red',
-                          }),
-                      },
-                    )
-                  }
-                />
-              ))
-            )}
-          </ScrollArea>
-        </Box>
+        </ScrollArea>
       </Box>
     </Box>
   )

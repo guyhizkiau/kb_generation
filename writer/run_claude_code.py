@@ -3,17 +3,16 @@
 
 Usage:
     python writer/run_claude_code.py --article NN-slug --phase draft
+    python writer/run_claude_code.py --article NN-slug --phase research
     python writer/run_claude_code.py --article NN-slug --phase test-plan
     python writer/run_claude_code.py --article NN-slug --phase revise-from-test
     python writer/run_claude_code.py --article NN-slug --phase voice-pass
-    python writer/run_claude_code.py --article NN-slug --phase revise-from-pr
     python writer/run_claude_code.py --article NN-slug --phase revise-from-feedback
 
-Each phase corresponds to a prompt file under pipeline/prompts/ and a set of
-expected outputs under workspace/articles/<slug>/. The wrapper assembles
-the prompt, invokes Claude Code in non-interactive (--print) mode, and
-streams output to stdout while also tee-ing it into a per-run log under
-workspace/articles/<slug>/.writer-logs/.
+Exit codes:
+    0 — phase completed successfully
+    1 — phase failed (subprocess error or missing artifact)
+    3 — pipeline busy (another article is in-flight; use --force with KB_SERIAL_OVERRIDE=1)
 """
 
 from __future__ import annotations
@@ -26,45 +25,52 @@ import subprocess
 import sys
 from pathlib import Path
 
+REPO_ROOT = Path(__file__).resolve().parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from store.machine import active_article, block, current_phase, transition  # noqa: E402
+from store.paths import article_dir  # noqa: E402
+
 PHASE_TO_PROMPT = {
+    "research": "02-research.md",
     "draft": "01-draft.md",
     "test-plan": "02-test-plan.md",
     "revise-from-test": "03-revise-from-test.md",
     "voice-pass": "04a-voice-pass.md",
-    "revise-from-pr": "04-revise-from-pr-comments.md",
     "revise-from-feedback": "06-revise-from-feedback.md",
 }
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+PHASE_ARTIFACTS: dict[str, str] = {
+    "research": "research/competitor-coverage.md",
+    "draft": "draft-1.md",
+    "test-plan": "test-plan.json",
+    "revise-from-test": "draft-2.md",
+    "voice-pass": "final.md",
+    "revise-from-feedback": "final.md",
+}
 
-# Extra tool allowances beyond the global baseline, keyed by phase.
-# The revise-from-feedback phase needs to spawn sub-processes (voice-pass,
-# render, index) and commit the result, so it gets python3 + git on top of
-# the standard Read/Write/Edit/Glob/Grep/Bash(ls|cat|date|mkdir) baseline.
+PHASE_TRANSITIONS: dict[str, tuple[str, str]] = {
+    "research": ("RESEARCHING", "DRAFTING"),
+    "draft": ("DRAFTING", "TESTING"),
+    "revise-from-test": ("REVISING", "FINALIZING"),
+    "voice-pass": ("FINALIZING", "IN_REVIEW"),
+    "revise-from-feedback": ("REVISING", "FINALIZING"),
+}
+
 PHASE_EXTRA_ALLOW: dict[str, list[str]] = {
+    # Research scrapes competitor KBs and does UI recon via Playwright
+    # (venv python) — without these the competitor gate can never pass.
+    "research": [
+        "Bash(python3 *)",
+        "Bash(python *)",
+    ],
     "revise-from-feedback": [
         "Bash(python3 *)",
         "Bash(python *)",
         "Bash(git *)",
     ],
 }
-
-
-def article_dir(slug: str) -> Path:
-    """Resolve the article working directory.
-
-    Historically the pipeline used `workspace/articles/<slug>/` but the
-    canonical location moved to `articles/<slug>/`. We prefer the
-    canonical location if it exists; we fall back to the legacy path
-    only if the canonical one is missing AND the legacy one is present.
-    """
-    canonical = REPO_ROOT / "articles" / slug
-    legacy = REPO_ROOT / "workspace" / "articles" / slug
-    if canonical.exists():
-        return canonical
-    if legacy.exists():
-        return legacy
-    return canonical  # create under the canonical path by default
 
 
 def assemble_prompt(slug: str, phase: str) -> str:
@@ -80,14 +86,20 @@ def assemble_prompt(slug: str, phase: str) -> str:
         f"All file paths in the prompt below that use placeholders like\n"
         f"`articles/<NN-slug>/...` or `articles/{slug}/...` refer to this\n"
         f"working directory.\n\n"
-        f"When you finish, update the `STATE` file in the working\n"
-        f"directory as the prompt instructs, and then exit.\n\n"
+        f"Do not edit the STATE file — the pipeline runner updates it.\n\n"
         f"---\n\n"
     )
     return header + body
 
 
-def build_command(slug: str, prompt: str, phase: str, model: str | None, extra_allow: list[str]) -> list[str]:
+def build_command(
+    slug: str,
+    prompt: str,
+    phase: str,
+    model: str | None,
+    extra_allow: list[str],
+    claude_bin: str,
+) -> list[str]:
     allow = [
         "Read",
         "Write",
@@ -100,7 +112,7 @@ def build_command(slug: str, prompt: str, phase: str, model: str | None, extra_a
         "Bash(mkdir *)",
     ] + PHASE_EXTRA_ALLOW.get(phase, []) + extra_allow
     cmd = [
-        "claude",
+        claude_bin,
         "-p",
         prompt,
         "--add-dir",
@@ -117,29 +129,54 @@ def build_command(slug: str, prompt: str, phase: str, model: str | None, extra_a
     return cmd
 
 
+def apply_phase_transition(slug: str, phase: str) -> None:
+    """Transition STATE after a successful phase completion."""
+    spec = PHASE_TRANSITIONS.get(phase)
+    if spec is None:
+        return
+    expected_from, to_phase = spec
+    cur = current_phase(slug)
+    if cur != expected_from:
+        block(slug, f"{phase} completed but phase is {cur}, expected {expected_from}")
+        raise RuntimeError(f"phase mismatch: {cur} != {expected_from}")
+    transition(slug, to_phase)
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--article", required=True, help="Article slug, e.g. 01-share-file-with-external-user")
+    p.add_argument("--article", required=True, help="Article slug")
     p.add_argument("--phase", required=True, choices=list(PHASE_TO_PROMPT))
     p.add_argument(
         "--model",
         default=os.environ.get("WRITER_MODEL", "sonnet"),
-        help="Claude model alias or full ID. Default: sonnet (set WRITER_MODEL to override).",
+        help="Claude model alias or full ID.",
+    )
+    p.add_argument("--allow", action="append", default=[], help="Extra tool allowance.")
+    p.add_argument("--dry-run", action="store_true", help="Print command without invoking.")
+    p.add_argument(
+        "--claude-bin",
+        default="claude",
+        help="Claude CLI binary (default: claude).",
     )
     p.add_argument(
-        "--allow",
-        action="append",
-        default=[],
-        help="Extra tool allowance, e.g. 'Bash(gh *)'. Repeatable.",
-    )
-    p.add_argument(
-        "--dry-run",
+        "--force",
         action="store_true",
-        help="Print the assembled command without invoking Claude.",
+        help="Bypass serial guard (requires KB_SERIAL_OVERRIDE=1).",
     )
     args = p.parse_args(argv)
 
     slug = args.article
+
+    if not args.force or os.environ.get("KB_SERIAL_OVERRIDE") != "1":
+        active = active_article()
+        if active is not None and active != slug:
+            print(
+                f"[writer] pipeline busy: article '{active}' is in-flight "
+                f"(requested '{slug}')",
+                flush=True,
+            )
+            return 3
+
     adir = article_dir(slug)
     adir.mkdir(parents=True, exist_ok=True)
     log_dir = adir / ".writer-logs"
@@ -148,7 +185,7 @@ def main(argv: list[str] | None = None) -> int:
     log_path = log_dir / f"{stamp}-{args.phase}.log"
 
     prompt = assemble_prompt(slug, args.phase)
-    cmd = build_command(slug, prompt, args.phase, args.model, args.allow)
+    cmd = build_command(slug, prompt, args.phase, args.model, args.allow, args.claude_bin)
 
     printable = " ".join(shlex.quote(c) for c in cmd[:2] + ["<prompt>"] + cmd[3:])
     print(f"[writer] article={slug} phase={args.phase} model={args.model}", flush=True)
@@ -159,7 +196,10 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     with log_path.open("w", encoding="utf-8") as log:
-        log.write(f"# writer run {stamp}\n# article={slug} phase={args.phase} model={args.model}\n# cmd={printable}\n\n")
+        log.write(
+            f"# writer run {stamp}\n# article={slug} phase={args.phase}\n"
+            f"# cmd={printable}\n\n"
+        )
         log.flush()
         proc = subprocess.Popen(
             cmd,
@@ -177,7 +217,30 @@ def main(argv: list[str] | None = None) -> int:
         rc = proc.wait()
 
     print(f"[writer] exit={rc}", flush=True)
-    return rc
+
+    if rc != 0:
+        block(slug, f"{args.phase} failed: subprocess exit {rc}")
+        return 1
+
+    artifact = PHASE_ARTIFACTS.get(args.phase)
+    if artifact and not (adir / artifact).is_file():
+        block(slug, f"{args.phase} failed: missing artifact {artifact}")
+        return 1
+
+    if args.phase == "research":
+        from pipeline.gates import check_research_gate
+        ok, msg = check_research_gate(slug)
+        if not ok:
+            block(slug, f"research gate: {msg}")
+            return 1
+
+    try:
+        apply_phase_transition(slug, args.phase)
+    except Exception as exc:
+        block(slug, f"{args.phase} transition failed: {exc}")
+        return 1
+
+    return 0
 
 
 if __name__ == "__main__":

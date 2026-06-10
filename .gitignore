@@ -28,6 +28,7 @@ articles/*/screenshots/_all/
 articles/*/.tmp/
 articles/*/.writer-logs/
 articles/*/claude-trace.log
+articles/*/.fix-journal.json
 
 # Throwaway smoke-test article directories
 workspace/articles/00-test/

@@ -93,12 +93,4 @@ they'll have at the end.>
 
 ## When you're done
 
-Save `draft-1.md`. Update `articles/<NN-slug>/STATE` to:
-
-```
-PHASE=TESTING
-LAST_UPDATE=<ISO timestamp>
-NEXT_ACTION=execute draft against live SpecterX
-```
-
-Then exit. The next phase is triggered manually (or by the agent reading `STATE`).
+Save `draft-1.md` and exit. The pipeline runner advances STATE.

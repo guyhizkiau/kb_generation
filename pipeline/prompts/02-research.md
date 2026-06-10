@@ -22,12 +22,7 @@ Four files in `articles/<NN-slug>/research/`:
 3. `competitor-coverage.md`
 4. `ui-snapshot/` directory with `ui-glossary.md` + screenshots
 
-Plus an updated `STATE`:
-```
-PHASE=DRAFTING
-LAST_UPDATE=<ISO>
-NEXT_ACTION=consume research/, write draft-1.md
-```
+The pipeline runner advances STATE when research completes successfully.
 
 ## Procedure
 
@@ -41,10 +36,9 @@ fastest/cheapest first.
 Before doing any research, read `canon/DO_NOT_DOCUMENT.md`. Grep for
 the article title and any synonyms. If matched:
 
-1. Update `STATE` to `PHASE=SKIPPED` with `BLOCKED_REASON=<reason from
-   DO_NOT_DOCUMENT>`
-2. Stop. Do not produce research files. Do not draft.
-3. Log this to the cluster's STATE so the next article can proceed.
+1. Write the skip reason to `research/internal-sources.md` under a
+   `## SKIPPED` heading.
+2. Stop. Do not produce other research files. Do not draft.
 
 ### Step 2 — Internal sources
 
@@ -242,8 +236,8 @@ vocabulary established by these articles. Do not skim.
 ## Done condition
 
 All four research files exist and have content (or a documented
-"nothing found" line). The canon has been read. Update STATE and
-exit.
+"nothing found" line). The canon has been read. Exit — the pipeline
+runner advances STATE.
 
 ---
 
@@ -260,5 +254,4 @@ search can pull a lot of context. To stay under budget:
   tree (don't dump the whole DOM).
 
 If this stage looks like it'll exceed $2 in tokens for a single
-article, stop, log to STATE as `BLOCKED reason=research-cost-spike`,
-and surface to Guy.
+article, stop and surface to Guy (the runner will block the article).

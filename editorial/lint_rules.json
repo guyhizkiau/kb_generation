@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "banned_phrases": [
+    {"pattern": "—", "rule": "STYLE_GUIDE §13a: no em dashes"},
+    {"pattern": "\\bsimply\\b", "rule": "STYLE_GUIDE §13a: avoid 'simply'"},
+    {"pattern": "Generated:.*test", "rule": "STYLE_GUIDE §14: no QA metadata footer"}
+  ],
+  "glossary_terms": [
+    {
+      "canonical": "Security policy",
+      "violations": ["security Policy", "security policy"]
+    }
+  ]
+}

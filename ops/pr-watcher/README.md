@@ -1,20 +1,26 @@
-# pr-watcher — autonomous PR/article bot
+# pr-watcher — status-driven pipeline daemon
 
-The pr-watcher daemon is the long-running orchestrator that drives the
-KB pipeline once a cluster is in flight. It:
+The pr-watcher daemon is the long-running orchestrator for the KB
+article pipeline on the EC2 VM. It:
 
-- Polls open PRs for new review comments and resolves them by invoking
-  Claude Code with the affected article checked out.
-- Watches for merges and triggers the next article in the cluster.
+- Polls `articles/*/STATE` on a fixed interval and **dispatches** the
+  next automated phase for the active article (`dispatcher.py`).
+- Serves the Ghostwriter control-plane HTTP API (approve, publish,
+  request-changes, feedback, article preview).
 - Streams Claude's live output to a dashboard so a human can see what
   the bot is doing in real time.
 - Survives long-running tools (Playwright/Chrome runs of 10–30 min)
   without false-positive timeouts.
 
+All article work lives on **`main`** — there is no GitHub PR polling.
+
+> **Historical note:** Earlier versions polled open `article/<slug>` PRs
+> for review comments and advanced the queue on merge. That flow is
+> retired; review is `IN_REVIEW` → approve/publish on `main`.
+
 This document is the operational source of truth. **Read it end-to-end
 before changing any of the files in this directory or before debugging
-a stuck bot.** Every section below was written because something
-broke or went silent during a real run — they are not theoretical.
+a stuck bot.**
 
 ---
 
@@ -23,426 +29,249 @@ broke or went silent during a real run — they are not theoretical.
 | URL | Purpose |
 |---|---|
 | `http://18.192.122.48/` | Article browser (renders `articles/index.html`) |
-| `http://18.192.122.48/status/` | Live dashboard (status.json + live task log) |
+| `http://18.192.122.48/ghostwriter/` | Ghostwriter SPA (queue, review, feedback) |
+| `http://18.192.122.48/status/` | Live dashboard (`status.json` + live task log) |
 | `http://18.192.122.48/health` | `systemctl show` JSON, updated every 60 s |
 | `http://18.192.122.48/log` | Full poll log (plain text) |
 | `http://18.192.122.48/task-log` | Live Claude output for the current task (plain text, truncated at task start) |
-| `http://18.192.122.48/poll-now` | `POST` — fire an immediate poll. Used by the dashboard's "Poll now" button. |
-| `http://18.192.122.48/retry` | `POST {"comment_id": "issue-N"}` — re-process a comment that previously failed. Used by the dashboard's Retry button on the Failed Comments panel. |
+| `http://18.192.122.48/poll-now` | `POST` — wake the poll loop immediately |
 
-`/poll-now` and `/retry` go through nginx to the localhost-only control
-HTTP server inside the daemon (`CONTROL_PORT = 9191`).
+Control-plane routes (`/api/*`) are proxied to the localhost HTTP server
+inside the daemon (`CONTROL_PORT = 9191`).
 
 ---
 
 ## Architecture
 
 ```
-systemd ─► start-pr-watcher.sh ─► pr-watcher.py ─► [forks per poll]
-                                       │              │
-                                       │              └── claude (in its own process group, via os.setpgrp)
-                                       │                    │
-                                       │                    └── tool subprocesses (bash → playwright → chrome)
+systemd ─► start-pr-watcher.sh ─► pr-watcher.py
                                        │
-                                       └── 127.0.0.1:9191 control plane (poll-now, retry)
-
-systemd timer (every 60 s) ─► pr-watcher-health.service ─► write_health.sh ─► /home/ubuntu/pr-watcher-web/health.json
+                    ┌──────────────────┼──────────────────┐
+                    │                  │                  │
+              poll loop          dispatcher.py      127.0.0.1:9191
+           (every 30 s)         (phase dispatch)    control plane
+                    │                  │                  │
+                    │                  ├── writer/run_claude_code.py
+                    │                  ├── tester/runner.py
+                    │                  └── pipeline/publish (on approve)
+                    │
+                    └── claude (PTY, own process group)
 
 nginx serves:
-  - /home/ubuntu/kb_generation/articles/      (the published preview tree)
-  - /home/ubuntu/pr-watcher-web/               (dashboard + status.json + health.json)
-  - /home/ubuntu/pr-watcher.log                at /log
-  - /home/ubuntu/pr-watcher-task.log           at /task-log
-  - proxy_pass to 127.0.0.1:9191/{poll-now,retry}
+  - /home/ubuntu/kb_generation/articles/     (preview tree on main)
+  - /home/ubuntu/pr-watcher-web/              (dashboard + Ghostwriter build)
+  - proxy_pass to 127.0.0.1:9191              (control API)
 ```
 
-### Serving tree vs worktree (branch decoupling)
+### Single branch on `main`
 
-Ghostwriter and nginx serve articles from `/home/ubuntu/kb_generation` which **stays on `main`**. Each in-progress article lives on its own `article/<slug>` PR branch; the control API reads STATE and committed preview HTML from that branch via `git show` (no checkout). A background `git fetch --all` (every 60 s on the control server, every poll in the daemon) keeps remote refs fresh.
+The repo checkout at `/home/ubuntu/kb_generation` stays on **`main`**.
+Pipeline phases commit article files directly to `main` via a git
+worktree at `/home/ubuntu/kb_generation-work` (same branch, isolated
+working tree for daemon edits).
 
-The daemon performs all branch operations — PR comment resolution, pipeline phases, commits, pushes — in a dedicated git worktree at `/home/ubuntu/kb_generation-work`. Reviewer annotations are stored outside the article tree at `/home/ubuntu/ghostwriter-feedback/<slug>.json`.
+Reviewer annotations default to `articles/<slug>/feedback.json` in the
+repo; on the VM, `GHOSTWRITER_FEEDBACK_DIR=/home/ubuntu/ghostwriter-feedback`
+stores them outside the serving tree.
 
-**One-time VM migration** (after deploying this change):
+### Dispatcher (`dispatcher.py`)
 
-```bash
-sudo -u ubuntu mkdir -p /home/ubuntu/ghostwriter-feedback
-# Migrate any legacy per-article feedback files:
-for f in /home/ubuntu/kb_generation/articles/*/feedback.json; do
-  [ -f "$f" ] || continue
-  slug=$(basename "$(dirname "$f")")
-  sudo -u ubuntu cp "$f" "/home/ubuntu/ghostwriter-feedback/${slug}.json"
-done
-sudo -u ubuntu git -C /home/ubuntu/kb_generation worktree add /home/ubuntu/kb_generation-work main
-sudo -u ubuntu git -C /home/ubuntu/kb_generation checkout main   # serving tree stays on main
-sudo systemctl restart pr-watcher
-```
+Each poll iteration (when Claude is not already running):
 
-Environment overrides (local dev sets these automatically via `control_server.py`):
+1. **`active_article()`** — if a slug is in an active `PHASE`, dispatch
+   the next step for that slug only.
+2. **`dispatch_idle()`** — if nothing is active: optionally queue
+   re-verification for a stale `PUBLISHED` article, else transition the
+   next `QUEUED` slug from `clusters/queue.json` to `RESEARCHING`.
 
-| Variable | VM default | Purpose |
-|---|---|---|
-| `WORKTREE_PATH` | `/home/ubuntu/kb_generation-work` | Daemon branch checkout / edit tree |
-| `GHOSTWRITER_FEEDBACK_DIR` | `/home/ubuntu/ghostwriter-feedback` | Annotation JSON store |
-| `GHOSTWRITER_NO_SUDO` | unset (uses `sudo -u ubuntu`) | Set to `1` for local dev without sudo |
+| `PHASE` | Dispatcher action |
+|---|---|
+| `QUEUED` | Launch `research` |
+| `RESEARCHING` | Resume `research` if artifact missing |
+| `DRAFTING` | Launch `draft` |
+| `TESTING` | Launch `test-plan`, then `tester/runner.py` |
+| `REVISING` | Launch `revise-from-test` or `revise-from-feedback` |
+| `FINALIZING` | Launch `voice-pass` → `IN_REVIEW` |
+| `APPROVED` | Retry publish adapter |
+| `IN_REVIEW` | *(human review — no auto step)* |
+
+Serial rule: only one article may be in `ACTIVE_PHASES` at a time.
+
+### Control-plane API (`127.0.0.1:9191`)
+
+| Method | Path | Body | Effect |
+|---|---|---|---|
+| `POST` | `/poll-now` | — | Wake poll loop |
+| `POST` | `/api/queue/trigger` | `{"reason":"feedback"\|"manual", "slug":"…"}` | Start feedback revision or manual research |
+| `POST` | `/api/queue/approve` | `{"slug":"…", "reviewer":"guy"}` | `IN_REVIEW` → `APPROVED` → publish → `PUBLISHED` |
+| `POST` | `/api/queue/publish` | `{"slug":"…"}` | Retry publish for `APPROVED` article |
+| `POST` | `/api/queue/request-changes` | `{"slug":"…", "reason":"…"}` | `IN_REVIEW` or `PUBLISHED` → `REVISING` |
+| `POST` | `/api/feedback` | annotation JSON + `slug` | Append Ghostwriter annotation |
+| `DELETE` | `/api/feedback?slug=…&id=…` | — | Remove one annotation |
+| `GET` | `/api/articles/<slug>/preview` | — | HTML preview for Ghostwriter reader |
+| `GET`/`PUT` | `/api/queue` | queue JSON | Read/write `clusters/queue.json` |
+
+**Approve flow** (`_handle_approve`):
+
+1. `transition(slug, "APPROVED", {APPROVED_BY, APPROVED_AT})`
+2. Commit STATE on `main`
+3. `pipeline.publish.publish_article(slug)` — render HTML, rebuild index,
+   `transition(slug, "PUBLISHED")`
+4. Commit rendered outputs on `main`
+
+If publish fails, the article stays at `APPROVED`; retry with
+`/api/queue/publish`.
 
 ### Files (canonical source in this directory)
 
 | File | Role |
 |---|---|
-| `pr-watcher.py` | The daemon. Copy to `/home/ubuntu/pr-watcher.py` on deploy. |
-| `pr-watcher.service` | systemd unit for the daemon. |
-| `pr-watcher-health.service` + `pr-watcher-health.timer` | One-shot writer of `health.json`, fired every 60 s. |
-| `write_health.sh` | The one-shot script. Reads `systemctl show pr-watcher` and writes JSON. |
-| `dashboard/index.html` | Self-contained dark dashboard. Polls `status.json` every 5 s and `task-log` every 3 s when a task is active. |
-| `dashboard/{health,status,task-log,prwatcher-fixture.log}.json` | Local fixtures so the dashboard can be previewed via `python -m http.server` without the VM. |
-| `queue_store.py` | Queue I/O, STATE helpers, git-ref resolution for branch articles. |
-| `feedback_store.py` | Branch-independent Ghostwriter annotation store. |
-| `preview_transform.py` | HTML preview patching + ref-aware loading for Ghostwriter. |
-| `README.md` | This document. |
+| `pr-watcher.py` | Daemon + control plane. Deploy to `/home/ubuntu/pr-watcher.py`. |
+| `dispatcher.py` | Status-driven phase dispatch |
+| `queue_store.py` | Queue I/O, STATE helpers |
+| `feedback_store.py` | Ghostwriter annotation store wrapper |
+| `preview_transform.py` | HTML preview patching for Ghostwriter |
+| `pr-watcher.service` | systemd unit |
+| `dashboard/index.html` | Live status dashboard |
+| `README.md` | This document |
 
 ### Files on the VM only (not in git)
 
 | Path | Purpose |
 |---|---|
-| `/home/ubuntu/pr-watcher.py` | Deployed copy of the daemon. |
-| `/home/ubuntu/kb_generation-work/` | Git worktree for branch checkouts, commits, and pipeline phases. The serving tree at `/home/ubuntu/kb_generation` stays on `main`. |
-| `/home/ubuntu/ghostwriter-feedback/` | Branch-independent Ghostwriter annotation store (`<slug>.json` per article). |
-| `/home/ubuntu/pr-watcher-state.json` | Handled comment/PR IDs + `failed_comments` map. |
-| `/home/ubuntu/pr-watcher.log` | The full poll log (appends forever; cap with `logrotate` if it gets big). |
-| `/home/ubuntu/pr-watcher-task.log` | Live Claude output. Truncated at the start of every task. |
-| `/home/ubuntu/pr-watcher-web/status.json` | Dashboard data. Atomically written every poll AND on every task event. |
-| `/home/ubuntu/pr-watcher-web/health.json` | systemd status snapshot, refreshed every 60 s. |
-| `/home/ubuntu/start-pr-watcher.sh` | systemd `ExecStart`. Exports `HOME`, sources `.env`, launches the daemon. |
-| `/home/ubuntu/.config/specterx-kb/.env` | All credentials. Mode 600. Never committed. |
+| `/home/ubuntu/pr-watcher.py` | Deployed daemon copy |
+| `/home/ubuntu/kb_generation-work/` | Git worktree for daemon commits on `main` |
+| `/home/ubuntu/ghostwriter-feedback/` | Optional annotation store override |
+| `/home/ubuntu/pr-watcher-state.json` | Dispatcher dedupe keys (`handled`, etc.) |
+| `/home/ubuntu/pr-watcher.log` | Full poll log |
+| `/home/ubuntu/pr-watcher-task.log` | Live Claude output (truncated per task) |
+| `/home/ubuntu/pr-watcher-web/status.json` | Dashboard data |
+| `/home/ubuntu/.config/specterx-kb/.env` | Credentials (mode 600, never committed) |
 
 ---
 
 ## Deploy
 
-The deploy mechanism is **AWS SSM `AWS-RunShellScript`**, *not* SSH.
-SSM runs as root, so use `sudo -u ubuntu` for git/gh and any
-HOME-sensitive command.
+Deploy via **AWS SSM `AWS-RunShellScript`**, not SSH. SSM runs as root —
+use `sudo -u ubuntu` for git and HOME-sensitive commands.
 
-```python
-# Standard SSM template
-import boto3, time
-s = boto3.client('ssm', region_name='eu-central-1')
-r = s.send_command(
-    InstanceIds=['i-089861af44af098a3'],
-    DocumentName='AWS-RunShellScript',
-    Parameters={'commands': ['sudo -u ubuntu bash -c "cd /home/ubuntu/kb_generation && git pull"']},
-)
-time.sleep(6)
-o = s.get_command_invocation(CommandId=r['Command']['CommandId'], InstanceId='i-089861af44af098a3')
-print(o['StandardOutputContent'])
-```
-
-Standard rolling deploy of a code change:
+Standard rolling deploy:
 
 ```bash
-# 1. Pull the latest code on the VM
-sudo -u ubuntu bash -c "cd /home/ubuntu/kb_generation && git fetch origin <branch> && git checkout origin/<branch> -- ops/pr-watcher/"
+# 1. Pull latest on VM
+sudo -u ubuntu bash -c "cd /home/ubuntu/kb_generation && git fetch origin <branch> && git checkout origin/<branch> -- ops/pr-watcher/ store/ pipeline/ writer/ tester/"
 
-# 2. Copy files into place
+# 2. Copy daemon + dashboard into place
 cp /home/ubuntu/kb_generation/ops/pr-watcher/pr-watcher.py    /home/ubuntu/pr-watcher.py
 cp /home/ubuntu/kb_generation/ops/pr-watcher/dashboard/index.html /home/ubuntu/pr-watcher-web/index.html
-cp /home/ubuntu/kb_generation/ops/pr-watcher/write_health.sh  /home/ubuntu/write_health.sh
-chmod +x /home/ubuntu/write_health.sh
 
-# 3. Clear any stale lock files before restart (see "Failure modes" below)
+# 3. Clear stale Claude lock files
 find /home/ubuntu/.claude/tasks/ -name ".lock" -delete
 
-# 4. Restart the daemon (systemd kills the entire cgroup — that includes
-# any in-flight claude + chrome; preserve work first if needed)
+# 4. Restart
 systemctl restart pr-watcher
 
 # 5. Verify
 sleep 4
-systemctl is-active pr-watcher    # → active
-curl -s http://localhost/health | head -c 200    # ActiveState=active, NRestarts=0
+systemctl is-active pr-watcher
+curl -s http://localhost/health | head -c 200
 ```
 
-First-time install (systemd units, nginx routes):
-
-```bash
-# Systemd units
-cp ops/pr-watcher/pr-watcher.service        /etc/systemd/system/
-cp ops/pr-watcher/pr-watcher-health.service /etc/systemd/system/
-cp ops/pr-watcher/pr-watcher-health.timer   /etc/systemd/system/
-systemctl daemon-reload
-systemctl enable --now pr-watcher
-systemctl enable --now pr-watcher-health.timer
-
-# Directory permissions
-mkdir -p /home/ubuntu/pr-watcher-web
-chown -R ubuntu:ubuntu /home/ubuntu/pr-watcher-web
-
-# nginx location blocks (in /etc/nginx/sites-enabled/articles)
-# location /status/    { alias /home/ubuntu/pr-watcher-web/; index index.html; }
-# location = /health   { default_type application/json; alias /home/ubuntu/pr-watcher-web/health.json; }
-# location = /log      { default_type text/plain;       alias /home/ubuntu/pr-watcher.log; }
-# location = /task-log { default_type text/plain;       alias /home/ubuntu/pr-watcher-task.log; }
-# location = /poll-now { proxy_pass http://127.0.0.1:9191/poll-now; proxy_read_timeout 10s; }
-# location = /retry    { proxy_pass http://127.0.0.1:9191/retry;    proxy_read_timeout 10s; }
-nginx -t && systemctl reload nginx
-```
+First-time install: copy `pr-watcher.service`, enable the health timer,
+configure nginx (`/status/`, `/health`, `/log`, `/task-log`, proxy to
+`:9191`). See historical deploy blocks in git history if needed.
 
 ---
 
-## How the daemon talks to Claude — the non-obvious bits
+## How the daemon talks to Claude
 
-These are the design decisions inside `pr-watcher.py` that make the bot
-work, all of which were arrived at by hitting a wall. **Do not revert
-any of them without understanding why they exist.**
+These design choices inside `pr-watcher.py` are load-bearing — do not
+revert without understanding why they exist.
 
 ### 1. PTY for stdout (`pty.openpty()`)
 
-Claude is Node.js. Node block-buffers `process.stdout` (~16 KB) when it
-isn't connected to a TTY. If you pipe Claude's stdout to a file or
-`subprocess.PIPE`, you see nothing for tens of minutes, then a single
-flush at process exit. With `pty.openpty()` we give Claude a pseudo-TTY
-slave fd; Node detects `isatty()=true` and line-buffers, so every `\n`
-shows up immediately. We read from the master fd in a Python thread.
+Node block-buffers stdout without a TTY. A pseudo-TTY gives line-buffered
+output so the dashboard updates during long runs.
 
-Safety env vars set when running under the PTY:
+### 2. `--output-format stream-json`
 
-```python
-TERM=dumb          # suppress curses-style updates
-NO_COLOR=1         # no ANSI colour codes in the log
-FORCE_COLOR=0     # belt-and-braces for chalk/picocolors
-CI=1               # most CLIs suppress TUI when CI=1
-```
+Emits per-tool events so the dashboard shows active tools and the
+per-tool deadline can extend during Playwright runs.
 
-### 2. `--output-format stream-json` for tool-level visibility
+### 3. Process group + `killpg`
 
-PTY alone isn't enough. Claude's `-p text` mode only emits text the
-*model* produces — during long tool calls (a 25-min Playwright run),
-the model is silent and the dashboard sees nothing. `stream-json`
-emits one JSON event per assistant message delta, tool_use, and
-tool_result, so the dashboard shows the active tool in real time
-(`→ Bash: …`, `→ Read: <path>`, etc.) and the per-tool deadline
-mechanism can do its job (see below).
+`preexec_fn=os.setpgrp` (not `start_new_session`) keeps the PTY working
+while allowing `killpg` to tear down claude + chrome on watchdog timeout.
 
-The reader thread parses each event and writes a human-readable line
-to the task log. The raw stream is kept in memory for the
-`RESOLVED`/`NEEDS_HUMAN` parser.
-
-### 3. Process group + `killpg`, not session
-
-We use `preexec_fn=os.setpgrp` (NOT `start_new_session=True`).
-`setsid()` makes Claude a session leader with no controlling terminal,
-which causes Claude Code to suppress its own output entirely. A new
-process *group* (without a new session) keeps the PTY working AND
-lets us kill the whole tree on watchdog timeout:
-
-```python
-os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
-```
-
-This SIGKILLs claude + bash + node + every chrome subprocess — without
-it, watchdog kills leave hundreds of orphan chrome processes per run.
-
-### 4. `stdin=subprocess.DEVNULL`
-
-If Claude is launched unauthenticated and stdin is anything other than
-DEVNULL, it can block waiting for `/login` input. DEVNULL guarantees
-the read returns EOF immediately and the process either prints
-`Not logged in · Please run /login` or proceeds.
-
-### 5. Three timeout dials, not one
+### 4. Three timeout dials
 
 | Constant | Value | Triggers on |
 |---|---|---|
-| `INITIAL_TIMEOUT_SECS` | 3600 | No output at all since launch (cold start). Effectively disabled (matches task cap) because `stream-json init` arrives within seconds in practice. |
-| `STEP_TIMEOUT_SECS` | 120 | No event for 2 minutes AND claude is not in a tool call. This is the "real hang" detector. |
-| `TOOL_TIMEOUT_SECS` | 1800 | A single tool call has been running for more than 30 min. This is the "tool stuck" detector. |
-| `TASK_TIMEOUT_SECS` | 3600 | Whole task has been running for an hour. The hard cap. |
+| `STEP_TIMEOUT_SECS` | 120 | No event for 2 min outside a tool call |
+| `TOOL_TIMEOUT_SECS` | 1800 | Single tool call > 30 min |
+| `TASK_TIMEOUT_SECS` | 3600 | Whole task > 1 hour |
 
-The reader extends the per-step deadline to `TOOL_TIMEOUT_SECS` when
-it sees a `tool_use` event and resets to `STEP_TIMEOUT_SECS` on any
-`tool_result` or assistant text. This is what lets Playwright runs of
-20+ minutes survive while still killing genuinely hung claude
-sessions.
+### 5. `flush_status()` on every event
 
-### 6. Status flush on every event (`flush_status()`)
-
-`write_status()` previously ran only at the end of the poll loop.
-That meant `status.json` was stale for the entire duration of a Claude
-run, and the dashboard's Active Task widget always read "(starting)".
-We now call `flush_status()` on task start, every STEP, every tool
-call, and task end. The dashboard updates in real time.
-
-### 7. The `_retry_set` for retry semantics
-
-The `/retry` endpoint mutates `state.json` on disk (removes the
-comment from `handled`, clears it from `failed_comments`). But the
-daemon's in-memory `state` dict was already loaded — without a
-secondary flag, the next poll skips the comment again because it's
-still in the in-memory `handled`. `_retry_set` is a module-level
-`set()` populated by the endpoint; the comment loops check it before
-honoring the `handled` skip.
-
-### 8. Lock file cleanup as a deploy step
-
-Every SIGKILL'd Claude leaves a stale `.lock` file in
-`~/.claude/tasks/<uuid>/`. New Claude invocations hang on those locks.
-The deploy template above runs `find ... -name ".lock" -delete` before
-restarting. The process-group kill (item 3) reduces but does not
-eliminate this — keep the cleanup step.
+Keeps `status.json` current during long Claude runs.
 
 ---
 
-## Failure modes and what to check
+## Failure modes
 
-When the bot stops making progress, work down this list in order.
+Work down this list when the bot stops making progress.
 
-### A — "Claude task log is empty for minutes"
+### A — Task log empty for minutes
 
-1. **Check the active task.** `curl -s http://localhost/status/status.json | jq .current_task`. If it's `null` the bot isn't running anything. If it shows a step, see B.
-2. **Check the dashboard's Live output panel.** If it's empty AND status shows an active task, check the PTY (next).
-3. **Verify Claude's stdout is going to the PTY.** `ls -la /proc/$(pgrep -f "claude.*--dangerously" | head -1)/fd/{0,1,2}`. Expected: fd 0 → `/dev/null`, fd 1 and fd 2 → `/dev/pts/N`. If fd 1 points to a file or a pipe, somebody changed `pty.openpty()`. Revert.
-4. **Check stale lock files.** `find /home/ubuntu/.claude/tasks/ -name ".lock"`. If any exist while the bot is also running, claude is hung on them. Delete and restart.
+1. `curl -s http://localhost/status/status.json | jq .current_task`
+2. Check PTY: `ls -la /proc/$(pgrep -f "claude.*--dangerously" | head -1)/fd/{0,1,2}`
+3. Clear stale locks: `find /home/ubuntu/.claude/tasks/ -name ".lock" -delete`
 
-### B — "Task hits TOTAL_TIMEOUT at exactly 3600 s with no useful output"
+### B — Article stuck at `BLOCKED`
 
-Means Claude got into a state where it never emitted a `tool_use`
-event (or the very first one stalled), so the step deadline never
-extended. In practice this has been caused by:
+Read `articles/<slug>/STATE` → `BLOCKED_REASON`. Fix the underlying issue
+(research gate, missing artifact, phase failure) then unblock via
+`store.machine.unblock()` or manual STATE edit with care.
 
-- **Stale lock files** (see A.4). Most common.
-- **`Not logged in · Please run /login`** if the env wasn't sourced.
-  Check `cat /proc/$(pgrep pr-watcher.py | head -1)/environ | tr '\0' '\n' | grep ANTHROPIC_API_KEY` — if missing, `start-pr-watcher.sh` failed to source `.env`.
-- **Anthropic API rate limit / outage.** Visible as 4xx/5xx in
-  `journalctl -u pr-watcher --since "1h ago" | grep -i error`.
+### C — Approve returned 409
 
-### C — "Watchdog kills a tool that was working fine"
+Article must be `IN_REVIEW`. Check `PHASE` in STATE and Ghostwriter queue.
 
-Means a `tool_use` event didn't extend the deadline as expected.
-Check the relevant section of `pr-watcher.py` (`_format_event`):
-`contains_tool_use` must be True for the deadline extension to fire.
-If a tool produces output without first emitting a `tool_use` (rare),
-the per-step 120 s timeout still applies.
+### D — Publish failed, stuck at `APPROVED`
 
-### D — "Dashboard says HEALTHY but no tasks are running"
+`POST /api/queue/publish {"slug":"…"}` or wait for dispatcher retry on
+next poll.
 
-The dashboard reads `status.json`. `last_poll_at` should advance every
-~300 s. If it stops, the daemon is alive but stuck inside the poll
-loop. Check `journalctl -u pr-watcher -n 100 --no-pager`.
+### E — `poll-now` / approve seem no-op
 
-### E — "Retry button doesn't seem to do anything"
-
-The endpoint returns `{"ok":true}` even when nothing happens. Two
-common reasons:
-
-1. The daemon is already mid-task. The retry only takes effect on the
-   *next* poll iteration. The Poll now button has the same caveat.
-2. `_retry_set` wasn't updated because the daemon process restarted
-   between disk-update and next poll. Check
-   `/home/ubuntu/pr-watcher.log` for `Control: retry requested for …`.
+Daemon may be mid-Claude-task. Actions take effect when `is_claude_running()`
+returns false.
 
 ---
 
 ## Maintenance
 
-### Weekly
-
-- Rotate `/home/ubuntu/pr-watcher.log` if it's larger than ~50 MB. The
-  `_tail_log()` function in the daemon reads only the last 40 lines, so
-  size is purely a disk concern.
-- Sanity-check `/home/ubuntu/pr-watcher-state.json`. If `failed_comments`
-  has entries older than a week, decide whether to retry or to
-  `_clear_failure()` them manually (the latter is just JSON editing).
-
-### Monthly
-
-- `find /home/ubuntu/.claude/tasks/ -type d -mtime +30 -exec rm -rf {} +` to
-  garbage-collect old Claude session directories.
-
-### After every Claude version bump
-
-- `--output-format=stream-json` is documented but the event schema can
-  evolve. If `_format_event()` starts emitting `{json.dumps(input)[:200]}`
-  blobs for tool_use cases the parser doesn't recognize, extend the
-  parser.
-- PTY behaviour can change too. Cross-check by tailing
-  `pr-watcher-task.log` during the next task — if it lights up within
-  10 s of task start, PTY is working.
+- Rotate `/home/ubuntu/pr-watcher.log` if > ~50 MB.
+- Monthly: garbage-collect old `~/.claude/tasks/` directories.
+- After Claude version bumps: verify `stream-json` event parsing still
+  works (`pr-watcher-task.log` should show output within ~10 s of task start).
 
 ---
 
 ## See also
 
-- `WORKFLOW.md` §9 — what the pipeline expects this bot to do during
-  Stage 5 (revise → voice-pass → PR → review → merge).
-- `editorial/STYLE_GUIDE.md` — the canon the bot enforces when it
-  applies PR review comments.
-- `pipeline/prompts/04a-voice-pass.md` — the prompt the bot runs at
-  phase 5 to humanize draft prose.
-- `tester/TEST_RESOURCES.md` — credentials and provisioning notes for
-  test accounts used during E2E captures.
+- [WORKFLOW.md](../../WORKFLOW.md) §9–§14 — review, approve, publish, state machine
+- [CLAUDE.md](../../CLAUDE.md) — session rules for manual runs
+- `store/machine.py` — authoritative `PHASE` transition table
+- `editorial/STYLE_GUIDE.md` — canon enforced during voice-pass and feedback revision
 
 ---
 
 ## Ghostwriter SPA
 
-### Build
+Build and deploy: see `ops/ghostwriter/README.md`. The SPA calls the
+control-plane endpoints above (`/api/queue/approve`, `/api/queue/request-changes`,
+`/api/feedback`, etc.) — it does not talk to GitHub for article review.
 
-```bash
-cd ops/ghostwriter
-npm install
-npm run build
-# Output: ../../dist/ghostwriter/
-```
-
-### Deploy to VM
-
-```bash
-# Copy build output to the VM
-rsync -avz dist/ghostwriter/ ubuntu@18.192.122.48:/home/ubuntu/pr-watcher-web/ghostwriter/
-
-# Copy annotation libraries (one-time setup):
-# Download recogito.min.js + recogito.min.css from @recogito/recogito-js
-# Download annotorious.min.js + annotorious.min.css from @recogito/annotorious
-# Then:
-rsync -avz ops/ghostwriter/static/ ubuntu@18.192.122.48:/home/ubuntu/pr-watcher-web/static/
-```
-
-Or via AWS SSM (same procedure as the daemon — see "Deploying via AWS SSM" above):
-
-```bash
-aws ssm send-command \
-  --instance-ids <INSTANCE_ID> \
-  --document-name "AWS-RunShellScript" \
-  --parameters 'commands=["cd /home/ubuntu/kb_generation && git pull origin main && cd ops/ghostwriter && npm ci && npm run build && rsync -a ../../dist/ghostwriter/ /home/ubuntu/pr-watcher-web/ghostwriter/"]'
-```
-
-### nginx config
-
-Add the location blocks from `ops/ghostwriter/nginx-ghostwriter.conf` to the VM's nginx server block
-(usually `/etc/nginx/sites-available/default`), then reload:
-
-```bash
-sudo nginx -t && sudo systemctl reload nginx
-```
-
-The SPA will then be available at `http://18.192.122.48/ghostwriter/`.
-
-### Environment
-
-Create `ops/ghostwriter/.env.local` (git-ignored, never commit):
-
-```
-VITE_API_BASE=http://18.192.122.48
-VITE_N8N_WEBHOOK=http://18.192.122.48/n8n/webhook/annotation-intake
-```
-
-### queue.json first deploy
-
-Commit `clusters/queue.json` before enabling auto-advance. The daemon degrades gracefully
-if it is missing (logs "auto-trigger disabled") — no crash.
-
-```bash
-git add clusters/queue.json
-git commit -m "chore: seed clusters/queue.json for daemon queue-as-data"
-git push origin main
-```
+`clusters/queue.json` must exist on `main` before auto-advance works;
+without it the daemon logs "auto-trigger disabled" and does not crash.
