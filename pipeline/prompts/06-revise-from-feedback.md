@@ -72,18 +72,7 @@ Leave these unchanged.
    > is cleared automatically by the daemon after this phase exits successfully.
    > Do NOT clear it yourself — the daemon owns that step.
 
-## State transitions
-
-After all annotations are resolved:
-
-- Text-only changes (no test-plan steps modified) → set `PHASE=PR_OPEN`
-  (the daemon pushes the commit to the remote branch automatically after
-  this phase exits; no separate voice-pass subprocess is needed)
-- Test-plan steps added or changed → set `PHASE=TESTING`
-- Blocked / ambiguous and nothing committed → set `PHASE=BLOCKED`
-
-Always preserve existing `REVISION_CYCLE` and `FEEDBACK_ISSUE` values in STATE.
-Do NOT reset `REVISION_CYCLE` to 0.
+Do not edit the STATE file — the pipeline runner advances it.
 
 ## Commit format
 

@@ -181,17 +181,9 @@ helping them with their problem — rewrite the opener one more time.
 ## When you're done
 
 1. Save the updated `articles/<NN-slug>/final.md`.
-2. Update the article's `STATE` file:
-   ```
-   PHASE=PR_OPEN
-   LAST_UPDATE=<ISO timestamp>
-   NEXT_ACTION=push the voice-pass commit and request review
-   ```
-   (If the article was already in PR_OPEN before this run, keep it
-   there.)
-3. Print a one-paragraph self-report to stdout summarizing which
+2. Print a one-paragraph self-report to stdout summarizing which
    categories from the checklist above you applied changes for, and
    any items where you found nothing to change. Do NOT write the
    self-report into the article — it's pipeline output, not customer
    copy.
-4. Exit.
+3. Exit. The pipeline runner advances STATE.

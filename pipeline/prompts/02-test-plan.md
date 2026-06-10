@@ -269,10 +269,4 @@ Example — screenshot the share icon before instructing the user to click it:
 
 ## When you're done
 
-Save `test-plan.json`. Update STATE:
-
-```
-PHASE=TESTING
-LAST_UPDATE=<ISO>
-NEXT_ACTION=tester executes test-plan.json
-```
+Save `test-plan.json` and exit. The pipeline runner advances STATE.
