@@ -49,7 +49,8 @@ vi.mock('@/api/hooks', async (importOriginal) => {
     useQueue: vi.fn(),
     useSaveQueue: vi.fn(),
     useTrigger: vi.fn(),
-    useMergeArticle: vi.fn(),
+    useApproveArticle: vi.fn(),
+    useRequestChanges: vi.fn(),
     useDeleteArticle: vi.fn(),
   }
 })
@@ -57,7 +58,6 @@ vi.mock('@/api/hooks', async (importOriginal) => {
 describe('ArticlesView', () => {
   const mutateSave = vi.fn()
   const mutateTrigger = vi.fn()
-  const mutateMerge = vi.fn()
   const mutateDelete = vi.fn()
 
   beforeEach(() => {
@@ -75,10 +75,14 @@ describe('ArticlesView', () => {
       mutate: mutateTrigger,
       isPending: false,
     } as unknown as ReturnType<typeof hooks.useTrigger>)
-    vi.mocked(hooks.useMergeArticle).mockReturnValue({
-      mutate: mutateMerge,
+    vi.mocked(hooks.useApproveArticle).mockReturnValue({
+      mutate: vi.fn(),
       isPending: false,
-    } as unknown as ReturnType<typeof hooks.useMergeArticle>)
+    } as unknown as ReturnType<typeof hooks.useApproveArticle>)
+    vi.mocked(hooks.useRequestChanges).mockReturnValue({
+      mutate: vi.fn(),
+      isPending: false,
+    } as unknown as ReturnType<typeof hooks.useRequestChanges>)
     vi.mocked(hooks.useDeleteArticle).mockReturnValue({
       mutate: mutateDelete,
       isPending: false,

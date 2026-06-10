@@ -15,7 +15,7 @@ python ops/ghostwriter/control_server.py
 # → http://127.0.0.1:9191/api/queue
 ```
 
-Starts only the pr-watcher REST control plane. Reads/writes the real queue file and `articles/*/STATE` on **main**; in-progress articles on `article/<slug>` branches are read by git ref (no checkout). Annotations live in `.ghostwriter/feedback/<slug>.json`. Does not poll GitHub or launch Claude.
+Starts only the pr-watcher REST control plane. Reads/writes the real queue file and `articles/*/STATE` on **main**. Annotations live in `articles/<slug>/feedback.json` (or `.ghostwriter/feedback/` when overridden). Does not poll GitHub or launch Claude.
 
 ### Terminal B — local API shim
 
@@ -33,8 +33,9 @@ python ops/ghostwriter/dev_server.py
 | `/api/*`, `/poll-now`, `/retry` | Proxied to Terminal A when `:9191` is up |
 | `/api/articles/{slug}/preview` | Rendered article HTML + Recogito/Annotorious widget |
 | `/static/*` | Recogito, Annotorious, `ghostwriter-annotate.js` |
-| `/api/feedback` GET/POST | Read/append `.ghostwriter/feedback/{slug}.json` |
-| `POST /api/queue/merge` | Merge open `article/<slug>` PR into `main` via `gh` |
+| `/api/feedback` GET/POST | Read/append feedback JSON for `{slug}` |
+| `POST /api/queue/approve` | Approve `IN_REVIEW` article and publish |
+| `POST /api/queue/request-changes` | Send article back to `REVISING` |
 
 ### Terminal C — SPA
 
@@ -87,7 +88,7 @@ Open **http://localhost:5173/ghostwriter/** (not `:8767` directly).
 After step 5, check the file grew:
 
 ```bash
-cat .ghostwriter/feedback/01-log-in-to-specterx.json
+cat articles/01-log-in-to-specterx/feedback.json
 ```
 
 ### Articles without HTML
@@ -98,7 +99,7 @@ If an article has `final.md` but no HTML yet, the preview endpoint **renders it 
 
 | Slug | Phase | Has preview HTML |
 |------|-------|-------------------|
-| `01-log-in-to-specterx` | DONE | Yes — **use for review sanity test** |
+| `01-log-in-to-specterx` | PUBLISHED | Yes — **use for review sanity test** |
 | `02-set-or-reset-password` | varies | Yes (if rendered) |
 | `03-what-is-specterx` | varies | Yes (if rendered) |
 
@@ -142,11 +143,10 @@ Deploy to the VM is documented in [ops/pr-watcher/README.md](../pr-watcher/READM
 
 ## Architecture notes
 
-- **Serving tree:** stays on `main` — merged articles read from the working tree
-- **In-progress articles:** STATE + preview HTML read via `git show article/<slug>:…` (background `git fetch` keeps refs fresh)
+- **Serving tree:** all articles on `main` under `articles/<slug>/`
 - **Queue source of truth:** [`clusters/queue.json`](../../clusters/queue.json)
-- **Per-article phase:** `articles/<slug>/STATE` (main when merged; branch ref when in-progress)
-- **Annotations:** `.ghostwriter/feedback/<slug>.json` (VM: `/home/ubuntu/ghostwriter-feedback/<slug>.json`)
+- **Per-article phase:** `articles/<slug>/STATE` (`PHASE` state machine in `store/machine.py`)
+- **Annotations:** `articles/<slug>/feedback.json` (VM override: `/home/ubuntu/ghostwriter-feedback/<slug>.json`)
 - **Daemon edits:** isolated git worktree at `.ghostwriter/worktree/` (VM: `/home/ubuntu/kb_generation-work`)
 - **Preview widget:** [`static/ghostwriter-annotate.js`](static/ghostwriter-annotate.js) + [`preview_transform.py`](../pr-watcher/preview_transform.py)
 - **Control server:** [`control_server.py`](control_server.py)

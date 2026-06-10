@@ -61,8 +61,6 @@ sys.path.insert(0, str(PR_WATCHER_DIR))
 _qs = _import_module("queue_store", PR_WATCHER_DIR / "queue_store.py")
 _pt = _import_module("preview_transform", PR_WATCHER_DIR / "preview_transform.py")
 _fb = _import_module("feedback_store", PR_WATCHER_DIR / "feedback_store.py")
-_ghq = _import_module("gh_queue", PR_WATCHER_DIR / "gh_queue.py")
-GITHUB_REPO = os.environ.get("GITHUB_REPO", "guyhizkiau/kb_generation")
 
 
 def control_reachable() -> bool:
@@ -97,7 +95,6 @@ def _claude_running() -> bool:
 
 def local_get_queue() -> dict:
     data = _qs.queue_with_states()
-    data = _ghq.enrich_queue_with_open_prs(data, repo=GITHUB_REPO)
     data["claude_running"] = _claude_running()
     return data
 
@@ -145,18 +142,6 @@ def local_trigger(payload: dict) -> tuple[int, dict]:
     return 400, {"ok": False, "error": f"unknown reason '{reason}'"}
 
 
-def local_merge(payload: dict) -> tuple[int, dict]:
-    slug = (payload.get("slug") or "").strip()
-    if not slug:
-        return 400, {"ok": False, "error": "slug required"}
-    pr_number = payload.get("pr_number")
-    if pr_number is not None:
-        pr_number = int(pr_number)
-    result = _ghq.merge_article_pr(slug, pr_number=pr_number, repo=GITHUB_REPO)
-    code = 200 if result.get("ok") else 400
-    return code, result
-
-
 def local_feedback(slug: str) -> dict:
     return {"slug": slug, "annotations": _fb.read_feedback(slug)}
 
@@ -195,16 +180,6 @@ def local_delete_article(slug: str, remove_from_plan: bool) -> tuple[int, dict]:
         merged = _qs.article_is_merged(slug)
     except Exception:
         pass
-
-    try:
-        res = _ghq.close_article_pr(slug, repo=GITHUB_REPO)
-        if not res.get("ok"):
-            print(f"[ghostwriter-shim] close PR for {slug} failed: {res.get('error')}")
-    except Exception as exc:
-        print(f"[ghostwriter-shim] close_article_pr({slug}) raised: {exc}")
-
-    _git_local("branch", "-D", f"article/{slug}")
-    _git_local("branch", "-rd", f"origin/article/{slug}")
 
     pushed = False
     push_failed = False
@@ -403,7 +378,7 @@ class ShimHandler(BaseHTTPRequestHandler):
         path = parsed.path
         body = self._read_body()
 
-        if path in ("/poll-now", "/retry", "/api/queue/trigger", "/api/queue/merge", "/api/feedback") and self._control_up():
+        if path in ("/poll-now", "/retry", "/api/queue/trigger", "/api/feedback") and self._control_up():
             try:
                 code, raw = proxy_request("POST", path, body=body or None)
                 self._send_bytes(code, raw)
@@ -433,15 +408,6 @@ class ShimHandler(BaseHTTPRequestHandler):
             try:
                 payload = json.loads(body or b"{}")
                 code, result = local_trigger(payload)
-                self._send_json(result, code)
-            except Exception as exc:
-                self._send_json({"error": str(exc)}, 400)
-            return
-
-        if path == "/api/queue/merge":
-            try:
-                payload = json.loads(body or b"{}")
-                code, result = local_merge(payload)
                 self._send_json(result, code)
             except Exception as exc:
                 self._send_json({"error": str(exc)}, 400)

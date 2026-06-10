@@ -16,7 +16,7 @@ vi.mock('@/api/hooks', async (importOriginal) => {
 })
 
 describe('HealthView', () => {
-  it('renders counters and open PRs from status fixture', () => {
+  it('renders daemon counters without legacy PR sections', () => {
     vi.mocked(hooks.useStatus).mockReturnValue({
       data: mockStatus,
       isLoading: false,
@@ -26,10 +26,8 @@ describe('HealthView', () => {
     renderWithProviders(<HealthView />)
 
     expect(screen.getByText('Daemon Health')).toBeInTheDocument()
-    expect(screen.getByText('comments resolved')).toBeInTheDocument()
-    expect(screen.getByText('article/02-set-or-reset-password')).toBeInTheDocument()
-    const branchLink = screen.getByRole('link', { name: 'article/02-set-or-reset-password' })
-    expect(branchLink).toHaveAttribute('href', 'https://github.com/guyhizkiau/kb_generation/pull/7')
-    expect(screen.getByText('Failed comments (1)')).toBeInTheDocument()
+    expect(screen.getByText('articles triggered')).toBeInTheDocument()
+    expect(screen.queryByText('Open PRs')).not.toBeInTheDocument()
+    expect(screen.queryByText('Failed comments')).not.toBeInTheDocument()
   })
 })
