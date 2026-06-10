@@ -30,7 +30,7 @@ You need:
 
    SpecterX sends a 6-digit verification code to that email address. The code is valid for one hour.
 
-3. Open the email and copy the code. The message comes from an `@specterx.com` sender. It may be delivered through a transactional-email provider such as `verificationemail.com`. If you don't see it within a minute or two, check your spam or junk folder.
+3. Open the email and copy the code. The message is sent through a transactional-email provider and the sender address may show a domain like `verificationemail.com`. If you don't see it within a minute or two, check your spam or junk folder.
 
    ![The verification email showing the 6-digit code in the message body](screenshots/11-reset-code-email-body.png)
 
@@ -65,7 +65,7 @@ To reset an SSO password, use your identity provider's own self-service tools, o
 Check your spam or junk folder first. If it isn't there:
 
 - Confirm you entered the email address your administrator registered. SpecterX doesn't tell you whether an address is registered. If you enter a typo or an unregistered address, the page looks the same as a successful submission.
-- Add `@specterx.com` to your email allowlist or address book and try again.
+- Add the sender's domain (for example, `verificationemail.com`) to your email allowlist and try again.
 - If you still don't receive the code after several minutes, contact your administrator. Your account may not be fully provisioned yet.
 
 ### "Wrong code" or the code is rejected

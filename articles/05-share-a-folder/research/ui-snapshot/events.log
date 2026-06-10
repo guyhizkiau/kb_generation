@@ -1,0 +1,20 @@
+[2026-06-07T12:25:03Z] reusing storage_state
+[2026-06-07T12:25:03Z] navigating to app.specterx.com
+[2026-06-07T12:25:07Z] already logged in (Share files button visible)
+[2026-06-07T12:25:10Z] screenshot -> ui-snapshot/00-my-files.png
+[2026-06-07T12:25:10Z] aria -> state/aria-00-my-files.json (382 entries)
+[2026-06-07T12:25:11Z] screenshot -> ui-snapshot/01-create-folder-menu.png
+[2026-06-07T12:25:12Z] screenshot -> ui-snapshot/02-folder-name-dialog.png
+[2026-06-07T12:25:12Z] aria -> state/aria-02-folder-name-dialog.json (388 entries)
+[2026-06-07T12:25:13Z] clicked Create; waiting for dialog to close
+[2026-06-07T12:25:13Z] New folder dialog closed
+[2026-06-07T12:25:15Z] folder not in current view; trying refresh
+[2026-06-07T12:25:16Z] trying search
+[2026-06-07T12:25:18Z] ERROR: still no folder row; aborting
+[2026-06-07T12:25:18Z] screenshot -> ui-snapshot/_raw/ERROR-no-row.png
+[2026-06-07T12:26:45Z] reusing storage_state
+[2026-06-07T12:26:46Z] navigating to app.specterx.com
+[2026-06-07T12:26:50Z] already logged in (Share files button visible)
+[2026-06-07T12:26:56Z] cleanup: deleting row matching ^KB-Test-Folder-2026-06-07$
+[2026-06-07T12:26:58Z] delete_row: confirmed via Delete
+[2026-06-07T12:27:02Z] cleanup: deleting row matching ^KB-Test-Folder-2026-06-07$

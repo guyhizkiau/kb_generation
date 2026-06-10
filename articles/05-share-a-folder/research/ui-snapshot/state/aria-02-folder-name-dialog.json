@@ -1,0 +1,3494 @@
+[
+  {
+    "depth": 9,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 10,
+    "tag": "span",
+    "role": "img",
+    "aria": "reload",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 11,
+    "tag": "span",
+    "role": "img",
+    "aria": "search",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 10,
+    "tag": "input",
+    "role": null,
+    "aria": "",
+    "placeholder": "Search files",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 11,
+    "tag": "span",
+    "role": "button",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 12,
+    "tag": "span",
+    "role": "img",
+    "aria": "close-circle",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 8,
+    "tag": "span",
+    "role": "img",
+    "aria": "folder-add",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 10,
+    "tag": "span",
+    "role": "img",
+    "aria": "user",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 12,
+    "tag": "input",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 12,
+    "tag": "div",
+    "role": "button",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Share files"
+  },
+  {
+    "depth": 14,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Share files"
+  },
+  {
+    "depth": 15,
+    "tag": "span",
+    "role": "img",
+    "aria": "send",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 9,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Request files"
+  },
+  {
+    "depth": 10,
+    "tag": "div",
+    "role": "separator",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 9,
+    "tag": "ul",
+    "role": "menu",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "My files Shared with me"
+  },
+  {
+    "depth": 10,
+    "tag": "li",
+    "role": "menuitem",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "My files"
+  },
+  {
+    "depth": 12,
+    "tag": "a",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "My files"
+  },
+  {
+    "depth": 10,
+    "tag": "li",
+    "role": "menuitem",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Shared with me"
+  },
+  {
+    "depth": 12,
+    "tag": "a",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Shared with me"
+  },
+  {
+    "depth": 9,
+    "tag": "ul",
+    "role": "menu",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "My workspaces"
+  },
+  {
+    "depth": 10,
+    "tag": "li",
+    "role": "none",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "My workspaces"
+  },
+  {
+    "depth": 11,
+    "tag": "div",
+    "role": "menuitem",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "My workspaces"
+  },
+  {
+    "depth": 10,
+    "tag": "div",
+    "role": "separator",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 9,
+    "tag": "ul",
+    "role": "menu",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "All files Policies Users Audit logs Domains dashboard Settings"
+  },
+  {
+    "depth": 10,
+    "tag": "li",
+    "role": "menuitem",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "All files"
+  },
+  {
+    "depth": 12,
+    "tag": "a",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "All files"
+  },
+  {
+    "depth": 10,
+    "tag": "li",
+    "role": "menuitem",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Policies"
+  },
+  {
+    "depth": 12,
+    "tag": "a",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Policies"
+  },
+  {
+    "depth": 10,
+    "tag": "li",
+    "role": "menuitem",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Users"
+  },
+  {
+    "depth": 12,
+    "tag": "a",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Users"
+  },
+  {
+    "depth": 10,
+    "tag": "li",
+    "role": "menuitem",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Audit logs"
+  },
+  {
+    "depth": 12,
+    "tag": "a",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Audit logs"
+  },
+  {
+    "depth": 10,
+    "tag": "li",
+    "role": "menuitem",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Domains dashboard"
+  },
+  {
+    "depth": 12,
+    "tag": "a",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Domains dashboard"
+  },
+  {
+    "depth": 10,
+    "tag": "li",
+    "role": "menuitem",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Settings"
+  },
+  {
+    "depth": 12,
+    "tag": "a",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Settings"
+  },
+  {
+    "depth": 12,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Add files"
+  },
+  {
+    "depth": 14,
+    "tag": "span",
+    "role": "img",
+    "aria": "plus",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 15,
+    "tag": "div",
+    "role": "grid",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Filename Policy Last Used File Size <REDACTED_EMAIL> Today 12:22me KB-Test-Folder-2026-06-07 Today 12:22me SpecterX - Equity Grant Letter - Loren Haxtall.pdf Default 03 Jun, 2026 15:44Maryna Test "
+  },
+  {
+    "depth": 16,
+    "tag": "div",
+    "role": "row",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Filename Policy Last Used File Size"
+  },
+  {
+    "depth": 17,
+    "tag": "div",
+    "role": "columnheader",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 20,
+    "tag": "input",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 17,
+    "tag": "div",
+    "role": "columnheader",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Filename"
+  },
+  {
+    "depth": 19,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Filename"
+  },
+  {
+    "depth": 20,
+    "tag": "span",
+    "role": "img",
+    "aria": "arrow-down",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 17,
+    "tag": "div",
+    "role": "columnheader",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Policy"
+  },
+  {
+    "depth": 17,
+    "tag": "div",
+    "role": "columnheader",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Last Used"
+  },
+  {
+    "depth": 19,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Last Used"
+  },
+  {
+    "depth": 20,
+    "tag": "span",
+    "role": "img",
+    "aria": "arrow-down",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 17,
+    "tag": "div",
+    "role": "columnheader",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "File Size"
+  },
+  {
+    "depth": 19,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "File Size"
+  },
+  {
+    "depth": 20,
+    "tag": "span",
+    "role": "img",
+    "aria": "arrow-down",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 17,
+    "tag": "div",
+    "role": "columnheader",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 16,
+    "tag": "div",
+    "role": "rowgroup",
+    "aria": "grid",
+    "placeholder": "",
+    "title": "",
+    "text": "<REDACTED_EMAIL> Today 12:22me KB-Test-Folder-2026-06-07 Today 12:22me SpecterX - Equity Grant Letter - Loren Haxtall.pdf Default 03 Jun, 2026 15:44Maryna Test 81 KB Open SpecterX Platform Resilie"
+  },
+  {
+    "depth": 17,
+    "tag": "div",
+    "role": "rowgroup",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "<REDACTED_EMAIL> Today 12:22me KB-Test-Folder-2026-06-07 Today 12:22me SpecterX - Equity Grant Letter - Loren Haxtall.pdf Default 03 Jun, 2026 15:44Maryna Test 81 KB Open SpecterX Platform Resilie"
+  },
+  {
+    "depth": 18,
+    "tag": "div",
+    "role": "row",
+    "aria": "row",
+    "placeholder": "",
+    "title": "",
+    "text": "<REDACTED_EMAIL> Today 12:22me"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "input",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "<REDACTED_EMAIL>"
+  },
+  {
+    "depth": 21,
+    "tag": "a",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "<REDACTED_EMAIL>"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Today 12:22me"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "send",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "more",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 18,
+    "tag": "div",
+    "role": "row",
+    "aria": "row",
+    "placeholder": "",
+    "title": "",
+    "text": "KB-Test-Folder-2026-06-07 Today 12:22me"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "input",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "KB-Test-Folder-2026-06-07"
+  },
+  {
+    "depth": 21,
+    "tag": "a",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "KB-Test-Folder-2026-06-07"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Today 12:22me"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "send",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "more",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 18,
+    "tag": "div",
+    "role": "row",
+    "aria": "row",
+    "placeholder": "",
+    "title": "",
+    "text": "SpecterX - Equity Grant Letter - Loren Haxtall.pdf Default 03 Jun, 2026 15:44Maryna Test 81 KB Open"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "input",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "SpecterX - Equity Grant Letter - Loren Haxtall.pdf"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Default"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "03 Jun, 2026 15:44Maryna Test"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "81 KB"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "send",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "more",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 18,
+    "tag": "div",
+    "role": "row",
+    "aria": "row",
+    "placeholder": "",
+    "title": "",
+    "text": "SpecterX Platform Resilience and Extensibility Position Paper.docx Allow Forwarding (Protected) 03 Jun, 2026 12:34me 338 KB Open"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "input",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "SpecterX Platform Resilience and Extensibility Position Paper.docx"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Allow Forwarding (Protected)"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "03 Jun, 2026 12:34me"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "338 KB"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "send",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "more",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 18,
+    "tag": "div",
+    "role": "row",
+    "aria": "row",
+    "placeholder": "",
+    "title": "",
+    "text": "NDA.pdf 2FA 25 May, 2026 08:25me 129 KB Open"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "input",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "NDA.pdf"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "2FA"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "25 May, 2026 08:25me"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "129 KB"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "send",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "more",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 18,
+    "tag": "div",
+    "role": "row",
+    "aria": "row",
+    "placeholder": "",
+    "title": "",
+    "text": "MSA SPECTERX N.D. LTD VALLEY-SOFTWARE 2026 - SIGNED.pdf Default 18 May, 2026 09:10me 305 KB Open"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "input",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "MSA SPECTERX N.D. LTD VALLEY-SOFTWARE 2026 - SIGNED.pdf"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Default"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "18 May, 2026 09:10me"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "305 KB"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "send",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "more",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 18,
+    "tag": "div",
+    "role": "row",
+    "aria": "row",
+    "placeholder": "",
+    "title": "",
+    "text": "SpecterX - Equity Grant Letter - Loren Haxtall - 17.3.2026.docx Default 14 May, 2026 00:32Loren Hextall 4 MB Open"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "input",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "SpecterX - Equity Grant Letter - Loren Haxtall - 17.3.2026.docx"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Default"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "14 May, 2026 00:32Loren Hextall"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "4 MB"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "send",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "more",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 18,
+    "tag": "div",
+    "role": "row",
+    "aria": "row",
+    "placeholder": "",
+    "title": "",
+    "text": "SpecterX - Option Plan [Barnea] 130519.pdf Sensitive 27 Apr, 2026 21:02Loren Hextall 395 KB Open"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "input",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "SpecterX - Option Plan [Barnea] 130519.pdf"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Sensitive"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "27 Apr, 2026 21:02Loren Hextall"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "395 KB"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "send",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "more",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 18,
+    "tag": "div",
+    "role": "row",
+    "aria": "row",
+    "placeholder": "",
+    "title": "",
+    "text": "Animals List 2026.docx Default 14 Apr, 2026 13:23Nimrod Barel 2 MB Open"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "input",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Animals List 2026.docx"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Default"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "14 Apr, 2026 13:23Nimrod Barel"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "2 MB"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "send",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "more",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 18,
+    "tag": "div",
+    "role": "row",
+    "aria": "row",
+    "placeholder": "",
+    "title": "",
+    "text": "Super Secret Document.docx Default 13 Apr, 2026 16:35me 1 MB Open"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "input",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Super Secret Document.docx"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Default"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "13 Apr, 2026 16:35me"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "1 MB"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "send",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "more",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 18,
+    "tag": "div",
+    "role": "row",
+    "aria": "row",
+    "placeholder": "",
+    "title": "",
+    "text": "SpecterX - Employment Agreement - Ido Ben Tora - 2026.pdf Default 01 Mar, 2026 14:58Ido Ben Tora 281 KB Open"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "input",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "SpecterX - Employment Agreement - Ido Ben Tora - 2026.pdf"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Default"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "01 Mar, 2026 14:58Ido Ben Tora"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "281 KB"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "send",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "more",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 18,
+    "tag": "div",
+    "role": "row",
+    "aria": "row",
+    "placeholder": "",
+    "title": "",
+    "text": "\u05d8\u05d5\u05e4\u05e1 .docx Default 17 Nov, 2025 12:33me 12 KB Open"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "input",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "\u05d8\u05d5\u05e4\u05e1 .docx"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Default"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "17 Nov, 2025 12:33me"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "12 KB"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "send",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "more",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 18,
+    "tag": "div",
+    "role": "row",
+    "aria": "row",
+    "placeholder": "",
+    "title": "",
+    "text": "\u05d8\u05d5\u05e4\u05e1 (1).docx Default 17 Nov, 2025 12:33me 12 KB Open"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "input",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "\u05d8\u05d5\u05e4\u05e1 (1).docx"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Default"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "17 Nov, 2025 12:33me"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "12 KB"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "send",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "more",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 18,
+    "tag": "div",
+    "role": "row",
+    "aria": "row",
+    "placeholder": "",
+    "title": "",
+    "text": "\u05d8\u05d5\u05e4\u05e1 .docx Phone Verification 17 Nov, 2025 09:33me 12 KB Open"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "input",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "\u05d8\u05d5\u05e4\u05e1 .docx"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Phone Verification"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "17 Nov, 2025 09:33me"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "12 KB"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "send",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "more",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 18,
+    "tag": "div",
+    "role": "row",
+    "aria": "row",
+    "placeholder": "",
+    "title": "",
+    "text": "SpecterX - Mirage - 2025 Nov 12th Sync.pptx Allow Forwarding 11 Nov, 2025 18:<REDACTED_EMAIL> 4 MB Open"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "input",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "SpecterX - Mirage - 2025 Nov 12th Sync.pptx"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Allow Forwarding"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "11 Nov, 2025 18:<REDACTED_EMAIL>"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "4 MB"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "send",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "more",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 18,
+    "tag": "div",
+    "role": "row",
+    "aria": "row",
+    "placeholder": "",
+    "title": "",
+    "text": "Mediton Deleted Files - October 2025.csv Allow Forwarding 22 Oct, 2025 13:<REDACTED_EMAIL> 29 KB Open"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "input",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Mediton Deleted Files - October 2025.csv"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Allow Forwarding"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "22 Oct, 2025 13:<REDACTED_EMAIL>"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "29 KB"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "send",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "more",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 18,
+    "tag": "div",
+    "role": "row",
+    "aria": "row",
+    "placeholder": "",
+    "title": "",
+    "text": "Test Document.docx Default 02 Oct, 2025 15:33me 1 MB Open"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "input",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Test Document.docx"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Default"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "02 Oct, 2025 15:33me"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "1 MB"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "send",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "more",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 18,
+    "tag": "div",
+    "role": "row",
+    "aria": "row",
+    "placeholder": "",
+    "title": "",
+    "text": "Test File ABC3.docx Allow Forwarding (Protected) 29 Sep, 2025 14:57me 4 MB Open"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "input",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Test File ABC3.docx"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Allow Forwarding (Protected)"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "29 Sep, 2025 14:57me"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "4 MB"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "send",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "more",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 18,
+    "tag": "div",
+    "role": "row",
+    "aria": "row",
+    "placeholder": "",
+    "title": "",
+    "text": "Weekly Focus - 28.9.2025.docx Default 29 Sep, 2025 14:09me 285 KB Open"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "input",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Weekly Focus - 28.9.2025.docx"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Default"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "29 Sep, 2025 14:09me"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "285 KB"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "send",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "more",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 18,
+    "tag": "div",
+    "role": "row",
+    "aria": "row",
+    "placeholder": "",
+    "title": "",
+    "text": "Test File ABC3.docx Default 25 Sep, 2025 20:21me 4 MB Open"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "input",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Test File ABC3.docx"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Default"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "25 Sep, 2025 20:21me"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "4 MB"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "send",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "more",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 18,
+    "tag": "div",
+    "role": "row",
+    "aria": "row",
+    "placeholder": "",
+    "title": "",
+    "text": "SpecterXOutlookPlugin.x64-NetworkDR.msi Default 25 Sep, 2025 18:<REDACTED_EMAIL> 13 MB"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "input",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "SpecterXOutlookPlugin.x64-NetworkDR.msi"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "SpecterXOutlookPlugin.x64-NetworkDR.msi"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Default"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "25 Sep, 2025 18:<REDACTED_EMAIL>"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "13 MB"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "send",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "more",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 18,
+    "tag": "div",
+    "role": "row",
+    "aria": "row",
+    "placeholder": "",
+    "title": "",
+    "text": "SpecterX Integration Manual - Setup SharePoint Storage Access.docx Default 18 Sep, 2025 10:28me 1 MB Open"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "input",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "SpecterX Integration Manual - Setup SharePoint Storage Access.docx"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Default"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "18 Sep, 2025 10:28me"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "1 MB"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "send",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "more",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 18,
+    "tag": "div",
+    "role": "row",
+    "aria": "row",
+    "placeholder": "",
+    "title": "",
+    "text": "styles.css Default 09 Sep, 2025 19:32me 17 KB Open"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "input",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "styles.css"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Default"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "09 Sep, 2025 19:32me"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "17 KB"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "send",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "more",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 18,
+    "tag": "div",
+    "role": "row",
+    "aria": "row",
+    "placeholder": "",
+    "title": "",
+    "text": "styles.css Default 01 Sep, 2025 13:41me 17 KB Open"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "input",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "styles.css"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Default"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "01 Sep, 2025 13:41me"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "17 KB"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "send",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "more",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 18,
+    "tag": "div",
+    "role": "row",
+    "aria": "row",
+    "placeholder": "",
+    "title": "",
+    "text": "styles.css Default 27 Aug, 2025 08:27me 15 KB Open"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "input",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "styles.css"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Default"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "27 Aug, 2025 08:27me"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "15 KB"
+  },
+  {
+    "depth": 19,
+    "tag": "div",
+    "role": "gridcell",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Open"
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "send",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 21,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 22,
+    "tag": "span",
+    "role": "img",
+    "aria": "more",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 18,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Show more"
+  },
+  {
+    "depth": 9,
+    "tag": "div",
+    "role": "status",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 4,
+    "tag": "div",
+    "role": "dialog",
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "New folder Cancel Create"
+  },
+  {
+    "depth": 7,
+    "tag": "button",
+    "role": null,
+    "aria": "Close",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 9,
+    "tag": "span",
+    "role": "img",
+    "aria": "close",
+    "placeholder": "",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 12,
+    "tag": "input",
+    "role": null,
+    "aria": "",
+    "placeholder": "Untitled folder",
+    "title": "",
+    "text": ""
+  },
+  {
+    "depth": 12,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Cancel"
+  },
+  {
+    "depth": 12,
+    "tag": "button",
+    "role": null,
+    "aria": "",
+    "placeholder": "",
+    "title": "",
+    "text": "Create"
+  }
+]
