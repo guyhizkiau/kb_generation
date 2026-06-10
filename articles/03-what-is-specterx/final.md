@@ -19,7 +19,7 @@ SpecterX replaces the attachment with a protected link that stays governed by a 
 
 A single policy model applies wherever your organization shares content:
 
-- **Files shared from the web.** Upload or select a file in the SpecterX web platform, pick a policy, add recipients, and click Share. See [Sign in to SpecterX](../01-log-in-to-specterx/01-log-in-to-specterx.html) for how to reach the web platform.
+- **[Files shared from the web](../04-share-a-file/04-share-a-file.html).** Upload or select a file in the SpecterX web platform, pick a policy, add recipients, and click Share. See [Sign in to SpecterX](../01-log-in-to-specterx/01-log-in-to-specterx.html) for how to reach the web platform.
 - **Email and attachments.** The Outlook Add-in and Gmail Browser Extension add a SpecterX panel to your compose window. From there you apply a policy to attachments, the message body, or both, and set per-recipient permissions before sending. Server-side mail protection can apply policies automatically as messages leave your organization, driven by your DLP signals.
 - **Workspaces.** A Workspace is a persistent shared space with a parent policy, named members (Owner, Co-Owner, Contributor, Viewer), and a full audit trail. Use it to collaborate continuously with an external partner, request files from outside parties, or store ongoing project documents under policy. Files added to a Workspace inherit its policy. Workspaces are available when an administrator at the sending organization has enabled them.
 - **Files in cloud storage platforms.** Share-in-place connectors add SpecterX protection to files that *stay* in their original storage, such as Google Drive or SharePoint. No upload, no copy, no second source of truth.
@@ -61,6 +61,7 @@ SpecterX sits between an organization's identity, storage, email, and security s
 
 - [Sign in to SpecterX](../01-log-in-to-specterx/01-log-in-to-specterx.html)
 - [Set or reset your password](../02-set-or-reset-password/02-set-or-reset-password.html)
+- [Securely share a file from the SpecterX web platform](../04-share-a-file/04-share-a-file.html)
 
 ---
 

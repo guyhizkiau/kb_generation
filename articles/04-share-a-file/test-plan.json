@@ -1,0 +1,307 @@
+{
+  "article_id": "04-share-a-file",
+  "preconditions": [
+    {
+      "kind": "browser_login",
+      "url": "https://app.specterx.com",
+      "credential": "SPECTERX_USERNAME / SPECTERX_PASSWORD"
+    }
+  ],
+  "steps": [
+    {
+      "id": "00-goto",
+      "description": "Navigate to SpecterX",
+      "backend": "browser",
+      "action": {
+        "type": "goto",
+        "url": "https://app.specterx.com",
+        "wait_until": "domcontentloaded"
+      },
+      "screenshot": {
+        "after": false
+      },
+      "verify": ""
+    },
+    {
+      "id": "00-email",
+      "description": "Fill email",
+      "backend": "browser",
+      "action": {
+        "type": "fill",
+        "placeholder": "Enter your email",
+        "value_env": "SPECTERX_USERNAME"
+      },
+      "screenshot": {
+        "after": false
+      },
+      "verify": ""
+    },
+    {
+      "id": "00-password",
+      "description": "Fill password",
+      "backend": "browser",
+      "action": {
+        "type": "fill",
+        "placeholder": "Enter your password",
+        "value_env": "SPECTERX_PASSWORD"
+      },
+      "screenshot": {
+        "after": false
+      },
+      "verify": ""
+    },
+    {
+      "id": "00-signin",
+      "description": "Click Sign In",
+      "backend": "browser",
+      "action": {
+        "type": "click",
+        "selector": "button[type='submit']"
+      },
+      "screenshot": {
+        "after": false
+      },
+      "verify": ""
+    },
+    {
+      "id": "00-dashboard",
+      "description": "Wait for My Files",
+      "backend": "browser",
+      "action": {
+        "type": "wait_for",
+        "name": "My Files",
+        "state": "visible"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "00-dashboard.png",
+        "focus": "My Files dashboard"
+      },
+      "verify": "My Files page is visible"
+    },
+    {
+      "id": "01-open-drawer",
+      "description": "Click the Share files button to open the Share Files drawer",
+      "backend": "browser",
+      "action": {
+        "type": "click",
+        "role": "button",
+        "name": "Share files"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "01-drawer-empty.png",
+        "focus": "the empty Share Files drawer open on the right"
+      },
+      "verify": "The Share Files drawer is open"
+    },
+    {
+      "id": "02-upload-file",
+      "description": "Upload test-document.pdf via the drawer upload area",
+      "backend": "browser",
+      "action": {
+        "type": "file_upload",
+        "selector": "input[data-testid='uploadDrawer_dragdropArea']",
+        "filename": "test-document.pdf"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "02-file-uploaded.png",
+        "focus": "test-document.pdf shown as uploaded in the drawer"
+      },
+      "verify": "test-document.pdf appears in the drawer"
+    },
+    {
+      "id": "03-add-recipient",
+      "description": "Type recipient email and press Enter",
+      "backend": "browser",
+      "action": {
+        "type": "type",
+        "selector": "[data-testid='uploadDrawer_emailField'] input",
+        "value_env": "TEST_RECIPIENT_EMAIL",
+        "confirm": "Enter"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "03-recipient-added.png",
+        "focus": "recipient row added in the Share with block"
+      },
+      "verify": "Recipient row is visible with the test email"
+    },
+    {
+      "id": "04-next-policy",
+      "description": "Click Next to move to the Select Policy step",
+      "backend": "browser",
+      "action": {
+        "type": "click",
+        "role": "button",
+        "name": "Next"
+      },
+      "screenshot": {
+        "after": false
+      },
+      "verify": ""
+    },
+    {
+      "id": "04a-wait-policy-loaded",
+      "description": "Wait for policy rules to finish loading (Share button appears when done)",
+      "backend": "browser",
+      "action": {
+        "type": "wait_for",
+        "selector": "[data-testid='uploadDrawer_shareButton']",
+        "state": "visible"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "04-policy-step.png",
+        "focus": "The policy step showing the assigned or available policy"
+      },
+      "verify": "Share button is visible \u2014 rules have finished applying",
+      "timeout_ms": 30000
+    },
+    {
+      "id": "05-open-policy-dropdown",
+      "description": "Click the policy dropdown to open it and show available policies",
+      "backend": "browser",
+      "action": {
+        "type": "click",
+        "selector": ".ant-drawer-content .ant-select-selector"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "05-policy-dropdown-open.png",
+        "focus": "Policy dropdown open showing available policy options"
+      },
+      "verify": "Policy dropdown is open with options visible"
+    },
+    {
+      "id": "06-select-default-policy",
+      "description": "Select the first available policy from the dropdown",
+      "backend": "browser",
+      "action": {
+        "type": "click",
+        "selector": ".ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option-content"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "06-policy-selected.png",
+        "focus": "Policy step with policy selected, Share button visible"
+      },
+      "verify": "Policy is selected and Share button is still visible"
+    },
+    {
+      "id": "07-click-share",
+      "description": "Click Share to initiate sharing",
+      "backend": "browser",
+      "action": {
+        "type": "click",
+        "selector": "[data-testid='uploadDrawer_shareButton']"
+      },
+      "screenshot": {
+        "after": false
+      },
+      "verify": ""
+    },
+    {
+      "id": "07a-wait-sharing-success",
+      "description": "Wait for Shared successfully confirmation screen before capturing screenshot — previous capture caught the loading state instead of the finished state",
+      "backend": "browser",
+      "action": {
+        "type": "wait_for",
+        "selector": "[data-testid='uploadDrawer_messageFileShared']",
+        "state": "visible"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "07-sharing-success.png",
+        "focus": "Shared successfully confirmation screen with recipient summary table"
+      },
+      "verify": "Shared successfully screen is visible — loading is complete",
+      "timeout_ms": 30000
+    },
+    {
+      "id": "08-copy-link",
+      "description": "Click the copy link icon to copy the protected link",
+      "backend": "browser",
+      "action": {
+        "type": "click",
+        "selector": "[data-testid='uploadDrawer_copyIcon']"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "08-link-copied.png",
+        "focus": "Copy link icon and post-copy state"
+      },
+      "verify": "Copy link action is triggered"
+    },
+    {
+      "id": "09-close-drawer",
+      "description": "Close the Share Files drawer and return to My Files",
+      "backend": "browser",
+      "action": {
+        "type": "click",
+        "selector": "[data-testid='uploadDrawer_Done']"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "09-my-files-after-share.png",
+        "focus": "My Files page showing the newly shared file row"
+      },
+      "verify": "My Files is visible with test-document.pdf in the list"
+    },
+    {
+      "id": "09a-share-icon-close-up",
+      "description": "Close-up screenshot of the share icon on the file row before clicking it",
+      "backend": "browser",
+      "action": {
+        "type": "wait_for",
+        "selector": "[data-testid='myFiles_WhoHasAccess']",
+        "state": "visible"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "09-share-icon.png",
+        "element": "[data-testid='myFiles_WhoHasAccess']",
+        "focus": "Close-up of the share icon on the test-document.pdf row"
+      },
+      "verify": "Share icon is visible on the file row"
+    },
+    {
+      "id": "10-open-share-permissions-drawer",
+      "description": "Click the share icon to open the Share & Permissions Drawer",
+      "backend": "browser",
+      "action": {
+        "type": "click",
+        "selector": "[data-testid='myFiles_WhoHasAccess']"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "10-permissions-drawer.png",
+        "focus": "Share & Permissions Drawer open showing Who has access"
+      },
+      "verify": "Share & Permissions Drawer shows Who has access"
+    },
+    {
+      "id": "11-who-has-access",
+      "description": "Click Who has access to open the recipient management view",
+      "backend": "browser",
+      "action": {
+        "type": "click",
+        "role": "button",
+        "name": "Who has access"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "11-who-has-access.png",
+        "focus": "Who has access view listing recipients with role dropdowns and Revoke actions"
+      },
+      "verify": "Who has access view is visible with the test recipient listed"
+    }
+  ],
+  "postconditions": [
+    {
+      "kind": "cleanup",
+      "description": "Delete test-document.pdf from My Files after screenshots are captured"
+    }
+  ]
+}
