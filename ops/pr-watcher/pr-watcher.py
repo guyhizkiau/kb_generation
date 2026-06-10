@@ -23,12 +23,13 @@ CLAUDE_BIN    = "/usr/local/bin/claude"
 PREVIEW_BASE  = "http://18.192.122.48"   # nginx article browser (port 80)
 CONTROL_PORT      = 9191  # localhost-only HTTP control plane
 
-# Prepend script directory so queue_store.py is importable
+# Prepend script directory so queue_store.py is importable when deployed
+# to /home/ubuntu/ (outside the repo tree).
 _script_dir = Path(__file__).resolve().parent
-_repo_root = _script_dir.parent.parent
+_repo_root = REPO_PATH  # fixed: was _script_dir.parent.parent, broken when deployed outside repo tree
 sys.path.insert(0, str(_script_dir))
-if str(_repo_root) not in sys.path:
-    sys.path.insert(0, str(_repo_root))
+if str(REPO_PATH) not in sys.path:
+    sys.path.insert(0, str(REPO_PATH))
 os.environ.setdefault("KB_REPO_ROOT", str(REPO_PATH))
 _vm_repo = "/home/ubuntu/kb_generation"
 if os.environ.get("KB_REPO_ROOT") == _vm_repo and Path(_vm_repo).exists():
