@@ -95,15 +95,14 @@ class QueueStoreTests(unittest.TestCase):
         plan = qs.next_article("01-log-in-to-specterx", q)
         self.assertEqual(plan["action"], "paused")
 
-    def test_next_article_parallel_eligible(self):
+    def test_next_article_parallel_mode_serialized(self):
         q = qs.load_queue()
         q["clusters"][0]["mode"] = "parallel"
         qs.save_queue(q)
         plan = qs.next_article("01-log-in-to-specterx", q)
         self.assertEqual(plan["action"], "next_article")
-        slugs = {a["slug"] for a in plan["articles"]}
-        self.assertIn("02-set-or-reset-password", slugs)
-        self.assertIn("03-what-is-specterx", slugs)
+        self.assertEqual(len(plan["articles"]), 1)
+        self.assertEqual(plan["articles"][0]["slug"], "02-set-or-reset-password")
 
     def test_next_article_unknown_slug(self):
         plan = qs.next_article("99-nonexistent")
@@ -170,29 +169,16 @@ class QueueStoreTests(unittest.TestCase):
         subprocess.run(["git", "add", "-A"], cwd=root, capture_output=True, check=True)
         subprocess.run(["git", "commit", "-m", "init"], cwd=root, capture_output=True, check=True)
 
-    def test_article_ref_detects_local_branch(self):
-        self._init_git(self.root)
+    def test_queue_with_states_reads_phase_from_working_tree(self):
         slug = "02-set-or-reset-password"
-        branch = f"article/{slug}"
-        subprocess.run(["git", "branch", branch], cwd=self.root, check=True)
-        self.assertEqual(qs.article_ref(slug), branch)
-
-    def test_queue_with_states_reads_phase_from_branch_ref(self):
-        self._init_git(self.root)
-        slug = "02-set-or-reset-password"
-        branch = f"article/{slug}"
         art_dir = self.root / "articles" / slug
         art_dir.mkdir(parents=True, exist_ok=True)
-        (art_dir / "STATE").write_text("PHASE=PR_OPEN\nREVISION_CYCLE=0\n")
-        subprocess.run(["git", "add", "-A"], cwd=self.root, check=True)
-        subprocess.run(["git", "commit", "-m", "branch state"], cwd=self.root, check=True)
-        subprocess.run(["git", "branch", branch], cwd=self.root, check=True)
-        # main tree has no STATE for slug 02 — ref should supply PR_OPEN
+        (art_dir / "STATE").write_text("PHASE=IN_REVIEW\nREVISION_CYCLE=0\n")
         data = qs.queue_with_states()
         art = next(
             a for c in data["clusters"] for a in c["articles"] if a["slug"] == slug
         )
-        self.assertEqual(art["phase"], "PR_OPEN")
+        self.assertEqual(art["phase"], "IN_REVIEW")
 
 
 if __name__ == "__main__":
