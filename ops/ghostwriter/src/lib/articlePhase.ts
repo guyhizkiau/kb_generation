@@ -1,12 +1,15 @@
 import type { ArticleEntry } from '@/api/hooks'
 
-export const WRITTEN_PHASES = new Set(['DONE', 'MERGED'])
+export const WRITTEN_PHASES = new Set(['DONE', 'MERGED', 'PUBLISHED'])
 
 export const IN_PROGRESS_PHASES = new Set([
+  'RESEARCHING',
   'DRAFTING',
   'TESTING',
   'REVISING',
   'FINALIZING',
+  'IN_REVIEW',
+  'APPROVED',
   'PR_OPEN',
   'PR_REVISION_NEEDED',
 ])
