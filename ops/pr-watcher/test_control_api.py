@@ -231,6 +231,9 @@ class ControlApiTests(unittest.TestCase):
         slugs = [a["slug"] for c in q["clusters"] for a in c["articles"]]
         self.assertIn(slug, slugs)
         self.assertFalse(fb.feedback_path(slug).exists())
+        state_path = self.root / "articles" / slug / "STATE"
+        self.assertTrue(state_path.is_file())
+        self.assertIn("PHASE=SKIPPED", state_path.read_text())
 
     def test_delete_article_remove_from_plan(self):
         self._restore_queue()
@@ -249,6 +252,7 @@ class ControlApiTests(unittest.TestCase):
         q = json.loads((self.root / "clusters" / "queue.json").read_text())
         slugs = [a["slug"] for c in q["clusters"] for a in c["articles"]]
         self.assertNotIn(slug, slugs)
+        self.assertFalse((self.root / "articles" / slug / "STATE").exists())
 
     def test_delete_merged_article_commits_to_main(self):
         self._restore_queue()

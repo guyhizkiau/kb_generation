@@ -88,7 +88,6 @@ PHASE_EXTRA_ALLOW: dict[str, list[str]] = {
 }
 
 PHASE_REQUIRED_INPUTS: dict[str, list[str]] = {
-    "research": ["research"],
     "draft": [
         "research/competitor-coverage.md",
         "research/codebase-findings.md",
@@ -728,6 +727,8 @@ def main(argv: list[str] | None = None) -> int:
 
     adir = article_dir(slug)
     adir.mkdir(parents=True, exist_ok=True)
+    if args.phase == "research":
+        (adir / "research").mkdir(exist_ok=True)
     log_dir = adir / ".writer-logs"
     log_dir.mkdir(exist_ok=True)
     stamp = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%dT%H%M%SZ")

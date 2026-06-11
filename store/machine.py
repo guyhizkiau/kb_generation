@@ -28,7 +28,7 @@ TRANSITIONS: dict[str, frozenset[str]] = {
     "APPROVED": frozenset({"PUBLISHED"}),
     "PUBLISHED": frozenset({"REVISING", "TESTING"}),
     "BLOCKED": frozenset(),  # handled specially via RESUME_PHASE
-    "SKIPPED": frozenset(),
+    "SKIPPED": frozenset({"RESEARCHING"}),
 }
 
 ACTIVE_PHASES = frozenset({

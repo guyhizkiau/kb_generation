@@ -638,6 +638,17 @@ def _queue_reverification(state: dict, save_state) -> bool:
         return False
 
 
+def _cluster_id_for_slug(slug: str) -> str:
+    """Return the cluster id containing *slug* in queue.json, or empty string."""
+    if not _QUEUE_STORE_AVAILABLE:
+        return ""
+    for cluster in _qs.load_queue().get("clusters", []):
+        for art in cluster.get("articles", []):
+            if art.get("slug") == slug:
+                return cluster.get("id", "")
+    return ""
+
+
 def _handle_delete_article(slug: str, remove_from_plan: bool) -> dict:
     """Delete an article's files and optionally drop it from the queue."""
     if not _QUEUE_STORE_AVAILABLE:
@@ -673,6 +684,14 @@ def _handle_delete_article(slug: str, remove_from_plan: bool) -> dict:
 
     if tracked:
         _qs.delete_article_dir(slug)
+        if not removed_from_plan:
+            from store.state import write_state
+
+            cluster_id = _cluster_id_for_slug(slug)
+            seed: dict[str, str] = {"PHASE": "SKIPPED", "NEXT_ACTION": ""}
+            if cluster_id:
+                seed["CLUSTER"] = cluster_id
+            write_state(slug, seed)
         git("add", "-A", "--", f"articles/{slug}", check=False)
         if removed_from_plan:
             git("add", "--", "clusters/queue.json", check=False)
@@ -686,6 +705,14 @@ def _handle_delete_article(slug: str, remove_from_plan: bool) -> dict:
             log(f"  WARNING: push of {slug} deletion to main failed: {exc}")
     else:
         _qs.delete_article_dir(slug)
+        if not removed_from_plan:
+            from store.state import write_state
+
+            cluster_id = _cluster_id_for_slug(slug)
+            seed = {"PHASE": "SKIPPED", "NEXT_ACTION": ""}
+            if cluster_id:
+                seed["CLUSTER"] = cluster_id
+            write_state(slug, seed)
 
     if _fb:
         try:

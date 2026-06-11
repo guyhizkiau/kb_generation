@@ -89,6 +89,11 @@ class MachineTests(unittest.TestCase):
         })
         self.assertEqual(result["APPROVED_BY"], "guy")
 
+    def test_skipped_to_researching(self):
+        self._init(self._slug(), "SKIPPED")
+        result = transition(self._slug(), "RESEARCHING")
+        self.assertEqual(result["PHASE"], "RESEARCHING")
+
     def test_normalize_legacy_rewrites_value(self):
         self._init(self._slug(), "DONE")
         self.assertEqual(normalize_legacy(self._slug()), "PUBLISHED")

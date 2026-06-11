@@ -125,6 +125,25 @@ class RunClaudeCodeTests(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertIn("missing required inputs", result.stdout + result.stderr)
 
+    def test_research_preflight_passes_without_research_dir(self):
+        from writer.run_claude_code import _preflight
+
+        slug = "05-fresh-research"
+        art = self.root / "articles" / slug
+        art.mkdir(parents=True, exist_ok=True)
+        _preflight(slug, "research", "/usr/bin/true")
+
+    def test_research_main_seeds_research_dir(self):
+        slug = "05-fresh-research"
+        self._write_state(slug, "RESEARCHING")
+        os.environ["KB_SERIAL_OVERRIDE"] = "1"
+        result = self._run(
+            "--article", slug, "--phase", "research",
+            "--claude-bin", "/usr/bin/true", "--force", "--dry-run",
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue((self.root / "articles" / slug / "research").is_dir())
+
     # ── heartbeat written on a real phase run ─────────────────────────────────
 
     def test_heartbeat_written_after_phase(self):
