@@ -55,9 +55,8 @@ sessions expire on their own and no shared state is created.
   verification code, capture the **Create New Password** screen, and
   capture the post-submit success state), use the configured **recipient**
   roles documented in `tester/TEST_RESOURCES.md`
-  (`users.recipient` / `users.recipient_gmail`). The pipeline can log into
-  that account's Gmail to read the verification code without needing manual
-  forwarding.
+  (`users.recipient` with `email_password` set). The pipeline logs into
+  that account's Gmail via Playwright to read the verification code.
 - For lightweight runs that only need the entry-point screens (the
   sign-in page's **Reset password** link and the `/forgotPassword`
   request form), capture those only and stop before submit. The

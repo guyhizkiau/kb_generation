@@ -8,7 +8,7 @@
     },
     {
       "kind": "credentials_available",
-      "value_ref": "users.data_owner.email / users.data_owner.password",
+      "value_ref": "users.data_owner.email / users.data_owner.specterx_password",
       "source": "Ghostwriter Settings or ~/.config/specterx-kb/test-config.json"
     }
   ],
@@ -50,7 +50,7 @@
       "action": {
         "type": "fill",
         "placeholder": "Enter your password",
-        "value_ref": "users.data_owner.password"
+        "value_ref": "users.data_owner.specterx_password"
       },
       "screenshot": {
         "after": false

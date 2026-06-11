@@ -20,8 +20,8 @@ cluster. The cluster runs against the production tenant at
 - **Data owner**: `users.data_owner` in Ghostwriter Settings (legacy:
   `SPECTERX_USERNAME` / `SPECTERX_PASSWORD` in `.env`).
 - **Share recipient**: `users.recipient.email` in Settings (legacy:
-  `TEST_RECIPIENT_EMAIL` in `.env`); use `users.recipient_gmail` to read
-  verification mail when needed.
+  `TEST_RECIPIENT_EMAIL` in `.env`); set `users.recipient.email_password`
+  for mailbox access when bootstrap or inbox-reading flows are needed.
 
 ## Baseline state before each article's test
 

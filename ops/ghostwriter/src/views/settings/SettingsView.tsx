@@ -17,8 +17,10 @@ import {
 
 export interface UserFields {
   email: string
-  password?: string
-  has_password?: boolean
+  email_password?: string
+  specterx_password?: string
+  has_email_password?: boolean
+  has_specterx_password?: boolean
 }
 
 export interface TestConfigForm {
@@ -34,9 +36,8 @@ export interface TestConfigForm {
 function emptyForm(): TestConfigForm {
   return {
     users: {
-      data_owner: { email: '', password: '' },
-      recipient: { email: '', password: '' },
-      recipient_gmail: { email: '', password: '' },
+      data_owner: { email: '', email_password: '', specterx_password: '' },
+      recipient: { email: '', email_password: '', specterx_password: '' },
     },
     files: {
       default: 'test-document.pdf',
@@ -51,10 +52,13 @@ function fromApi(data: TestConfigData): TestConfigForm {
   const base = emptyForm()
   const users: Record<string, UserFields> = { ...base.users }
   for (const [role, fields] of Object.entries(data.users ?? {})) {
+    if (role === 'recipient_gmail') continue
     users[role] = {
       email: fields.email ?? '',
-      password: '',
-      has_password: fields.has_password,
+      email_password: '',
+      specterx_password: '',
+      has_email_password: fields.has_email_password,
+      has_specterx_password: fields.has_specterx_password,
     }
   }
   return {
@@ -84,7 +88,7 @@ export function SettingsView() {
   }
 
   const removeUser = (role: string) => {
-    if (['data_owner', 'recipient', 'recipient_gmail'].includes(role)) return
+    if (['data_owner', 'recipient'].includes(role)) return
     setForm((prev) => {
       const next = { ...prev.users }
       delete next[role]
@@ -100,7 +104,10 @@ export function SettingsView() {
     }
     setForm((prev) => ({
       ...prev,
-      users: { ...prev.users, [key]: { email: '', password: '' } },
+      users: {
+        ...prev.users,
+        [key]: { email: '', email_password: '', specterx_password: '' },
+      },
     }))
     setNewRoleLabel('')
   }
@@ -131,7 +138,8 @@ export function SettingsView() {
         <Box>
           <Title order={3}>Test resources</Title>
           <Text size="sm" c="dimmed">
-            Accounts and file names used by Playwright test plans. Passwords are write-only.
+            Email accounts are the primary credentials. SpecterX passwords are optional —
+            leave empty and the next test run sets one via the reset-password flow.
           </Text>
         </Box>
         <Button
@@ -153,7 +161,7 @@ export function SettingsView() {
                   <Text fw={600} size="sm">{roleLabel(role)}</Text>
                   <Badge size="xs" variant="light">{role}</Badge>
                 </Group>
-                {!['data_owner', 'recipient', 'recipient_gmail'].includes(role) && (
+                {!['data_owner', 'recipient'].includes(role) && (
                   <ActionIcon
                     variant="subtle"
                     color="red"
@@ -166,21 +174,31 @@ export function SettingsView() {
               </Group>
               <Stack gap="xs">
                 <TextInput
-                  label="Email / username"
+                  label="Email address"
+                  description="SpecterX login email and mailbox for verification messages."
                   value={fields.email}
                   onChange={(e) => updateUser(role, { email: e.currentTarget.value })}
                   placeholder="account@specterx.com"
                 />
                 <PasswordInput
-                  label="Password"
-                  description={
-                    fields.has_password && !fields.password
-                      ? 'Password is set — enter a new value to replace it'
-                      : 'Leave blank on save to keep the existing password'
+                  label="Email account password"
+                  description="Gmail / Google Workspace mailbox password — used to read verification emails and reset SpecterX passwords."
+                  value={fields.email_password ?? ''}
+                  onChange={(e) => updateUser(role, { email_password: e.currentTarget.value })}
+                  placeholder={
+                    fields.has_email_password ? '(unchanged — enter to replace)' : 'Mailbox password'
                   }
-                  value={fields.password}
-                  onChange={(e) => updateUser(role, { password: e.currentTarget.value })}
-                  placeholder={fields.has_password ? '(unchanged)' : 'Enter password'}
+                />
+                <PasswordInput
+                  label="SpecterX password"
+                  description="Optional. Leave empty and the next test run will set one automatically via reset-password."
+                  value={fields.specterx_password ?? ''}
+                  onChange={(e) => updateUser(role, { specterx_password: e.currentTarget.value })}
+                  placeholder={
+                    fields.has_specterx_password
+                      ? '(unchanged — enter to replace)'
+                      : 'Auto-set on next run if empty'
+                  }
                 />
               </Stack>
             </Card>

@@ -43,7 +43,7 @@
       "action": {
         "type": "fill",
         "placeholder": "Enter your password",
-        "value_ref": "users.data_owner.password"
+        "value_ref": "users.data_owner.specterx_password"
       },
       "screenshot": {
         "after": false

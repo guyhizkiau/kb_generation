@@ -48,6 +48,11 @@ export interface Annotation {
 
 export interface TestConfigUser {
   email: string
+  email_password?: string
+  specterx_password?: string
+  has_email_password?: boolean
+  has_specterx_password?: boolean
+  /** @deprecated legacy single password field */
   password?: string
   has_password?: boolean
 }

@@ -96,9 +96,10 @@ Each browser step has an `action` object with a `type`. Use one of:
 - `goto` — `url` (+ optional `wait_until`). Navigate to a URL.
 - `click` — locator. Click an element.
 - `fill` — locator + `value`, `value_ref`, or `value_env`. Type into an input
-  (clears first). Prefer `value_ref` for credentials, e.g.
-  `"value_ref": "users.data_owner.email"` or `"value_ref": "users.data_owner.password"`.
-  Legacy `value_env` (e.g. `"SPECTERX_PASSWORD"`) still works. Never inline secrets.
+  (clears first).   Prefer `value_ref` for credentials, e.g.
+  `"value_ref": "users.data_owner.email"` or `"value_ref": "users.data_owner.specterx_password"`.
+  Legacy `users.<role>.password` still resolves to `specterx_password`. Legacy `value_env`
+  (e.g. `"SPECTERX_PASSWORD"`) still works. Never inline secrets.
 - `type` — locator + `value`, `value_ref`, or `value_env` + optional `"confirm": "Enter"`.
   Same as `fill`; with `confirm` it presses Enter afterward.
 - `select` — locator + `value`. Choose from a dropdown (native
@@ -154,7 +155,7 @@ four steps before any article-specific steps:
  "action": {"type": "fill", "placeholder": "Enter your email", "value_ref": "users.data_owner.email"},
  "screenshot": {"after": false}, "verify": ""},
 {"id": "00-password", "description": "Fill password", "backend": "browser",
- "action": {"type": "fill", "placeholder": "Enter your password", "value_ref": "users.data_owner.password"},
+ "action": {"type": "fill", "placeholder": "Enter your password", "value_ref": "users.data_owner.specterx_password"},
  "screenshot": {"after": false}, "verify": ""},
 {"id": "00-signin", "description": "Click Sign In", "backend": "browser",
  "action": {"type": "click", "selector": "button[type='submit']"},
@@ -287,9 +288,14 @@ hardcode emails or fixture names.
 
 | Role | `value_ref` keys | Use when |
 |------|------------------|----------|
-| Data owner (login) | `users.data_owner.email`, `users.data_owner.password` | Every browser test that signs in |
+| Data owner (login) | `users.data_owner.email`, `users.data_owner.specterx_password` | Every browser test that signs in |
 | Share recipient | `users.recipient.email` | Share flows, recipient fields |
-| Gmail / inbox login | `users.recipient_gmail.email`, `users.recipient_gmail.password` | Password-reset flows that read verification email |
+| Any role mailbox | `users.<role>.email_password` | Only when a step must log into Gmail (rare in plans — bootstrap uses this automatically) |
+
+Each role in Ghostwriter **Settings** has two passwords:
+
+- **Email account password** (`email_password`) — Gmail/Workspace mailbox login; primary credential; enables reading verification emails.
+- **SpecterX password** (`specterx_password`) — optional app login. When empty, the tester runs the reset-password flow before the plan, reads the verification code from Gmail via Playwright, sets a generated password, and persists it to config.
 
 For file uploads use `{{files.default}}`, list entries matching Settings, or
 `{{files.folder}}`. You may also use `{{...}}` in `description`, `verify`, and

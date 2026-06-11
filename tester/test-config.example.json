@@ -2,15 +2,13 @@
   "users": {
     "data_owner": {
       "email": "your-data-owner@specterx.com",
-      "password": "(set via Ghostwriter Settings or edit ~/.config/specterx-kb/test-config.json)"
+      "email_password": "(Gmail / Workspace mailbox password — set in Ghostwriter Settings)",
+      "specterx_password": "(optional — leave empty to auto-set via reset-password on next test run)"
     },
     "recipient": {
       "email": "your-recipient@specterx.com",
-      "password": "(SpecterX login password for the recipient account)"
-    },
-    "recipient_gmail": {
-      "email": "your-recipient@specterx.com",
-      "password": "(Gmail / Workspace password for reading verification emails)"
+      "email_password": "(mailbox password — used to read verification emails)",
+      "specterx_password": "(optional SpecterX app password)"
     }
   },
   "files": {

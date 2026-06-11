@@ -62,7 +62,6 @@ export function roleLabel(role: string): string {
   const known: Record<string, string> = {
     data_owner: 'Data owner',
     recipient: 'Recipient',
-    recipient_gmail: 'Recipient Gmail',
   }
   if (known[role]) return known[role]
   return role

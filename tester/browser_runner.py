@@ -197,6 +197,12 @@ class BrowserRunner:
             raise RuntimeError("BrowserRunner not started")
         return self._page
 
+    @property
+    def context(self) -> BrowserContext:
+        if self._context is None:
+            raise RuntimeError("BrowserRunner not started")
+        return self._context
+
     # ---- step execution -----------------------------------------------------
 
     def run_step(self, step: dict[str, Any]) -> StepResult:

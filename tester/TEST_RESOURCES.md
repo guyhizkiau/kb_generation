@@ -12,20 +12,42 @@ config field is empty.
 
 ## Config roles (test-config.json → `users.*`)
 
+Each role has three fields:
+
+| Field | Purpose |
+| ----- | ------- |
+| `email` | SpecterX login address (same as the mailbox for Workspace accounts) |
+| `email_password` | **Primary credential** — Gmail/Workspace mailbox password; used to read verification emails and reset SpecterX passwords |
+| `specterx_password` | **Optional** SpecterX app login. When empty, the tester bootstraps one automatically via the reset-password flow before the plan runs |
+
 | Role key | Purpose | Typical `value_ref` keys |
 | -------- | ------- | ------------------------ |
-| `data_owner` | Primary SpecterX login for upload/share tests | `users.data_owner.email`, `users.data_owner.password` |
-| `recipient` | Share recipient, external-user flows | `users.recipient.email` |
-| `recipient_gmail` | Read verification / reset emails in Gmail | `users.recipient_gmail.email`, `users.recipient_gmail.password` |
+| `data_owner` | Primary SpecterX login for upload/share tests | `users.data_owner.email`, `users.data_owner.specterx_password` |
+| `recipient` | Share recipient, password-reset E2E | `users.recipient.email` |
 
-Add custom roles in Settings when a flow needs another login (e.g. a second
-tenant user). Reference them in test plans with `value_ref`:
-`users.<role>.email` / `users.<role>.password`.
+Add custom roles in Settings when a flow needs another login. Reference them
+with `value_ref`: `users.<role>.email` / `users.<role>.specterx_password`.
+Legacy `users.<role>.password` still resolves to `specterx_password`.
+
+### Auto-bootstrap (empty SpecterX password)
+
+When a test plan references `users.<role>.specterx_password` and that field
+is empty, `tester/runner.py` runs the reset-password flow before executing
+steps:
+
+1. Submit `/forgotPassword` for the role's email.
+2. Log into Gmail via Playwright and read the 6-digit verification code.
+3. Set a generated password on the **Create New Password** screen.
+4. Persist it to `test-config.json` so later runs log in directly.
+
+Requires `email` + `email_password` for that role. If Gmail blocks automated
+login, the article is BLOCKED with a clear reason — fill the SpecterX
+password manually in Settings or log into Gmail once in the VM browser profile.
 
 ### Dedicated password-reset / verification-recipient account
 
-Use the configured **`recipient`** / **`recipient_gmail`** roles — **not**
-`data_owner` — whenever the test plan needs to:
+Use the configured **`recipient`** role — **not** `data_owner` — whenever
+the test plan needs to:
 
 - Trigger a real password-reset email and read the verification code.
 - Click an activation / confirm-user link end-to-end.

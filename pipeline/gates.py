@@ -106,7 +106,7 @@ test-plan.json must be valid JSON with a "steps" array. Each step needs:
     for actions that target elements
 
 Rules:
-  - Login block: at least one step with id starting "00-"; use value_ref users.data_owner.* for credentials
+  - Login block: at least one step with id starting "00-"; use value_ref users.data_owner.specterx_password for password fill
   - selector_hint must be a short quoted label (e.g. "'Share files'"), not prose
   - If steps create state (upload/share/create), include cleanup steps (id "C*")
 """

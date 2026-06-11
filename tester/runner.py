@@ -22,9 +22,10 @@ if str(REPO_ROOT) not in sys.path:
 from store.machine import block, transition  # noqa: E402
 from store.paths import article_dir  # noqa: E402
 from store.state import read_state, write_state  # noqa: E402
-from store.test_config import load as load_test_config  # noqa: E402
+from store.test_config import load as load_test_config, roles_needing_specterx_bootstrap  # noqa: E402
 from tester.browser_runner import BrowserRunner, StepResult
 from tester.fixtures._generate import ensure_configured_fixtures
+from tester.password_bootstrap import BootstrapError, bootstrap_roles
 from tester.step_classifier import classify
 
 log = logging.getLogger("tester.runner")
@@ -172,12 +173,21 @@ def execute(slug: str) -> int:
     cascade_aborted = False
 
     browser_steps = [s for s in steps if classify(s) == "browser"]
+    bootstrap_roles_list = roles_needing_specterx_bootstrap(plan, test_config)
     if browser_steps:
         with _browser_runner_cls(
             screenshots_dir=screenshots_dir,
             test_config=test_config,
         ) as runner:
             log.info("browser backend mode=%s", runner.mode)
+            if bootstrap_roles_list:
+                log.info("bootstrapping SpecterX passwords for roles: %s", bootstrap_roles_list)
+                try:
+                    test_config = bootstrap_roles(bootstrap_roles_list, test_config, runner)
+                    runner._test_config = test_config
+                except BootstrapError as exc:
+                    block(slug, f"password bootstrap failed: {exc}")
+                    return 1
             for s in steps:
                 if classify(s) != "browser":
                     continue
