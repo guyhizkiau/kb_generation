@@ -151,6 +151,12 @@ class DispatcherTests(unittest.TestCase):
         self._dispatch("01-a")
         self.assertEqual(self.launches[-1], ("01-a", "tester"))
 
+    def test_dispatch_testing_launches_repair_when_requested(self):
+        d = self._mk_article("01-a", "TESTING", NEXT_ACTION="repair-test-plan")
+        (d / "test-plan.json").write_text("{}")
+        self._dispatch("01-a")
+        self.assertEqual(self.launches, [("01-a", "repair-test-plan")])
+
     def test_dispatch_approved_retries_publish(self):
         self._mk_article("01-a", "APPROVED")
         self._dispatch("01-a")

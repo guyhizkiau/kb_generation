@@ -10,6 +10,7 @@ export const IN_PROGRESS_PHASES = new Set([
   'FINALIZING',
   'IN_REVIEW',
   'APPROVED',
+  'BLOCKED',
   'PR_OPEN',
   'PR_REVISION_NEEDED',
 ])

@@ -18,6 +18,12 @@ class PromptWiringTests(unittest.TestCase):
             "06-revise-from-feedback.md",
         )
 
+    def test_repair_test_plan_in_phase_map(self):
+        self.assertEqual(
+            PHASE_TO_PROMPT["repair-test-plan"],
+            "02b-repair-test-plan.md",
+        )
+
     def test_assemble_prompt_includes_header_and_body(self):
         prompt_path = REPO_ROOT / "pipeline" / "prompts" / "06-revise-from-feedback.md"
         self.assertTrue(prompt_path.is_file())

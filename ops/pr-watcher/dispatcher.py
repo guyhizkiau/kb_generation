@@ -129,8 +129,13 @@ def _relaunch_if_idle(slug, phase, launch_phase, is_claude_running, log):
 
 
 def _dispatch_testing(slug, adir, launch_phase, run_tester, is_claude_running, state, save_state, log):
+    fields = read_state(slug)
+    next_action = fields.get("NEXT_ACTION", "")
+
     if not (adir / "test-plan.json").is_file():
         _launch(slug, "test-plan", launch_phase, state, save_state, log)
+    elif next_action == "repair-test-plan":
+        _launch(slug, "repair-test-plan", launch_phase, state, save_state, log)
     elif not (adir / "test-notes.md").is_file():
         if not is_claude_running():
             key = _dedupe_key(slug, "tester")

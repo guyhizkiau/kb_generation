@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react'
 import {
   Grid, Card, Text, Badge, Group, Stack, Button, Select,
   Switch, ActionIcon, Title, Box, NavLink, TextInput,
-  SegmentedControl, Tooltip, UnstyledButton,
+  SegmentedControl, Tooltip, UnstyledButton, Textarea, Collapse,
 } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { modals } from '@mantine/modals'
@@ -19,7 +19,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import {
   useQueue, useSaveQueue, useTrigger, useApproveArticle,
-  useRequestChanges, useDeleteArticle,
+  useRequestChanges, useDeleteArticle, useResolveBlocked, useTestNotes,
 } from '@/api/hooks'
 import { apiFetch } from '@/api/client'
 import type { QueueData, ArticleEntry, Cluster } from '@/api/hooks'
@@ -47,6 +47,121 @@ export function toPersistableQueue(q: QueueData): Pick<QueueData, 'version' | 'c
 
 function canApproveArticle(art: ArticleEntry): boolean {
   return art.phase === 'IN_REVIEW'
+}
+
+function BlockedArticleRow({
+  art,
+  onDelete,
+}: {
+  art: ArticleEntry
+  onDelete: () => void
+}) {
+  const [instructions, setInstructions] = useState('')
+  const [showNotes, setShowNotes] = useState(false)
+  const resolveBlocked = useResolveBlocked()
+  const { data: testNotes } = useTestNotes(art.slug, showNotes)
+
+  return (
+    <Box
+      style={{
+        padding: '12px 14px',
+        borderRadius: 6,
+        border: '1px solid var(--mantine-color-red-3)',
+        background: 'var(--mantine-color-red-0)',
+        marginBottom: 8,
+      }}
+    >
+      <Group justify="space-between" wrap="nowrap" mb="xs">
+        <Stack gap={2}>
+          <Text size="sm" fw={600} c="red">{art.title}</Text>
+          <Text size="xs" c="dimmed">{art.slug}</Text>
+        </Stack>
+        <Group gap={4}>
+          <PhaseBadge phase={art.phase} lastUpdate={art.last_update} />
+          <ActionIcon
+            size="xs"
+            color="red"
+            variant="subtle"
+            aria-label={`Delete ${art.slug}`}
+            onClick={onDelete}
+          >
+            ✕
+          </ActionIcon>
+        </Group>
+      </Group>
+      <Text size="xs" fw={600} c="red" mb={4}>Pipeline blocked</Text>
+      <Text
+        size="xs"
+        ff="monospace"
+        mb="sm"
+        style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
+      >
+        {art.blocked_reason || 'No reason recorded'}
+      </Text>
+      {art.resume_phase && (
+        <Text size="xs" c="dimmed" mb="sm">Resume phase: {art.resume_phase}</Text>
+      )}
+      <Button
+        size="xs"
+        variant="subtle"
+        color="gray"
+        mb="sm"
+        onClick={() => setShowNotes((v) => !v)}
+      >
+        {showNotes ? 'Hide test notes' : 'Show test notes'}
+      </Button>
+      <Collapse in={showNotes}>
+        <Box
+          mb="sm"
+          p="xs"
+          style={{
+            maxHeight: 200,
+            overflow: 'auto',
+            background: 'var(--mantine-color-gray-0)',
+            borderRadius: 4,
+            fontFamily: 'monospace',
+            fontSize: 11,
+            whiteSpace: 'pre-wrap',
+          }}
+        >
+          {testNotes?.content ?? 'Loading…'}
+        </Box>
+      </Collapse>
+      <Textarea
+        label="Instructions for fixing this"
+        placeholder="e.g. Step 05 should click Share a folder, not Share files"
+        minRows={3}
+        value={instructions}
+        onChange={(e) => setInstructions(e.currentTarget.value)}
+        mb="sm"
+      />
+      <Button
+        size="sm"
+        color="red"
+        loading={resolveBlocked.isPending}
+        disabled={!instructions.trim()}
+        onClick={() =>
+          resolveBlocked.mutate(
+            { slug: art.slug, instructions: instructions.trim() },
+            {
+              onSuccess: () => {
+                setInstructions('')
+                notifications.show({
+                  title: 'Retry queued',
+                  message: `${art.slug} unblocked with your instructions`,
+                  color: 'teal',
+                })
+              },
+              onError: (e) =>
+                notifications.show({ title: 'Retry failed', message: e.message, color: 'red' }),
+            },
+          )
+        }
+      >
+        Retry with instructions
+      </Button>
+    </Box>
+  )
 }
 
 function ReviewArticleRow({
@@ -561,22 +676,30 @@ export function ArticlesView() {
                 {reviewable.length === 0 ? (
                   <Text size="sm" c="dimmed" mb="md">No articles written yet.</Text>
                 ) : (
-                  reviewable.map((art) => (
-                    <ReviewArticleRow
-                      key={art.slug}
-                      art={art}
-                      commentCount={commentCountBySlug[art.slug] ?? 0}
-                      claudeRunning={
-                        queue.claude_running &&
-                        (!queue.active_article || queue.active_article === art.slug)
-                      }
-                      isActive={queue.active_article === art.slug}
-                      onReview={() => openReader(art.slug)}
-                      onApprove={() => handleApprove(art)}
-                      onRequestChanges={() => handleRequestChanges(art)}
-                      onDelete={() => setDeleteArticleTarget(art.slug)}
-                    />
-                  ))
+                  reviewable.map((art) =>
+                    art.phase === 'BLOCKED' ? (
+                      <BlockedArticleRow
+                        key={art.slug}
+                        art={art}
+                        onDelete={() => setDeleteArticleTarget(art.slug)}
+                      />
+                    ) : (
+                      <ReviewArticleRow
+                        key={art.slug}
+                        art={art}
+                        commentCount={commentCountBySlug[art.slug] ?? 0}
+                        claudeRunning={
+                          queue.claude_running &&
+                          (!queue.active_article || queue.active_article === art.slug)
+                        }
+                        isActive={queue.active_article === art.slug}
+                        onReview={() => openReader(art.slug)}
+                        onApprove={() => handleApprove(art)}
+                        onRequestChanges={() => handleRequestChanges(art)}
+                        onDelete={() => setDeleteArticleTarget(art.slug)}
+                      />
+                    ),
+                  )
                 )}
 
                 <Text size="xs" fw={600} c="dimmed" mt="lg" mb="xs">UP NEXT</Text>

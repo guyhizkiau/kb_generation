@@ -12,6 +12,9 @@ export interface ArticleEntry {
   feedback_issue: string
   rework_reason?: string
   last_update?: string
+  blocked_reason?: string
+  resume_phase?: string
+  test_attempt?: number
 }
 
 export interface Cluster {
@@ -136,6 +139,29 @@ export function useRequestChanges() {
       qc.invalidateQueries({ queryKey: ['queue'] })
       qc.invalidateQueries({ queryKey: ['status'] })
     },
+  })
+}
+
+export function useResolveBlocked() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: { slug: string; instructions: string }) =>
+      apiFetch('/api/queue/resolve-blocked', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['queue'] })
+      qc.invalidateQueries({ queryKey: ['status'] })
+    },
+  })
+}
+
+export function useTestNotes(slug: string, enabled: boolean) {
+  return useQuery<{ slug: string; content: string; source: string }>({
+    queryKey: ['test-notes', slug],
+    queryFn: () => apiFetch(`/api/articles/${encodeURIComponent(slug)}/test-notes`),
+    enabled: enabled && !!slug,
   })
 }
 

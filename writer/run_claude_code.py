@@ -42,6 +42,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from store.machine import active_article, block, current_phase, transition  # noqa: E402
 from store.paths import article_dir  # noqa: E402
+from store.state import write_state  # noqa: E402
 
 # ── phase maps ───────────────────────────────────────────────────────────────
 
@@ -49,6 +50,7 @@ PHASE_TO_PROMPT = {
     "research": "02-research.md",
     "draft": "01-draft.md",
     "test-plan": "02-test-plan.md",
+    "repair-test-plan": "02b-repair-test-plan.md",
     "revise-from-test": "03-revise-from-test.md",
     "voice-pass": "04a-voice-pass.md",
     "revise-from-feedback": "06-revise-from-feedback.md",
@@ -58,6 +60,7 @@ PHASE_ARTIFACTS: dict[str, str] = {
     "research": "research/competitor-coverage.md",
     "draft": "draft-1.md",
     "test-plan": "test-plan.json",
+    "repair-test-plan": "test-plan.json",
     "revise-from-test": "draft-2.md",
     "voice-pass": "final.md",
     "revise-from-feedback": "final.md",
@@ -543,28 +546,28 @@ def run_gate_with_remediation(
     claude_bin: str,
     log_handle,
 ) -> tuple[bool, str]:
-    """Check the research gate; attempt cheap remediation if it fails with the artifact present.
+    """Run deterministic gate for a phase; attempt cheap remediation where supported."""
+    if phase == "research":
+        from pipeline.gates import check_research_gate
 
-    Returns (ok, message).  Currently only implemented for the research phase.
-    """
-    if phase != "research":
-        return True, "no gate for this phase"
+        ok, msg = check_research_gate(slug)
+        if ok:
+            return True, msg
+        coverage_path = article_dir(slug) / "research" / "competitor-coverage.md"
+        if coverage_path.is_file():
+            fixed = _run_gate_fixer(slug, coverage_path, msg, claude_bin, log_handle)
+            if fixed:
+                ok2, msg2 = check_research_gate(slug)
+                return ok2, msg2
+        return False, msg
 
-    from pipeline.gates import check_research_gate
+    if phase == "test-plan":
+        from pipeline.gates import check_test_plan_gate
 
-    ok, msg = check_research_gate(slug)
-    if ok:
-        return True, msg
+        ok, msg = check_test_plan_gate(slug)
+        return ok, msg
 
-    # Cheap fix path: only attempt if the artifact already exists.
-    coverage_path = article_dir(slug) / "research" / "competitor-coverage.md"
-    if coverage_path.is_file():
-        fixed = _run_gate_fixer(slug, coverage_path, msg, claude_bin, log_handle)
-        if fixed:
-            ok2, msg2 = check_research_gate(slug)
-            return ok2, msg2
-
-    return False, msg
+    return True, "no gate for this phase"
 
 
 # ── state transitions ─────────────────────────────────────────────────────────
@@ -690,14 +693,18 @@ def main(argv: list[str] | None = None) -> int:
         block(slug, f"{args.phase} failed: missing artifact {artifact}")
         return 1
 
-    if args.phase == "research":
+    if args.phase in ("research", "test-plan"):
         with log_path.open("a", encoding="utf-8") as log:
             ok, gate_msg = run_gate_with_remediation(
                 slug, args.phase, args.claude_bin, log
             )
         if not ok:
-            block(slug, f"research gate: {gate_msg}")
+            block(slug, f"{args.phase} gate: {gate_msg}")
             return 1
+
+    if args.phase == "repair-test-plan":
+        write_state(slug, {"NEXT_ACTION": ""})
+        return 0
 
     try:
         apply_phase_transition(slug, args.phase)

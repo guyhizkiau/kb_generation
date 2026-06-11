@@ -259,6 +259,36 @@ class ControlApiTests(unittest.TestCase):
         self.assertEqual(code, 400)
         self.assertFalse(payload["ok"])
 
+    def test_resolve_blocked_unblocks_and_schedules_repair(self):
+        slug = "02-set-or-reset-password"
+        art = self.root / "articles" / slug
+        art.mkdir(parents=True, exist_ok=True)
+        (art / "STATE").write_text(
+            "PHASE=BLOCKED\nRESUME_PHASE=TESTING\nBLOCKED_REASON=test failure\n"
+        )
+        (art / "test-notes.md").write_text("# test-notes\n\nfailures\n")
+        code, payload, _ = self._req("POST", "/api/queue/resolve-blocked", {
+            "slug": slug,
+            "instructions": "Click Share a folder not Share files",
+        })
+        self.assertEqual(code, 200)
+        self.assertTrue(payload["ok"])
+        fields = self.pw._qs.read_state_fields(art / "STATE")
+        self.assertEqual(fields["PHASE"], "TESTING")
+        self.assertEqual(fields["NEXT_ACTION"], "repair-test-plan")
+        self.assertEqual(fields["TEST_ATTEMPT"], "0")
+        self.assertFalse((art / "test-notes.md").exists())
+        self.assertTrue((art / "operator-instructions.md").is_file())
+
+    def test_get_article_test_notes(self):
+        slug = "02-set-or-reset-password"
+        art = self.root / "articles" / slug
+        art.mkdir(parents=True, exist_ok=True)
+        (art / "test-notes.md").write_text("# notes\n\nstep failed\n")
+        code, payload, _ = self._req("GET", f"/api/articles/{slug}/test-notes")
+        self.assertEqual(code, 200)
+        self.assertIn("step failed", payload["content"])
+
     def test_poll_now_regression(self):
         code, payload, _ = self._req("POST", "/poll-now")
         self.assertEqual(code, 200)

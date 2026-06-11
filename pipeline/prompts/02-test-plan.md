@@ -258,6 +258,20 @@ Example — screenshot the share icon before instructing the user to click it:
  "verify": "Share icon is visible on the file row"}
 ```
 
+## Dropdown / revealed-option rule
+
+When a step **hovers** or **clicks** a control that reveals a menu option,
+the **next click** must target the **revealed option's exact label** from
+the draft — never the parent trigger again.
+
+Example (Share a folder article):
+- Step A: `hover` on `"Share files"` (reveals dropdown)
+- Step B: `wait_for` `"Share a folder"` visible
+- Step C: `click` `"Share a folder"` ← **not** `"Share files"`
+
+Derive every click target from the draft's literal instruction text. If the
+draft says click **"Share a folder"**, the action `name` is `"Share a folder"`.
+
 ## Rules
 
 - One step per JSON entry; do not bundle.

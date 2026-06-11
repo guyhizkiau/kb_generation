@@ -6,11 +6,14 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import json
+
 from pipeline.gates import (
     RESEARCH_CONTRACT,
     RESEARCH_MIN_ENTRIES,
     RESEARCH_SECTION_HEADING,
     check_research_gate,
+    check_test_plan_gate,
 )
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -181,3 +184,52 @@ class GatesTests(unittest.TestCase):
         self.assertGreater(len(RESEARCH_CONTRACT), 50)
         self.assertIn(RESEARCH_SECTION_HEADING, RESEARCH_CONTRACT)
         self.assertIn(str(RESEARCH_MIN_ENTRIES), RESEARCH_CONTRACT)
+
+
+class TestPlanGateTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        os.environ["KB_REPO_ROOT"] = str(self.root)
+        self.slug = "01-test"
+        self.art = self.root / "articles" / self.slug
+        self.art.mkdir(parents=True)
+
+    def tearDown(self):
+        self.tmp.cleanup()
+        os.environ.pop("KB_REPO_ROOT", None)
+
+    def _write_plan(self, steps: list) -> None:
+        (self.art / "test-plan.json").write_text(json.dumps({"steps": steps}))
+
+    def test_valid_minimal_plan(self):
+        self._write_plan([
+            {"id": "00-goto", "backend": "browser", "action": {"type": "goto", "url": "https://x"}},
+            {"id": "01-click", "backend": "browser", "action": {"type": "click", "role": "button", "name": "Go"}},
+        ])
+        ok, msg = check_test_plan_gate(self.slug)
+        self.assertTrue(ok, msg)
+
+    def test_missing_login_fails(self):
+        self._write_plan([
+            {"id": "01-click", "backend": "browser", "action": {"type": "click", "role": "button", "name": "Go"}},
+        ])
+        ok, msg = check_test_plan_gate(self.slug)
+        self.assertFalse(ok)
+        self.assertIn("00-", msg)
+
+    def test_prose_selector_hint_fails(self):
+        self._write_plan([
+            {"id": "00-goto", "backend": "browser", "action": {"type": "goto", "url": "https://x"}},
+            {
+                "id": "01-click",
+                "backend": "browser",
+                "action": {
+                    "type": "click",
+                    "selector_hint": "the button that opens the share dialog for folders",
+                },
+            },
+        ])
+        ok, msg = check_test_plan_gate(self.slug)
+        self.assertFalse(ok)
+        self.assertIn("selector_hint", msg)

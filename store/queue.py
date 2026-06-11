@@ -219,6 +219,10 @@ def queue_with_states(q: dict | None = None) -> dict:
                 publish_stale.append(art["slug"])
             if raw_phase in TERMINAL_PHASES or phase == "PUBLISHED":
                 last_merged = art["slug"]
+            try:
+                test_attempt = int(fields.get("TEST_ATTEMPT", "0"))
+            except ValueError:
+                test_attempt = 0
             enriched_articles.append({
                 **art,
                 "phase": phase,
@@ -227,6 +231,9 @@ def queue_with_states(q: dict | None = None) -> dict:
                 "feedback_issue": fields.get("FEEDBACK_ISSUE", ""),
                 "rework_reason": fields.get("REWORK_REASON", ""),
                 "last_update": fields.get("LAST_UPDATE", ""),
+                "blocked_reason": fields.get("BLOCKED_REASON", ""),
+                "resume_phase": fields.get("RESUME_PHASE", ""),
+                "test_attempt": test_attempt,
             })
         enriched_clusters.append({**cluster, "articles": enriched_articles})
         if last_merged:

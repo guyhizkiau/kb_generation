@@ -5,9 +5,12 @@ executed it. Produce `draft-2.md`.
 
 ## What you read
 
-- `articles/<NN-slug>/draft-1.md` — your original draft
-- `articles/<NN-slug>/test-notes.md` — what the tester observed
-- `articles/<NN-slug>/screenshots/` — the visual evidence
+1. `operator-instructions.md` — if present, read **first**. Treat operator
+   guidance as authoritative. Append `<!-- applied YYYY-MM-DD -->` under
+   each consumed block; do not delete entries.
+2. `articles/<NN-slug>/draft-1.md` — your original draft
+3. `articles/<NN-slug>/test-notes.md` — what the tester observed
+4. `articles/<NN-slug>/screenshots/` — the visual evidence
 
 ## What you produce
 

@@ -468,6 +468,51 @@ def _handle_trigger(data: dict) -> dict:
     return {"ok": False, "error": f"unknown reason '{reason}'"}
 
 
+def _handle_resolve_blocked(data: dict) -> dict:
+    """Accept operator instructions for a BLOCKED article and retry."""
+    slug = (data.get("slug") or "").strip()
+    instructions = (data.get("instructions") or "").strip()
+    if not slug:
+        return {"ok": False, "error": "slug required"}
+    if not instructions:
+        return {"ok": False, "error": "instructions required"}
+    if not _machine:
+        return {"ok": False, "error": "state machine not available"}
+
+    from store.paths import article_dir
+    from store.state import read_state, write_state
+
+    if _machine.current_phase(slug) != "BLOCKED":
+        return {"ok": False, "error": f"{slug} is not BLOCKED"}
+
+    adir = article_dir(slug)
+    adir.mkdir(parents=True, exist_ok=True)
+    op_path = adir / "operator-instructions.md"
+    stamp = _now_iso()
+    with op_path.open("a", encoding="utf-8") as fh:
+        fh.write(f"\n## {stamp}\n{instructions}\n")
+
+    notes = adir / "test-notes.md"
+    if notes.is_file():
+        archive = adir / f"test-notes-operator-{stamp.replace(':', '').replace('-', '')}.md"
+        archive.write_text(notes.read_text(encoding="utf-8"))
+        notes.unlink()
+
+    write_state(slug, {
+        "TEST_ATTEMPT": "0",
+        "NEXT_ACTION": "repair-test-plan",
+    })
+    try:
+        _machine.unblock(slug)
+    except Exception as exc:
+        return {"ok": False, "error": str(exc)}
+
+    fields = read_state(slug)
+    log(f"  Resolved BLOCKED {slug} with operator instructions → {fields.get('PHASE')}")
+    _poll_now.set()
+    return {"ok": True, "slug": slug, "phase": fields.get("PHASE", "")}
+
+
 def _git_commit_push(message: str, *paths: str) -> None:
     """Commit and push to main with retry backoff."""
     ensure_worktree()
@@ -721,6 +766,25 @@ class _ControlHandler(BaseHTTPRequestHandler):
                 self._respond(404, json.dumps({"error": f"preview not found for {slug}"}))
                 return
             self._respond_html(200, html)
+        elif path.startswith("/api/articles/") and path.endswith("/test-notes"):
+            slug = path[len("/api/articles/"):-len("/test-notes")]
+            if not slug:
+                self._respond(400, json.dumps({"error": "slug required"}))
+                return
+            from store.paths import article_dir
+            notes_path = article_dir(slug) / "test-notes.md"
+            if not notes_path.is_file():
+                archives = sorted(article_dir(slug).glob("test-notes-attempt-*.md"))
+                if archives:
+                    notes_path = archives[-1]
+                else:
+                    self._respond(404, json.dumps({"error": "test-notes not found"}))
+                    return
+            self._respond(200, json.dumps({
+                "slug": slug,
+                "content": notes_path.read_text(encoding="utf-8"),
+                "source": notes_path.name,
+            }))
         else:
             self._respond(404, json.dumps({"error": "not found"}))
 
@@ -780,6 +844,14 @@ class _ControlHandler(BaseHTTPRequestHandler):
                 data = self._read_json()
                 result = _handle_request_changes(data)
                 code = 200 if result.get("ok") else 409
+                self._respond(code, json.dumps(result))
+            except Exception as exc:
+                self._respond(400, json.dumps({"error": str(exc)}))
+        elif path == "/api/queue/resolve-blocked":
+            try:
+                data = self._read_json()
+                result = _handle_resolve_blocked(data)
+                code = 200 if result.get("ok") else 400
                 self._respond(code, json.dumps(result))
             except Exception as exc:
                 self._respond(400, json.dumps({"error": str(exc)}))
