@@ -662,8 +662,8 @@ def _handle_delete_article(slug: str, remove_from_plan: bool) -> dict:
     push_failed = False
     push_error = ""
     if tracked:
-        git("rm", "-r", "--quiet", f"articles/{slug}", check=False)
         _qs.delete_article_dir(slug)
+        git("add", "-A", "--", f"articles/{slug}", check=False)
         git("commit", "-m", f"chore(article): delete {slug}", check=False)
         try:
             git("push", "origin", "main")

@@ -268,7 +268,7 @@ class ControlApiTests(unittest.TestCase):
         self.assertTrue(payload["pushed"])
         called = [c.args for c in git.call_args_list]
         self.assertIn(("ls-files", f"articles/{slug}"), called)
-        self.assertTrue(any(a[:1] == ("rm",) for a in called), called)
+        self.assertIn(("add", "-A", "--", f"articles/{slug}"), called)
         self.assertTrue(any(a[:1] == ("commit",) for a in called), called)
         self.assertIn(("push", "origin", "main"), called)
         self.assertFalse(art_dir.exists())
@@ -301,7 +301,7 @@ class ControlApiTests(unittest.TestCase):
         self.assertTrue(payload["pushed"])
         called = [c.args for c in git.call_args_list]
         self.assertIn(("ls-files", f"articles/{slug}"), called)
-        self.assertTrue(any(a[:1] == ("rm",) for a in called), called)
+        self.assertIn(("add", "-A", "--", f"articles/{slug}"), called)
         self.assertTrue(any(a[:1] == ("commit",) for a in called), called)
         self.assertIn(("push", "origin", "main"), called)
         self.assertFalse(art_dir.exists())
