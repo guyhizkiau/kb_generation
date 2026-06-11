@@ -156,14 +156,13 @@ def ensure_article_html(repo_root: Path, slug: str) -> Path | None:
     if not article_dir.is_dir():
         return None
 
-    source_md = select_preview_source(article_dir)
     in_tree_html = article_dir / f"{slug}.html"
-
-    if source_md is None:
-        return in_tree_html if in_tree_html.is_file() else None
-
-    if _is_fresh(in_tree_html, source_md):
+    if in_tree_html.is_file():
         return in_tree_html
+
+    source_md = select_preview_source(article_dir)
+    if source_md is None:
+        return None
 
     cache_dir = _preview_cache_dir(repo_root)
     cached_html = cache_dir / f"{slug}.html"

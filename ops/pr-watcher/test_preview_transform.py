@@ -126,6 +126,20 @@ class PreviewTransformTests(unittest.TestCase):
         self.assertIn("Cached preview", html_path.read_text(encoding="utf-8"))
         self.assertFalse((art / f"{slug}.html").exists())
 
+    def test_stale_in_tree_html_preferred_over_rerender(self):
+        slug = "06-in-tree"
+        art = self.root / "articles" / slug
+        art.mkdir(parents=True)
+        final_md = art / "final.md"
+        html_file = art / f"{slug}.html"
+        html_file.write_text("<html><head></head><body><main>committed</main></body></html>")
+        final_md.write_text("# Published\n")
+        html_mtime = html_file.stat().st_mtime
+        os.utime(final_md, (html_mtime + 0.001, html_mtime + 0.001))
+        html_path = ensure_article_html(self.root, slug)
+        self.assertEqual(html_path, html_file)
+        self.assertIn("committed", html_path.read_text(encoding="utf-8"))
+
     def test_stale_cache_rerenders_when_source_changes(self):
         slug = "05-stale"
         art = self.root / "articles" / slug
