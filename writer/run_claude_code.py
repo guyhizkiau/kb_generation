@@ -40,6 +40,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from store.feedback import feedback_path  # noqa: E402
 from store.machine import active_article, block, current_phase, transition  # noqa: E402
 from store.paths import article_dir  # noqa: E402
 from store.state import write_state  # noqa: E402
@@ -84,6 +85,19 @@ PHASE_EXTRA_ALLOW: dict[str, list[str]] = {
         "Bash(python *)",
         "Bash(git *)",
     ],
+}
+
+PHASE_REQUIRED_INPUTS: dict[str, list[str]] = {
+    "research": ["research"],
+    "draft": [
+        "research/competitor-coverage.md",
+        "research/codebase-findings.md",
+    ],
+    "test-plan": ["draft-1.md"],
+    "repair-test-plan": ["test-plan.json"],
+    "revise-from-test": ["draft-1.md", "test-notes.md", "screenshots"],
+    "voice-pass": ["draft-2.md"],
+    "revise-from-feedback": ["final.md"],
 }
 
 # ── timing knobs ─────────────────────────────────────────────────────────────
@@ -240,6 +254,82 @@ def _update_heartbeat(
 
 # ── pre-flight ────────────────────────────────────────────────────────────────
 
+def _check_required_inputs(slug: str, phase: str) -> None:
+    """Fail fast when a phase is missing explicit input artifacts."""
+    adir = article_dir(slug)
+    required = PHASE_REQUIRED_INPUTS.get(phase, [])
+    missing: list[str] = []
+
+    for rel in required:
+        path = adir / rel
+        if rel == "screenshots":
+            if not path.is_dir() or not any(path.iterdir()):
+                missing.append(f"{rel}/ (directory with files)")
+            continue
+        if rel == "research":
+            if not path.is_dir():
+                missing.append(f"{rel}/ (directory)")
+            continue
+        if not path.is_file():
+            missing.append(rel)
+
+    if phase == "repair-test-plan":
+        notes = list(adir.glob("test-notes*.md"))
+        if not notes and not (adir / "test-notes.md").is_file():
+            missing.append("test-notes.md or test-notes-attempt-*.md")
+
+    if phase == "revise-from-feedback":
+        fb = feedback_path(slug)
+        if not fb.is_file():
+            try:
+                missing.append(str(fb.relative_to(REPO_ROOT)))
+            except ValueError:
+                missing.append(str(fb))
+
+    if missing:
+        listed = "\n".join(f"  - {item}" for item in missing)
+        raise RuntimeError(
+            f"phase `{phase}` missing required inputs for `{slug}`:\n{listed}"
+        )
+
+
+def _seed_final_from_draft2(slug: str, log_handle=None) -> None:
+    """Copy draft-2.md into final.md when the revised draft is newer."""
+    adir = article_dir(slug)
+    draft2 = adir / "draft-2.md"
+    final_md = adir / "final.md"
+    if not draft2.is_file():
+        return
+    if final_md.is_file() and final_md.stat().st_mtime >= draft2.stat().st_mtime:
+        return
+    final_md.write_bytes(draft2.read_bytes())
+    msg = f"[writer] seeded final.md from draft-2.md\n"
+    print(msg, end="", flush=True)
+    if log_handle is not None:
+        log_handle.write(msg)
+        log_handle.flush()
+
+
+def _render_committed_html(slug: str, log_handle=None) -> None:
+    """Render committed in-tree HTML from final.md after the final gate passes."""
+    from pipeline.render_html import RenderError, render
+
+    adir = article_dir(slug)
+    try:
+        preview_path, zendesk_path = render(adir)
+    except RenderError as exc:
+        raise RuntimeError(f"HTML render failed: {exc}") from exc
+
+    msg = (
+        f"[writer] rendered committed HTML: {preview_path.name}, "
+        f"{zendesk_path.name}\n"
+    )
+    print(msg, end="", flush=True)
+    if log_handle is not None:
+        log_handle.write(msg)
+        log_handle.flush()
+
+
 def _preflight(slug: str, phase: str, claude_bin: str) -> None:
     """Raise RuntimeError with a precise message on any pre-launch problem."""
     if not shutil.which(claude_bin) and not os.path.isfile(claude_bin):
@@ -256,6 +346,8 @@ def _preflight(slug: str, phase: str, claude_bin: str) -> None:
         test_file.unlink()
     except OSError as exc:
         raise RuntimeError(f"article dir not writable ({adir}): {exc}") from exc
+
+    _check_required_inputs(slug, phase)
 
 
 # ── PTY subprocess runner ─────────────────────────────────────────────────────
@@ -567,6 +659,18 @@ def run_gate_with_remediation(
         ok, msg = check_test_plan_gate(slug)
         return ok, msg
 
+    if phase == "revise-from-test":
+        from pipeline.gates import check_draft2_gate
+
+        ok, msg = check_draft2_gate(slug)
+        return ok, msg
+
+    if phase == "voice-pass":
+        from pipeline.gates import check_final_gate
+
+        ok, msg = check_final_gate(slug)
+        return ok, msg
+
     return True, "no gate for this phase"
 
 
@@ -646,6 +750,8 @@ def main(argv: list[str] | None = None) -> int:
     print(f"[writer] log: {log_path}", flush=True)
 
     if args.dry_run:
+        if args.phase == "voice-pass":
+            _seed_final_from_draft2(slug)
         return 0
 
     with log_path.open("w", encoding="utf-8") as log:
@@ -655,6 +761,9 @@ def main(argv: list[str] | None = None) -> int:
             f"# cmd={printable}\n\n"
         )
         log.flush()
+
+        if args.phase == "voice-pass":
+            _seed_final_from_draft2(slug, log)
 
         started_at = time.time()
         rc = _run_with_pty(slug, args.phase, cmd, log, started_at)
@@ -693,7 +802,7 @@ def main(argv: list[str] | None = None) -> int:
         block(slug, f"{args.phase} failed: missing artifact {artifact}")
         return 1
 
-    if args.phase in ("research", "test-plan"):
+    if args.phase in ("research", "test-plan", "revise-from-test", "voice-pass"):
         with log_path.open("a", encoding="utf-8") as log:
             ok, gate_msg = run_gate_with_remediation(
                 slug, args.phase, args.claude_bin, log
@@ -701,6 +810,16 @@ def main(argv: list[str] | None = None) -> int:
         if not ok:
             block(slug, f"{args.phase} gate: {gate_msg}")
             return 1
+        print(f"[writer] gate passed: {gate_msg}", flush=True)
+
+    if args.phase == "voice-pass":
+        with log_path.open("a", encoding="utf-8") as log:
+            try:
+                _render_committed_html(slug, log)
+            except RuntimeError as exc:
+                block(slug, str(exc))
+                print(f"[writer] {exc}", flush=True)
+                return 1
 
     if args.phase == "repair-test-plan":
         write_state(slug, {"NEXT_ACTION": ""})

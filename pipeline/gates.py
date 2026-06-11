@@ -182,3 +182,73 @@ def check_test_plan_gate(slug: str) -> tuple[bool, str]:
         return False, f"steps create state but no cleanup steps (C*).\n{TEST_PLAN_CONTRACT}"
 
     return True, f"{len(steps)} steps validated"
+
+
+# ── final / draft markdown gate contract ─────────────────────────────────────
+
+FINAL_CONTRACT = """\
+final.md must be ready for publish and preview:
+
+  - No screenshot placeholders (lines starting with "> Screenshot")
+  - Every markdown image reference ![alt](path) must point to an existing file
+    relative to the article directory
+
+Replace placeholders with real embeds during revise-from-test, e.g.:
+  ![The Share button](screenshots/04-share-files-button.png)
+"""
+
+_SCREENSHOT_PLACEHOLDER_RE = re.compile(r"^>\s*Screenshot\b", re.MULTILINE | re.IGNORECASE)
+_MD_IMAGE_RE = re.compile(r"!\[[^\]]*\]\(([^)]+)\)")
+
+
+def _check_markdown_images(article_path: Path, rel_path: str) -> tuple[bool, str]:
+    """Shared gate for draft-2.md and final.md."""
+    path = article_path / rel_path
+    if not path.is_file():
+        return False, f"missing {rel_path}"
+
+    text = path.read_text(encoding="utf-8")
+
+    if _SCREENSHOT_PLACEHOLDER_RE.search(text):
+        placeholders = len(_SCREENSHOT_PLACEHOLDER_RE.findall(text))
+        return (
+            False,
+            (
+                f"{rel_path} still contains {placeholders} screenshot placeholder"
+                f"{'s' if placeholders != 1 else ''} (> Screenshot …).\n"
+                f"{FINAL_CONTRACT}"
+            ),
+        )
+
+    missing: list[str] = []
+    for match in _MD_IMAGE_RE.finditer(text):
+        src = match.group(1).strip()
+        if src.startswith(("http://", "https://", "data:")):
+            continue
+        image_path = (article_path / src).resolve()
+        if not image_path.is_file():
+            missing.append(src)
+
+    if missing:
+        shown = ", ".join(missing[:5])
+        extra = f" (+{len(missing) - 5} more)" if len(missing) > 5 else ""
+        return (
+            False,
+            (
+                f"{rel_path} references missing image file(s): {shown}{extra}.\n"
+                f"{FINAL_CONTRACT}"
+            ),
+        )
+
+    image_count = len(_MD_IMAGE_RE.findall(text))
+    return True, f"{rel_path} validated ({image_count} image embeds)"
+
+
+def check_draft2_gate(slug: str) -> tuple[bool, str]:
+    """Verify draft-2.md has real screenshot embeds before voice-pass."""
+    return _check_markdown_images(article_dir(slug), "draft-2.md")
+
+
+def check_final_gate(slug: str) -> tuple[bool, str]:
+    """Verify final.md has no placeholders and all images exist."""
+    return _check_markdown_images(article_dir(slug), "final.md")

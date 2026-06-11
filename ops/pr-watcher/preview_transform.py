@@ -1,6 +1,7 @@
 """Transform stored article HTML for Ghostwriter preview + inline commenting."""
 from __future__ import annotations
 
+import os
 import re
 import sys
 from pathlib import Path
@@ -16,6 +17,9 @@ _ANNOTATION_SCRIPTS = (
     '<script src="/static/recogito.min.js"></script>\n'
     '<script src="/static/annotorious.min.js"></script>\n'
 )
+
+_DRAFT_RE = re.compile(r"^draft-(\d+)\.md$")
+_TOOLING_ROOT = Path(__file__).resolve().parents[2]
 
 
 def strip_legacy_widget_scripts(html: str) -> str:
@@ -81,57 +85,92 @@ def patch_article_preview_html(html: str, slug: str, origin: str) -> str:
     return ensure_annotation_assets(html, slug)
 
 
-def ensure_article_html(repo_root: Path, slug: str) -> Path | None:
-    """Return preview HTML path, rendering from final.md on demand if needed."""
-    article_dir = repo_root / "articles" / slug
-    html_path = article_dir / f"{slug}.html"
-    if html_path.exists():
-        return html_path
-    if not article_dir.is_dir():
-        return None
-
-    if not _prepare_final_md_for_render(article_dir):
-        return None
-
-    return _run_render(repo_root, article_dir, html_path)
+def _preview_cache_dir(repo_root: Path) -> Path:
+    env = os.environ.get("GHOSTWRITER_PREVIEW_CACHE")
+    if env:
+        return Path(env)
+    return Path.home() / ".cache" / "ghostwriter-preview"
 
 
-def _prepare_final_md_for_render(article_dir: Path) -> bool:
-    """Ensure article_dir/final.md exists (copy latest draft if needed)."""
+def select_preview_source(article_dir: Path) -> Path | None:
+    """Pick markdown source for preview: final.md, else latest draft-N.md."""
     final_md = article_dir / "final.md"
-    if final_md.exists():
-        return True
-    slug = article_dir.name
-    draft_re = re.compile(rf"^draft-(\d+)\.md$")
+    if final_md.is_file():
+        return final_md
+
     drafts: list[tuple[int, Path]] = []
     for path in article_dir.iterdir():
         if not path.is_file():
             continue
-        m = draft_re.match(path.name)
-        if m:
-            drafts.append((int(m.group(1)), path))
+        match = _DRAFT_RE.match(path.name)
+        if match:
+            drafts.append((int(match.group(1)), path))
     if not drafts:
-        return False
+        return None
     drafts.sort(key=lambda item: item[0], reverse=True)
-    final_md.write_bytes(drafts[0][1].read_bytes())
-    return True
+    return drafts[0][1]
 
 
-def _run_render(repo_root: Path, article_dir: Path, html_path: Path) -> Path | None:
+def _is_fresh(html_path: Path, source_md: Path) -> bool:
+    return html_path.is_file() and html_path.stat().st_mtime >= source_md.stat().st_mtime
+
+
+def _run_render_to_cache(
+    repo_root: Path,
+    article_dir: Path,
+    source_md: Path,
+    cache_dir: Path,
+    slug: str,
+) -> Path | None:
     import subprocess
 
-    render_script = repo_root / "pipeline" / "render_html.py"
+    render_script = _TOOLING_ROOT / "pipeline" / "render_html.py"
     if not render_script.exists():
         return None
+
+    cache_dir.mkdir(parents=True, exist_ok=True)
     result = subprocess.run(
-        [sys.executable, str(render_script), str(article_dir)],
-        cwd=repo_root,
+        [
+            sys.executable,
+            str(render_script),
+            str(article_dir),
+            "--source",
+            str(source_md),
+            "--out-dir",
+            str(cache_dir),
+        ],
+        cwd=_TOOLING_ROOT,
         capture_output=True,
         text=True,
     )
     if result.returncode != 0:
         return None
-    return html_path if html_path.exists() else None
+
+    html_path = cache_dir / f"{slug}.html"
+    return html_path if html_path.is_file() else None
+
+
+def ensure_article_html(repo_root: Path, slug: str) -> Path | None:
+    """Return preview HTML path without writing inside the article directory."""
+    article_dir = repo_root / "articles" / slug
+    if not article_dir.is_dir():
+        return None
+
+    source_md = select_preview_source(article_dir)
+    in_tree_html = article_dir / f"{slug}.html"
+
+    if source_md is None:
+        return in_tree_html if in_tree_html.is_file() else None
+
+    if _is_fresh(in_tree_html, source_md):
+        return in_tree_html
+
+    cache_dir = _preview_cache_dir(repo_root)
+    cached_html = cache_dir / f"{slug}.html"
+    if _is_fresh(cached_html, source_md):
+        return cached_html
+
+    return _run_render_to_cache(repo_root, article_dir, source_md, cache_dir, slug)
 
 
 def load_preview_html(repo_root: Path, slug: str, origin: str) -> tuple[int, str]:

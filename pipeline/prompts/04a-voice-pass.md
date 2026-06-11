@@ -7,7 +7,10 @@ produced it, not like AI output.
 
 ## What you read
 
-- `articles/<NN-slug>/final.md` — the current article you will edit.
+- `articles/<NN-slug>/final.md` — the current article you will edit. The
+  pipeline runner seeds this file from `draft-2.md` immediately before
+  the voice pass starts (when the revised draft is newer). Do not read
+  `draft-2.md` directly; work on `final.md`.
 - `editorial/STYLE_GUIDE.md` — the canon you enforce. Pay particular
   attention to Sections 2.4 (Contractions), 3 (Article openings),
   10 (Troubleshooting — including the "Header rule" sub-section),

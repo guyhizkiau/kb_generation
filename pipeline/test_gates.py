@@ -12,6 +12,8 @@ from pipeline.gates import (
     RESEARCH_CONTRACT,
     RESEARCH_MIN_ENTRIES,
     RESEARCH_SECTION_HEADING,
+    check_draft2_gate,
+    check_final_gate,
     check_research_gate,
     check_test_plan_gate,
 )
@@ -233,3 +235,51 @@ class TestPlanGateTests(unittest.TestCase):
         ok, msg = check_test_plan_gate(self.slug)
         self.assertFalse(ok)
         self.assertIn("selector_hint", msg)
+
+
+class MarkdownGateTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        os.environ["KB_REPO_ROOT"] = str(self.root)
+        self.slug = "01-test"
+        self.art = self.root / "articles" / self.slug
+        self.art.mkdir(parents=True)
+        self.shots = self.art / "screenshots"
+        self.shots.mkdir()
+
+    def tearDown(self):
+        self.tmp.cleanup()
+        os.environ.pop("KB_REPO_ROOT", None)
+
+    def test_final_gate_rejects_placeholders(self):
+        (self.art / "final.md").write_text(
+            "# Title\n\n> Screenshot (close-up): the button\n"
+        )
+        ok, msg = check_final_gate(self.slug)
+        self.assertFalse(ok)
+        self.assertIn("placeholder", msg.lower())
+
+    def test_final_gate_rejects_missing_images(self):
+        (self.art / "final.md").write_text(
+            "# Title\n\n![button](screenshots/missing.png)\n"
+        )
+        ok, msg = check_final_gate(self.slug)
+        self.assertFalse(ok)
+        self.assertIn("missing.png", msg)
+
+    def test_final_gate_passes_with_embeds(self):
+        (self.shots / "01.png").write_bytes(b"png")
+        (self.art / "final.md").write_text(
+            "# Title\n\n![button](screenshots/01.png)\n"
+        )
+        ok, msg = check_final_gate(self.slug)
+        self.assertTrue(ok, msg)
+
+    def test_draft2_gate_passes_with_embeds(self):
+        (self.shots / "01.png").write_bytes(b"png")
+        (self.art / "draft-2.md").write_text(
+            "# Title\n\n![button](screenshots/01.png)\n"
+        )
+        ok, msg = check_draft2_gate(self.slug)
+        self.assertTrue(ok, msg)

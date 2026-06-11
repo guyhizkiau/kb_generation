@@ -18,6 +18,7 @@ See WORKFLOW.md §9.3 and §9.3b for the full spec.
 
 from __future__ import annotations
 
+import argparse
 import base64
 import html
 import json
@@ -25,6 +26,10 @@ import mimetypes
 import re
 import sys
 from pathlib import Path
+
+
+class RenderError(Exception):
+    """Raised when rendering cannot complete (e.g. missing image)."""
 
 
 # ── Inline-style constants for the ZenDesk export ────────────────────────────
@@ -182,9 +187,14 @@ _EM_RE = re.compile(r"(?<!\*)\*([^*]+)\*(?!\*)")
 
 
 def _embed_image(article_dir: Path, src: str) -> str:
+    if src.startswith(("http://", "https://", "data:")):
+        return src
     p = (article_dir / src).resolve()
     if not p.is_file():
-        return src
+        raise RenderError(
+            f"missing image file referenced in markdown: {src!r} "
+            f"(expected at {p})"
+        )
     mime, _ = mimetypes.guess_type(str(p))
     mime = mime or "application/octet-stream"
     b64 = base64.b64encode(p.read_bytes()).decode("ascii")
@@ -353,15 +363,22 @@ def make_zendesk_body(main_html: str) -> str:
 
 # ── Top-level render ──────────────────────────────────────────────────────────
 
-def render(article_dir: Path) -> tuple[Path, Path]:
-    """Render final.md → {slug}.html and {slug}-zendesk.html.
+def render(
+    article_dir: Path,
+    *,
+    source_md: Path | None = None,
+    out_dir: Path | None = None,
+) -> tuple[Path, Path]:
+    """Render markdown → {slug}.html and {slug}-zendesk.html.
 
-    Returns the paths of both output files.
+    Defaults to ``article_dir/final.md`` written into ``article_dir``.
+    Optional ``source_md`` and ``out_dir`` support read-only preview caching.
     """
     slug = article_dir.name
-    src = article_dir / "final.md"
-    out_preview = article_dir / f"{slug}.html"
-    out_zendesk = article_dir / f"{slug}-zendesk.html"
+    src = source_md or (article_dir / "final.md")
+    dest = out_dir or article_dir
+    out_preview = dest / f"{slug}.html"
+    out_zendesk = dest / f"{slug}-zendesk.html"
 
     md = src.read_text(encoding="utf-8")
     fm, body = split_frontmatter(md)
@@ -432,17 +449,44 @@ def render(article_dir: Path) -> tuple[Path, Path]:
 # ── CLI ───────────────────────────────────────────────────────────────────────
 
 def main() -> int:
-    if len(sys.argv) != 2:
-        print(__doc__)
-        return 1
-    article_dir = Path(sys.argv[1]).resolve()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "article_dir",
+        type=Path,
+        help="Article directory (used for slug and screenshot resolution)",
+    )
+    parser.add_argument(
+        "--source",
+        type=Path,
+        default=None,
+        help="Markdown source file (default: article_dir/final.md)",
+    )
+    parser.add_argument(
+        "--out-dir",
+        type=Path,
+        default=None,
+        help="Output directory for HTML files (default: article_dir)",
+    )
+    args = parser.parse_args()
+
+    article_dir = args.article_dir.resolve()
     if not article_dir.is_dir():
         print(f"ERROR: {article_dir} is not a directory", file=sys.stderr)
         return 1
-    if not (article_dir / "final.md").exists():
-        print(f"ERROR: {article_dir}/final.md not found", file=sys.stderr)
+
+    source = (args.source or article_dir / "final.md").resolve()
+    if not source.is_file():
+        print(f"ERROR: source markdown not found: {source}", file=sys.stderr)
         return 1
-    render(article_dir)
+
+    out_dir = (args.out_dir or article_dir).resolve()
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    try:
+        render(article_dir, source_md=source, out_dir=out_dir)
+    except RenderError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 1
     return 0
 
 

@@ -1,7 +1,11 @@
 """Unit tests for preview HTML transform."""
 from __future__ import annotations
 
+import os
+import subprocess
+import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -10,6 +14,7 @@ from preview_transform import (
     load_preview_html,
     patch_article_preview_html,
     resolve_preview_html,
+    select_preview_source,
 )
 
 
@@ -28,8 +33,20 @@ OLD_WIDGET_HTML = """<!doctype html>
 </script>
 </body></html>"""
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
 
 class PreviewTransformTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        self.cache_dir = self.root / "preview-cache"
+        os.environ["GHOSTWRITER_PREVIEW_CACHE"] = str(self.cache_dir)
+
+    def tearDown(self):
+        self.tmp.cleanup()
+        os.environ.pop("GHOSTWRITER_PREVIEW_CACHE", None)
+
     def test_strips_legacy_inline_widget(self):
         out = patch_article_preview_html(OLD_WIDGET_HTML, "01-test", "http://127.0.0.1:8767")
         self.assertNotIn("postAnnotation", out)
@@ -46,36 +63,84 @@ class PreviewTransformTests(unittest.TestCase):
         self.assertIn("recogito.min.css", out)
         self.assertIn("recogito.min.js", out)
 
-    def test_load_preview_html_existing(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            slug = "01-test"
-            art = root / "articles" / slug
-            art.mkdir(parents=True)
-            (art / f"{slug}.html").write_text(
-                "<html><head></head><body><main>hi</main></body></html>"
-            )
-            code, html = load_preview_html(root, slug, "http://127.0.0.1:8767")
-            self.assertEqual(code, 200)
-            self.assertIn("ghostwriter-annotate.js", html)
+    def test_load_preview_html_existing_in_tree(self):
+        slug = "01-test"
+        art = self.root / "articles" / slug
+        art.mkdir(parents=True)
+        (art / "final.md").write_text("# Title\n")
+        html_file = art / f"{slug}.html"
+        html_file.write_text(
+            "<html><head></head><body><main>hi</main></body></html>"
+        )
+        os.utime(html_file, None)
+        code, html = load_preview_html(self.root, slug, "http://127.0.0.1:8767")
+        self.assertEqual(code, 200)
+        self.assertIn("ghostwriter-annotate.js", html)
 
-    def test_ensure_article_html_missing_without_final(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            self.assertIsNone(ensure_article_html(root, "99-nope"))
+    def test_ensure_article_html_missing_without_source(self):
+        self.assertIsNone(ensure_article_html(self.root, "99-nope"))
 
     def test_resolve_preview_html_uses_working_tree(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            slug = "01-test"
-            art = root / "articles" / slug
-            art.mkdir(parents=True)
-            (art / f"{slug}.html").write_text(
-                "<html><head></head><body><main>working tree</main></body></html>"
-            )
-            code, html = resolve_preview_html(root, slug, "http://127.0.0.1:8767")
-            self.assertEqual(code, 200)
-            self.assertIn("working tree", html)
+        slug = "01-test"
+        art = self.root / "articles" / slug
+        art.mkdir(parents=True)
+        (art / "final.md").write_text("# Title\n")
+        html_file = art / f"{slug}.html"
+        html_file.write_text(
+            "<html><head></head><body><main>working tree</main></body></html>"
+        )
+        os.utime(html_file, None)
+        code, html = resolve_preview_html(self.root, slug, "http://127.0.0.1:8767")
+        self.assertEqual(code, 200)
+        self.assertIn("working tree", html)
+
+    def test_preview_never_writes_final_md(self):
+        slug = "02-draft-only"
+        art = self.root / "articles" / slug
+        art.mkdir(parents=True)
+        (art / "draft-1.md").write_text("# Draft only\n\n> Screenshot: placeholder\n")
+        before = {p.name for p in art.iterdir()}
+        ensure_article_html(self.root, slug)
+        after = {p.name for p in art.iterdir()}
+        self.assertEqual(before, after)
+        self.assertFalse((art / "final.md").exists())
+
+    def test_select_preview_source_prefers_final_then_latest_draft(self):
+        art = self.root / "articles" / "03-src"
+        art.mkdir(parents=True)
+        (art / "draft-1.md").write_text("# one\n")
+        (art / "draft-2.md").write_text("# two\n")
+        self.assertEqual(select_preview_source(art).name, "draft-2.md")
+        (art / "final.md").write_text("# final\n")
+        self.assertEqual(select_preview_source(art).name, "final.md")
+
+    def test_preview_renders_to_cache_from_latest_draft(self):
+        slug = "04-cache"
+        art = self.root / "articles" / slug
+        art.mkdir(parents=True)
+        (art / "draft-1.md").write_text("# Cached preview\n\nBody text.\n")
+        html_path = ensure_article_html(self.root, slug)
+        self.assertIsNotNone(html_path)
+        assert html_path is not None
+        self.assertEqual(html_path.parent, self.cache_dir)
+        self.assertIn("Cached preview", html_path.read_text(encoding="utf-8"))
+        self.assertFalse((art / f"{slug}.html").exists())
+
+    def test_stale_cache_rerenders_when_source_changes(self):
+        slug = "05-stale"
+        art = self.root / "articles" / slug
+        art.mkdir(parents=True)
+        draft = art / "draft-1.md"
+        draft.write_text("# Version 1\n")
+        first = ensure_article_html(self.root, slug)
+        assert first is not None
+        self.assertIn("Version 1", first.read_text(encoding="utf-8"))
+
+        time.sleep(0.05)
+        draft.write_text("# Version 2\n")
+        second = ensure_article_html(self.root, slug)
+        assert second is not None
+        self.assertIn("Version 2", second.read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

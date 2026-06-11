@@ -30,6 +30,14 @@ class RunClaudeCodeTests(unittest.TestCase):
         art.mkdir(parents=True, exist_ok=True)
         (art / "STATE").write_text(f"PHASE={phase}\nCLUSTER=01-login\n")
 
+    def _write_draft_inputs(self, slug: str) -> Path:
+        art = self.root / "articles" / slug
+        research = art / "research"
+        research.mkdir(parents=True, exist_ok=True)
+        (research / "competitor-coverage.md").write_text("## Articles read\n\n- A\n- B\n- C\n")
+        (research / "codebase-findings.md").write_text("# findings\n")
+        return art
+
     def _run(self, *args: str) -> subprocess.CompletedProcess:
         return subprocess.run(
             [sys.executable, str(self.runner), *args],
@@ -44,7 +52,7 @@ class RunClaudeCodeTests(unittest.TestCase):
     def test_draft_transitions_to_testing(self):
         slug = "01-test-article"
         self._write_state(slug, "DRAFTING")
-        art = self.root / "articles" / slug
+        art = self._write_draft_inputs(slug)
         (art / "draft-1.md").write_text("# draft\n")
         result = self._run(
             "--article", slug, "--phase", "draft",
@@ -84,7 +92,7 @@ class RunClaudeCodeTests(unittest.TestCase):
     def test_preflight_fails_on_missing_binary(self):
         slug = "01-preflight"
         self._write_state(slug, "DRAFTING")
-        art = self.root / "articles" / slug
+        art = self._write_draft_inputs(slug)
         (art / "draft-1.md").write_text("# x\n")
         result = self._run(
             "--article", slug, "--phase", "draft",
@@ -96,7 +104,7 @@ class RunClaudeCodeTests(unittest.TestCase):
     def test_preflight_blocks_state(self):
         slug = "01-preflight-block"
         self._write_state(slug, "DRAFTING")
-        art = self.root / "articles" / slug
+        art = self._write_draft_inputs(slug)
         (art / "draft-1.md").write_text("# x\n")
         self._run(
             "--article", slug, "--phase", "draft",
@@ -105,13 +113,25 @@ class RunClaudeCodeTests(unittest.TestCase):
         state = (art / "STATE").read_text()
         self.assertIn("BLOCKED", state)
 
+    def test_preflight_fails_on_missing_required_inputs(self):
+        slug = "01-missing-inputs"
+        self._write_state(slug, "DRAFTING")
+        art = self.root / "articles" / slug
+        (art / "draft-1.md").write_text("# x\n")
+        result = self._run(
+            "--article", slug, "--phase", "draft",
+            "--claude-bin", "/usr/bin/true",
+        )
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("missing required inputs", result.stdout + result.stderr)
+
     # ── heartbeat written on a real phase run ─────────────────────────────────
 
     def test_heartbeat_written_after_phase(self):
         """After a successful phase, heartbeat.json must exist."""
         slug = "02-heartbeat"
         self._write_state(slug, "DRAFTING")
-        art = self.root / "articles" / slug
+        art = self._write_draft_inputs(slug)
         (art / "draft-1.md").write_text("# draft\n")
         result = self._run(
             "--article", slug, "--phase", "draft",
@@ -235,3 +255,45 @@ class RunClaudeCodeTests(unittest.TestCase):
         self.assertIn("--output-format", cmd_str)
         self.assertIn("stream-json", cmd_str)
         self.assertIn("--verbose", cmd_str)
+
+    def test_voice_pass_seeds_final_from_draft2(self):
+        from writer.run_claude_code import _seed_final_from_draft2
+
+        slug = "06-voice-seed"
+        art = self.root / "articles" / slug
+        art.mkdir(parents=True)
+        (art / "draft-2.md").write_text("# revised\n\n![img](screenshots/x.png)\n")
+        _seed_final_from_draft2(slug)
+        self.assertEqual((art / "final.md").read_text(), (art / "draft-2.md").read_text())
+
+    def test_voice_pass_skips_seed_when_final_is_newer(self):
+        from writer.run_claude_code import _seed_final_from_draft2
+
+        slug = "07-voice-skip"
+        art = self.root / "articles" / slug
+        art.mkdir(parents=True)
+        (art / "draft-2.md").write_text("# old draft\n")
+        (art / "final.md").write_text("# newer final\n")
+        time.sleep(0.05)
+        _seed_final_from_draft2(slug)
+        self.assertEqual((art / "final.md").read_text(), "# newer final\n")
+
+    def test_voice_pass_renders_committed_html(self):
+        slug = "08-voice-render"
+        self._write_state(slug, "FINALIZING")
+        art = self.root / "articles" / slug
+        shots = art / "screenshots"
+        shots.mkdir(parents=True)
+        (shots / "01.png").write_bytes(b"png")
+        (art / "draft-2.md").write_text("# Title\n\n![shot](screenshots/01.png)\n")
+        (art / "final.md").write_text("# Title\n\n![shot](screenshots/01.png)\n")
+        result = self._run(
+            "--article", slug, "--phase", "voice-pass",
+            "--claude-bin", "/usr/bin/true",
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        html = art / f"{slug}.html"
+        self.assertTrue(html.is_file(), "committed HTML should be written")
+        self.assertIn("data:image", html.read_text(encoding="utf-8"))
+        state = (art / "STATE").read_text()
+        self.assertIn("PHASE=IN_REVIEW", state)
