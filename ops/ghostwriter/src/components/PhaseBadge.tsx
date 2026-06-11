@@ -1,5 +1,5 @@
 import { Badge, Tooltip } from '@mantine/core'
-import { formatPhaseElapsed, IN_PROGRESS_PHASES } from '@/lib/articlePhase'
+import { formatPhaseElapsed, PIPELINE_ACTIVITY_PHASES } from '@/lib/articlePhase'
 import styles from './PhaseBadge.module.css'
 
 const PHASE_COLORS: Record<string, string> = {
@@ -9,8 +9,11 @@ const PHASE_COLORS: Record<string, string> = {
   REVISING: 'orange',
   FINALIZING: 'violet',
   PR_OPEN: 'cyan',
+  IN_REVIEW: 'cyan',
+  APPROVED: 'teal',
   MERGED: 'teal',
   DONE: 'green',
+  PUBLISHED: 'green',
   BLOCKED: 'red',
   UNKNOWN: 'gray',
 }
@@ -19,16 +22,15 @@ export interface PhaseBadgeProps {
   phase: string
   lastUpdate?: string
   running?: boolean
-  forceActivity?: boolean
 }
 
 /**
  * Pipeline phase badge with optional elapsed-time and running/idle indicator
- * for in-progress phases.
+ * for automated pipeline phases (not human-review gates like IN_REVIEW).
  */
-export function PhaseBadge({ phase, lastUpdate, running, forceActivity }: PhaseBadgeProps) {
+export function PhaseBadge({ phase, lastUpdate, running }: PhaseBadgeProps) {
   const color = PHASE_COLORS[phase] ?? 'gray'
-  const showActivity = IN_PROGRESS_PHASES.has(phase) || forceActivity === true
+  const showActivity = PIPELINE_ACTIVITY_PHASES.has(phase)
   const elapsed = showActivity && lastUpdate ? formatPhaseElapsed(lastUpdate) : null
   const isIdle = running === false && showActivity
 

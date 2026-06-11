@@ -19,7 +19,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import {
   useQueue, useSaveQueue, useTrigger, useApproveArticle,
-  useRequestChanges, useDeleteArticle, useResolveBlocked, useTestNotes,
+  useDeleteArticle, useResolveBlocked, useTestNotes,
 } from '@/api/hooks'
 import { apiFetch } from '@/api/client'
 import type { QueueData, ArticleEntry, Cluster } from '@/api/hooks'
@@ -168,19 +168,15 @@ function ReviewArticleRow({
   art,
   commentCount,
   claudeRunning,
-  isActive,
   onReview,
   onApprove,
-  onRequestChanges,
   onDelete,
 }: {
   art: ArticleEntry
   commentCount: number
   claudeRunning?: boolean
-  isActive?: boolean
   onReview: () => void
   onApprove: () => void
-  onRequestChanges: () => void
   onDelete: () => void
 }) {
   return (
@@ -226,17 +222,11 @@ function ReviewArticleRow({
             phase={art.phase}
             lastUpdate={art.last_update}
             running={claudeRunning}
-            forceActivity={isActive}
           />
           {canApproveArticle(art) && (
-            <>
-              <Button size="xs" color="green" variant="light" onClick={onApprove}>
-                Approve
-              </Button>
-              <Button size="xs" color="orange" variant="light" onClick={onRequestChanges}>
-                Request changes
-              </Button>
-            </>
+            <Button size="xs" color="green" variant="light" onClick={onApprove}>
+              Approve
+            </Button>
           )}
           <ActionIcon
             size="xs"
@@ -257,14 +247,12 @@ function SortableArticleRow({
   art,
   isNext,
   claudeRunning,
-  isActive,
   onRemove,
   onWriteNext,
 }: {
   art: ArticleEntry
   isNext: boolean
   claudeRunning?: boolean
-  isActive?: boolean
   onRemove: () => void
   onWriteNext: (slug: string) => void
 }) {
@@ -301,7 +289,6 @@ function SortableArticleRow({
             phase={art.phase}
             lastUpdate={art.last_update}
             running={claudeRunning}
-            forceActivity={isActive}
           />
           <Tooltip label={claudeRunning ? 'Revision in progress' : 'Write this next'} withArrow>
             <ActionIcon
@@ -334,7 +321,6 @@ export function ArticlesView() {
   const saveQueue = useSaveQueue()
   const trigger = useTrigger()
   const approveArticle = useApproveArticle()
-  const requestChanges = useRequestChanges()
   const deleteArticle = useDeleteArticle()
   const { openReader } = useReader()
   const { clusterId: selectedCluster, setClusterId } = useNavigation()
@@ -530,22 +516,6 @@ export function ArticlesView() {
     })
   }
 
-  function handleRequestChanges(art: ArticleEntry) {
-    requestChanges.mutate(
-      { slug: art.slug, reason: 'reviewer requested changes' },
-      {
-        onSuccess: () =>
-          notifications.show({
-            title: 'Sent back',
-            message: `${art.slug} moved to REVISING`,
-            color: 'orange',
-          }),
-        onError: (e) =>
-          notifications.show({ title: 'Failed', message: e.message, color: 'red' }),
-      },
-    )
-  }
-
   function handleWriteNext(slug: string) {
     modals.openConfirmModal({
       title: 'Write this next?',
@@ -689,10 +659,8 @@ export function ArticlesView() {
                           queue.claude_running &&
                           (!queue.active_article || queue.active_article === art.slug)
                         }
-                        isActive={queue.active_article === art.slug}
                         onReview={() => openReader(art.slug)}
                         onApprove={() => handleApprove(art)}
-                        onRequestChanges={() => handleRequestChanges(art)}
                         onDelete={() => setDeleteArticleTarget(art.slug)}
                       />
                     ),
@@ -721,7 +689,6 @@ export function ArticlesView() {
                             queue.claude_running &&
                             (!queue.active_article || queue.active_article === art.slug)
                           }
-                          isActive={queue.active_article === art.slug}
                           onRemove={() => setDeleteTarget(art.slug)}
                           onWriteNext={handleWriteNext}
                         />

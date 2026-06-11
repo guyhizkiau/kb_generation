@@ -38,4 +38,16 @@ describe('PhaseBadge', () => {
     )
     expect(screen.getByText(/TESTING · idle · \d+[mhd]/i)).toBeInTheDocument()
   })
+
+  it('shows plain label for IN_REVIEW without idle suffix', () => {
+    renderWithProviders(
+      <PhaseBadge
+        phase="IN_REVIEW"
+        lastUpdate="2026-06-01T10:00:00Z"
+        running={false}
+      />,
+    )
+    expect(screen.getByText('IN_REVIEW')).toBeInTheDocument()
+    expect(screen.queryByText(/idle/i)).not.toBeInTheDocument()
+  })
 })

@@ -15,6 +15,17 @@ export const IN_PROGRESS_PHASES = new Set([
   'PR_REVISION_NEEDED',
 ])
 
+/** Phases where the pipeline may be running — show idle/elapsed on the badge. */
+export const PIPELINE_ACTIVITY_PHASES = new Set([
+  'RESEARCHING',
+  'DRAFTING',
+  'TESTING',
+  'REVISING',
+  'FINALIZING',
+  'BLOCKED',
+  'PR_REVISION_NEEDED',
+])
+
 export function isWrittenPhase(phase: string): boolean {
   return WRITTEN_PHASES.has(phase)
 }

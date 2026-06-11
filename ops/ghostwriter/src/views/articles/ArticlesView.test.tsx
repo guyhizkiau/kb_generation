@@ -50,7 +50,6 @@ vi.mock('@/api/hooks', async (importOriginal) => {
     useSaveQueue: vi.fn(),
     useTrigger: vi.fn(),
     useApproveArticle: vi.fn(),
-    useRequestChanges: vi.fn(),
     useDeleteArticle: vi.fn(),
   }
 })
@@ -79,10 +78,6 @@ describe('ArticlesView', () => {
       mutate: vi.fn(),
       isPending: false,
     } as unknown as ReturnType<typeof hooks.useApproveArticle>)
-    vi.mocked(hooks.useRequestChanges).mockReturnValue({
-      mutate: vi.fn(),
-      isPending: false,
-    } as unknown as ReturnType<typeof hooks.useRequestChanges>)
     vi.mocked(hooks.useDeleteArticle).mockReturnValue({
       mutate: mutateDelete,
       isPending: false,
