@@ -336,6 +336,33 @@ details.log-fold:not([open]) .log-fold-meta { display: none; }
   color: var(--blue); padding: 6px 16px; border-radius: 6px; cursor: pointer; font-size: 12px; }
 .log-load-more button:hover { background: var(--blue-dim); }
 
+/* ── phase progress banner ───────────────────────────────────────────────── */
+.phase-banner { border-radius: var(--radius); padding: 14px 20px; margin-bottom: 16px;
+  background: var(--blue-dim); border: 1px solid rgba(88,166,255,.4);
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.phase-banner.stale { background: var(--amber-dim); border-color: var(--amber); }
+.phase-banner-icon { flex-shrink: 0; }
+.phase-banner-body { flex: 1; min-width: 0; }
+.phase-banner-title { font-size: 14px; font-weight: 600; color: var(--blue); }
+.phase-banner.stale .phase-banner-title { color: var(--amber); }
+.phase-banner-meta { font-size: 12px; color: var(--text-muted); margin-top: 3px; font-family: var(--font-mono); }
+.phase-banner-elapsed { font-size: 13px; font-weight: 600; color: var(--blue);
+  background: rgba(88,166,255,.12); border: 1px solid rgba(88,166,255,.25);
+  padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
+.phase-banner.stale .phase-banner-elapsed { color: var(--amber); background: var(--amber-dim); border-color: rgba(210,153,34,.35); }
+
+/* ── blocked banner ──────────────────────────────────────────────────────── */
+.blocked-banner { border-radius: var(--radius); padding: 14px 20px; margin-bottom: 16px;
+  background: var(--red-dim); border: 1px solid var(--red);
+  display: flex; align-items: flex-start; gap: 14px; }
+.blocked-banner-icon { font-size: 18px; flex-shrink: 0; line-height: 1.4; }
+.blocked-banner-body { flex: 1; min-width: 0; }
+.blocked-banner-title { font-size: 14px; font-weight: 700; color: var(--red); margin-bottom: 6px; }
+.blocked-banner-reason { font-size: 12px; font-family: var(--font-mono); color: var(--text);
+  background: rgba(0,0,0,.25); border-radius: 4px; padding: 8px 10px;
+  white-space: pre-wrap; word-break: break-word; max-height: 120px; overflow-y: auto; }
+.blocked-banner-meta { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+
 /* ── footer ──────────────────────────────────────────────────────────────── */
 footer { margin-top: 32px; text-align: center; font-size: 11px; color: var(--text-muted);
   border-top: 1px solid var(--border); padding-top: 16px; }
@@ -374,6 +401,26 @@ footer { margin-top: 32px; text-align: center; font-size: 11px; color: var(--tex
       <button class="poll-btn" id="poll-btn" onclick="pollNow()" title="Trigger an immediate poll">
         <span id="poll-btn-icon">↻</span> Poll now
       </button>
+    </div>
+  </div>
+
+  <!-- phase progress banner (shown while a phase is running) -->
+  <div class="phase-banner" id="phase-banner" style="display:none" aria-live="polite">
+    <div class="phase-banner-icon"><span class="spinner" aria-hidden="true"></span></div>
+    <div class="phase-banner-body">
+      <div class="phase-banner-title" id="phase-banner-title">—</div>
+      <div class="phase-banner-meta" id="phase-banner-meta"></div>
+    </div>
+    <div class="phase-banner-elapsed" id="phase-banner-elapsed"></div>
+  </div>
+
+  <!-- blocked article banner (shown when an article is BLOCKED) -->
+  <div class="blocked-banner" id="blocked-banner" style="display:none" role="alert">
+    <div class="blocked-banner-icon">⛔</div>
+    <div class="blocked-banner-body">
+      <div class="blocked-banner-title" id="blocked-banner-title">BLOCKED</div>
+      <div class="blocked-banner-reason" id="blocked-banner-reason"></div>
+      <div class="blocked-banner-meta" id="blocked-banner-meta"></div>
     </div>
   </div>
 
@@ -578,6 +625,8 @@ function escHtml(s) {
 function render() {
   if (!status && !health) return;
   renderHero();
+  renderPhaseBanner();
+  renderBlockedBanner();
   renderWidgets();
   renderResolutionTrack();
   updateTaskOutputPanel();
@@ -627,6 +676,58 @@ function renderHero() {
       ? 'Daemon is busy — poll will run after current task finishes'
       : 'Trigger an immediate poll';
   }
+}
+
+let phaseBannerTimer = null;
+
+function renderPhaseBanner() {
+  const pp = status?.phase_progress;
+  const banner = document.getElementById('phase-banner');
+  if (!pp) {
+    banner.style.display = 'none';
+    clearInterval(phaseBannerTimer);
+    phaseBannerTimer = null;
+    return;
+  }
+
+  const stale = (pp.secs_since_event ?? 0) > 300;
+  banner.className = 'phase-banner' + (stale ? ' stale' : '');
+  banner.style.display = '';
+
+  const phaseName = (pp.phase || '—').replace(/-/g, ' ');
+  const slug = pp.slug || '';
+  document.getElementById('phase-banner-title').textContent =
+    slug ? `${phaseName} — ${slug}` : phaseName;
+
+  const parts = [];
+  if (pp.last_tool && pp.last_tool !== '(none)') parts.push('last tool: ' + pp.last_tool);
+  if (pp.event_count) parts.push(pp.event_count + ' events');
+  if (stale) parts.push(`⚠ no output for ${Math.floor((pp.secs_since_event ?? 0) / 60)}m`);
+  document.getElementById('phase-banner-meta').textContent = parts.join(' · ');
+
+  // Live elapsed counter
+  const tick = () => {
+    const started = pp.started_at ? new Date(pp.started_at) : null;
+    document.getElementById('phase-banner-elapsed').textContent =
+      started ? fmtElapsed(started.toISOString()) : '';
+  };
+  tick();
+  clearInterval(phaseBannerTimer);
+  phaseBannerTimer = setInterval(tick, 1000);
+}
+
+function renderBlockedBanner() {
+  const bl = status?.blocked_article;
+  const banner = document.getElementById('blocked-banner');
+  if (!bl) { banner.style.display = 'none'; return; }
+
+  banner.style.display = '';
+  document.getElementById('blocked-banner-title').textContent =
+    `BLOCKED — ${bl.slug}`;
+  document.getElementById('blocked-banner-reason').textContent =
+    bl.blocked_reason || '(no reason recorded)';
+  document.getElementById('blocked-banner-meta').textContent =
+    bl.resume_phase ? `Resume phase: ${bl.resume_phase}` : '';
 }
 
 function renderWidgets() {

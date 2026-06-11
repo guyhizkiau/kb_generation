@@ -116,6 +116,71 @@ def _now_iso() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+def _phase_progress() -> dict | None:
+    """Return phase progress from the active article's heartbeat.json, if present."""
+    if not _machine:
+        return None
+    try:
+        slug = _machine.active_article()
+    except Exception:
+        return None
+    if not slug:
+        return None
+
+    # The writer runs against REPO_PATH; fall back to WORKTREE_PATH if needed.
+    for base in (REPO_PATH, WORKTREE_PATH):
+        hb_path = base / "articles" / slug / ".writer-logs" / "heartbeat.json"
+        if hb_path.is_file():
+            try:
+                hb = json.loads(hb_path.read_text())
+                hb["slug"] = slug
+                last_event_at = hb.get("last_event_at")
+                if last_event_at:
+                    from datetime import datetime as _dt
+                    try:
+                        ev_dt = _dt.fromisoformat(last_event_at)
+                        hb["secs_since_event"] = (
+                            _dt.now(timezone.utc) - ev_dt
+                        ).total_seconds()
+                    except Exception:
+                        pass
+                return hb
+            except Exception:
+                pass
+    return None
+
+
+def _blocked_article_info() -> dict | None:
+    """Return info about any currently BLOCKED article."""
+    if not _machine or not _QUEUE_STORE_AVAILABLE:
+        return None
+    for base in (REPO_PATH, WORKTREE_PATH):
+        articles_dir = base / "articles"
+        if not articles_dir.exists():
+            continue
+        try:
+            for art_dir in sorted(articles_dir.iterdir()):
+                if not art_dir.is_dir() or not (art_dir / "STATE").exists():
+                    continue
+                slug = art_dir.name
+                try:
+                    phase = _machine.current_phase(slug)
+                except Exception:
+                    continue
+                if phase == "BLOCKED":
+                    from store.state import read_state
+                    fields = read_state(slug)
+                    return {
+                        "slug": slug,
+                        "blocked_reason": fields.get("BLOCKED_REASON", ""),
+                        "resume_phase": fields.get("RESUME_PHASE", ""),
+                    }
+        except Exception:
+            pass
+        break  # only need to check one base
+    return None
+
+
 def write_status(state: dict, iteration: int, next_poll_at: float) -> None:
     """Atomically write status.json to STATUS_DIR for the dashboard."""
     STATUS_DIR.mkdir(parents=True, exist_ok=True)
@@ -143,6 +208,8 @@ def write_status(state: dict, iteration: int, next_poll_at: float) -> None:
         },
         "recent_log": _tail_log(200),
         "task_log": _tail_log_file(TASK_LOG_FILE, 200),
+        "phase_progress": _phase_progress(),
+        "blocked_article": _blocked_article_info(),
         **_latest_phase_log(300),
     }
     dest = STATUS_DIR / "status.json"
@@ -888,6 +955,14 @@ def main():
                         save_state=save_state,
                         log=log,
                     )
+
+            # Log blocked state loudly on every poll so the stall is never silent.
+            blocked = _blocked_article_info()
+            if blocked:
+                log(
+                    f"  [BLOCKED] {blocked['slug']}: {blocked['blocked_reason']!r} "
+                    f"(resume: {blocked['resume_phase']})"
+                )
 
             _runtime["last_error"] = None
 

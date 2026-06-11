@@ -179,6 +179,41 @@ Procedure described in WORKFLOW.md §6.3. Cache-first:
    plan didn't, note them as proposed additions for Guy to decide on
    in PR review.
 
+### Output contract (machine-checked)
+
+A deterministic gate parses `competitor-coverage.md` immediately after
+this phase exits and **blocks the article if the format is wrong** —
+causing an expensive re-run of the entire research phase. Get the
+format right the first time.
+
+**Required:** the file must contain a section whose heading starts with
+exactly (case-insensitive):
+
+```
+## Articles read
+```
+
+Optional trailing words are accepted (e.g. `## Articles read end to end`).
+
+**Immediately below** that heading, list **at least 3** sources as
+bullet lines, one per article:
+
+```
+## Articles read
+- Egnyte — "Folder Permissions" (cached 2026-06-01, ~1 200 words)
+- Virtru — "Secure Share" (cached 2026-06-01, ~800 words)
+- Dropbox — "Share with anyone" (cached 2026-06-01, ~950 words)
+```
+
+Rules:
+- Each source is one `- Vendor — "Title" (source, date, ~N words)` bullet.
+- Markdown table rows also count, but **prefer bullet lines** — they
+  are unambiguous to the parser.
+- Do **not** put sources in a prose paragraph, a nested subsection, or
+  under a different heading. The gate stops counting at the next `##`.
+- The section must appear **in `competitor-coverage.md`**, not in any
+  other research file.
+
 ### Step 5 — UI reconnaissance
 
 Use Playwright over CDP to open the relevant SpecterX surface in the
@@ -236,8 +271,14 @@ vocabulary established by these articles. Do not skim.
 ## Done condition
 
 All four research files exist and have content (or a documented
-"nothing found" line). The canon has been read. Exit — the pipeline
-runner advances STATE.
+"nothing found" line). The canon has been read.
+
+**`research/competitor-coverage.md` must satisfy the machine gate
+described in Step 4 above** (heading `## Articles read` with ≥3 bullet
+entries). The pipeline runner checks this before advancing STATE. If
+the gate fails the phase is blocked and must restart from scratch.
+
+Exit — the pipeline runner advances STATE.
 
 ---
 
