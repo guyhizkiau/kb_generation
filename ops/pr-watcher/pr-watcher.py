@@ -652,10 +652,16 @@ def _handle_delete_article(slug: str, remove_from_plan: bool) -> dict:
     except Exception as exc:
         log(f"  WARNING: could not determine merged state for {slug}: {exc}")
 
+    tracked = False
+    try:
+        tracked = bool(git("ls-files", f"articles/{slug}", check=False).strip())
+    except Exception as exc:
+        log(f"  WARNING: could not check git tracking for {slug}: {exc}")
+
     pushed = False
     push_failed = False
     push_error = ""
-    if merged:
+    if tracked:
         git("rm", "-r", "--quiet", f"articles/{slug}", check=False)
         _qs.delete_article_dir(slug)
         git("commit", "-m", f"chore(article): delete {slug}", check=False)

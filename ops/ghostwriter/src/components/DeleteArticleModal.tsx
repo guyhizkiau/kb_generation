@@ -25,10 +25,16 @@ export function DeleteArticleModal({
   return (
     <Modal opened={opened} onClose={onClose} title="Delete article?" centered>
       <Text size="sm" mb="xs">
-        This deletes the files for <strong>{slug}</strong>, its git branch, and any
-        open PR. Choose whether to also remove it from the plan.
+        This permanently deletes the files for <strong>{slug}</strong> from{' '}
+        <strong>main</strong>.
       </Text>
       <Text size="sm" mb="md">
+        <strong>Delete article</strong> keeps the slug in the plan — the pipeline
+        will treat it as queued and rewrite it on the next run.
+        <br />
+        <strong>Delete &amp; remove from plan</strong> also drops it from{' '}
+        <strong>clusters/queue.json</strong>.
+        <br />
         Type <strong>delete</strong> to confirm.
       </Text>
       <TextInput

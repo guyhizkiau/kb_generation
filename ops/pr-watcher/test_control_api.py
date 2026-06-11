@@ -200,17 +200,32 @@ class ControlApiTests(unittest.TestCase):
 
         self.addCleanup(restore)
 
+    @staticmethod
+    def _git_side_effect(slug: str, tracked: bool):
+        """Mock git: ls-files reflects tracking; other commands no-op."""
+        prefix = f"articles/{slug}"
+
+        def side_effect(*args, **kwargs):
+            if args[:2] == ("ls-files", prefix):
+                return f"{prefix}/STATE\n" if tracked else ""
+            return ""
+
+        return side_effect
+
     def test_delete_article_non_merged_keeps_plan(self):
         self._restore_queue()
         import feedback_store as fb
         slug = "02-set-or-reset-password"
         fb.write_feedback(slug, [{"id": "x1"}])
         self.assertTrue(fb.feedback_path(slug).exists())
-        with mock.patch.object(self.pw, "git"):
+        with mock.patch.object(
+            self.pw, "git", side_effect=self._git_side_effect(slug, tracked=False),
+        ):
             code, payload, _ = self._req("DELETE", f"/api/articles/{slug}")
         self.assertEqual(code, 200)
         self.assertTrue(payload["ok"])
         self.assertFalse(payload["merged"])
+        self.assertFalse(payload["pushed"])
         self.assertFalse(payload["removed_from_plan"])
         q = json.loads((self.root / "clusters" / "queue.json").read_text())
         slugs = [a["slug"] for c in q["clusters"] for a in c["articles"]]
@@ -220,7 +235,9 @@ class ControlApiTests(unittest.TestCase):
     def test_delete_article_remove_from_plan(self):
         self._restore_queue()
         slug = "02-set-or-reset-password"
-        with mock.patch.object(self.pw, "git"):
+        with mock.patch.object(
+            self.pw, "git", side_effect=self._git_side_effect(slug, tracked=False),
+        ):
             code, payload, _ = self._req(
                 "DELETE", f"/api/articles/{slug}?remove_from_plan=true",
             )
@@ -242,19 +259,55 @@ class ControlApiTests(unittest.TestCase):
 
         self.addCleanup(restore_dir)
 
-        with mock.patch.object(self.pw, "git") as git:
+        with mock.patch.object(
+            self.pw, "git", side_effect=self._git_side_effect(slug, tracked=True),
+        ) as git:
             code, payload, _ = self._req("DELETE", f"/api/articles/{slug}")
         self.assertEqual(code, 200)
         self.assertTrue(payload["merged"])
         self.assertTrue(payload["pushed"])
         called = [c.args for c in git.call_args_list]
+        self.assertIn(("ls-files", f"articles/{slug}"), called)
+        self.assertTrue(any(a[:1] == ("rm",) for a in called), called)
+        self.assertTrue(any(a[:1] == ("commit",) for a in called), called)
+        self.assertIn(("push", "origin", "main"), called)
+        self.assertFalse(art_dir.exists())
+
+    def test_delete_blocked_tracked_article_commits_to_main(self):
+        self._restore_queue()
+        slug = "05-share-a-folder"
+        art_dir = self.root / "articles" / slug
+        art_dir.mkdir(parents=True, exist_ok=True)
+        (art_dir / "STATE").write_text(
+            "PHASE=BLOCKED\nRESUME_PHASE=RESEARCHING\nBLOCKED_REASON=test\n",
+        )
+
+        def restore_dir():
+            if not art_dir.exists():
+                art_dir.mkdir(parents=True, exist_ok=True)
+                (art_dir / "STATE").write_text(
+                    "PHASE=BLOCKED\nRESUME_PHASE=RESEARCHING\nBLOCKED_REASON=test\n",
+                )
+
+        self.addCleanup(restore_dir)
+
+        with mock.patch.object(
+            self.pw, "git", side_effect=self._git_side_effect(slug, tracked=True),
+        ) as git:
+            code, payload, _ = self._req("DELETE", f"/api/articles/{slug}")
+        self.assertEqual(code, 200)
+        self.assertTrue(payload["ok"])
+        self.assertFalse(payload["merged"])
+        self.assertTrue(payload["pushed"])
+        called = [c.args for c in git.call_args_list]
+        self.assertIn(("ls-files", f"articles/{slug}"), called)
         self.assertTrue(any(a[:1] == ("rm",) for a in called), called)
         self.assertTrue(any(a[:1] == ("commit",) for a in called), called)
         self.assertIn(("push", "origin", "main"), called)
         self.assertFalse(art_dir.exists())
 
     def test_delete_article_invalid_slug(self):
-        with mock.patch.object(self.pw, "git"):
+        with mock.patch.object(self.pw, "git", return_value=""):
             code, payload, _ = self._req("DELETE", "/api/articles/bad_slug")
         self.assertEqual(code, 400)
         self.assertFalse(payload["ok"])
