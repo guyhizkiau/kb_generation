@@ -1,6 +1,7 @@
-PHASE=DRAFTING
+PHASE=BLOCKED
 CLUSTER=02-share-files
-LAST_UPDATE=2026-06-10T16:23:51Z
 NEXT_ACTION=
-BLOCKED_REASON=
-RESUME_PHASE=
+LAST_UPDATE=2026-06-11T15:42:42Z
+BLOCKED_REASON=preflight failed: phase `research` missing required inputs for `05-share-a-folder`:
+  - research/ (directory)
+RESUME_PHASE=RESEARCHING
