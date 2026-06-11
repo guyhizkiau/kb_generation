@@ -75,8 +75,8 @@ Open **http://localhost:5173/ghostwriter/** (not `:8767` directly).
 | Step | Action | Expected |
 |------|--------|----------|
 | 1 | Land on **Articles** (default view) | Cluster list + **Written & in progress** / **Up next** sections |
-| 2 | Cluster **Logging in & account access** | Row **Log in to the SpecterX web platform** shows **Review** |
-| 3 | Click **Review** | Full-screen reader overlay; article HTML in main pane |
+| 2 | Cluster **Logging in & account access** | Row **Log in to the SpecterX web platform** is clickable |
+| 3 | Click the article title | Full-screen reader overlay; article HTML in main pane |
 | 4 | Right sidebar | Empty comments prompt, or list if you added comments earlier |
 | 5 | In article pane, **select text** → add comment (Recogito popup) | Prompt for name first time; comment saves |
 | 6 | Sidebar | New comment appears **without** clicking Refresh (postMessage sync) |

@@ -23,7 +23,7 @@ test('articles view is default; save and write-this-next in Up next', async ({ p
   await expect(page.getByText('Review published articles and plan what\'s next')).toBeVisible()
   await expect(page.getByText('UP NEXT')).toBeVisible()
   await expect(page.getByText('Next up')).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Review' })).toBeVisible()
+  await expect(page.getByRole('button', { name: /Review Log in/i })).toBeVisible()
 
   await page.getByRole('button', { name: 'Remove 02-set-or-reset-password from cluster' }).click()
   await page.getByTestId('delete-confirm-input').fill('delete')

@@ -1,0 +1,26 @@
+{
+  "users": {
+    "data_owner": {
+      "email": "your-data-owner@specterx.com",
+      "password": "(set via Ghostwriter Settings or edit ~/.config/specterx-kb/test-config.json)"
+    },
+    "recipient": {
+      "email": "your-recipient@specterx.com",
+      "password": "(SpecterX login password for the recipient account)"
+    },
+    "recipient_gmail": {
+      "email": "your-recipient@specterx.com",
+      "password": "(Gmail / Workspace password for reading verification emails)"
+    }
+  },
+  "files": {
+    "default": "test-document.pdf",
+    "list": [
+      "test-document.pdf",
+      "test-document-2.pdf",
+      "test-document-3.pdf"
+    ],
+    "folder": "sample-folder",
+    "folder_files": ["doc-a.pdf", "doc-b.pdf", "notes.txt"]
+  }
+}

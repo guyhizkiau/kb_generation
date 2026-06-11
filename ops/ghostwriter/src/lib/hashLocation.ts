@@ -8,7 +8,7 @@ export interface NavState {
   readerSlug: string | null
 }
 
-const VIEWS: readonly AppView[] = ['articles', 'health', 'feedback']
+const VIEWS: readonly AppView[] = ['articles', 'health', 'feedback', 'settings']
 
 function isView(value: string): value is AppView {
   return (VIEWS as readonly string[]).includes(value)

@@ -4,7 +4,7 @@
     {
       "kind": "browser_login",
       "url": "https://app.specterx.com",
-      "credential": "SPECTERX_USERNAME / SPECTERX_PASSWORD"
+      "credential": "users.data_owner (Ghostwriter Settings)"
     }
   ],
   "steps": [
@@ -29,7 +29,7 @@
       "action": {
         "type": "fill",
         "placeholder": "Enter your email",
-        "value_env": "SPECTERX_USERNAME"
+        "value_ref": "users.data_owner.email"
       },
       "screenshot": {
         "after": false
@@ -43,7 +43,7 @@
       "action": {
         "type": "fill",
         "placeholder": "Enter your password",
-        "value_env": "SPECTERX_PASSWORD"
+        "value_ref": "users.data_owner.password"
       },
       "screenshot": {
         "after": false
@@ -97,19 +97,19 @@
     },
     {
       "id": "02-upload-file",
-      "description": "Upload test-document.pdf via the drawer upload area",
+      "description": "Upload {{files.default}} via the drawer upload area",
       "backend": "browser",
       "action": {
         "type": "file_upload",
         "selector": "input[data-testid='uploadDrawer_dragdropArea']",
-        "filename": "test-document.pdf"
+        "filename": "{{files.default}}"
       },
       "screenshot": {
         "after": true,
         "filename": "02-file-uploaded.png",
-        "focus": "test-document.pdf shown as uploaded in the drawer"
+        "focus": "{{files.default}} shown as uploaded in the drawer"
       },
-      "verify": "test-document.pdf appears in the drawer"
+      "verify": "{{files.default}} appears in the drawer"
     },
     {
       "id": "03-add-recipient",
@@ -118,7 +118,7 @@
       "action": {
         "type": "type",
         "selector": "[data-testid='uploadDrawer_emailField'] input",
-        "value_env": "TEST_RECIPIENT_EMAIL",
+        "value_ref": "users.recipient.email",
         "confirm": "Enter"
       },
       "screenshot": {
@@ -247,7 +247,7 @@
         "filename": "09-my-files-after-share.png",
         "focus": "My Files page showing the newly shared file row"
       },
-      "verify": "My Files is visible with test-document.pdf in the list"
+      "verify": "My Files is visible with {{files.default}} in the list"
     },
     {
       "id": "09a-share-icon-close-up",
@@ -262,7 +262,7 @@
         "after": true,
         "filename": "09-share-icon.png",
         "element": "[data-testid='myFiles_WhoHasAccess']",
-        "focus": "Close-up of the share icon on the test-document.pdf row"
+        "focus": "Close-up of the share icon on the {{files.default}} row"
       },
       "verify": "Share icon is visible on the file row"
     },
@@ -301,7 +301,7 @@
   "postconditions": [
     {
       "kind": "cleanup",
-      "description": "Delete test-document.pdf from My Files after screenshots are captured"
+      "description": "Delete {{files.default}} from My Files after screenshots are captured"
     }
   ]
 }

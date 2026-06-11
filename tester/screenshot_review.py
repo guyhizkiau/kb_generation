@@ -20,6 +20,7 @@ log = logging.getLogger("tester.screenshot_review")
 
 DEFAULT_MODEL = "claude-3-5-haiku-20241022"
 SECRETS_ENV_PATH = Path.home() / ".config" / "specterx-kb" / ".env"
+SENSITIVE_TERMS_PATH = Path(__file__).resolve().parent / "sensitive-terms.txt"
 
 RUBRIC = """You are reviewing a UI screenshot taken for a knowledge-base article.
 
@@ -32,6 +33,7 @@ Reject the screenshot (ok=false) if ANY of these apply:
 - Tooltip, dropdown, toast, or unrelated dialog obscuring the stated focus
 - The stated focus is not clearly visible in the frame
 - Promotional/onboarding popups, spam banners, or unrelated browser chrome covering the focus
+- Any of these sensitive values are clearly visible in the frame: {sensitive_terms}
 
 Accept (ok=true) only when the frame is stable and the focus is clearly visible.
 
@@ -65,6 +67,24 @@ def is_review_enabled() -> bool:
         "false",
         "no",
     }
+
+
+def _load_sensitive_terms() -> list[str]:
+    terms: list[str] = []
+    if SENSITIVE_TERMS_PATH.is_file():
+        for line in SENSITIVE_TERMS_PATH.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if line and not line.startswith("#"):
+                terms.append(line)
+    try:
+        from store.test_config import sensitive_emails
+
+        for email in sensitive_emails():
+            if email not in terms:
+                terms.append(email)
+    except Exception:
+        pass
+    return terms
 
 
 def _load_api_key() -> str | None:
@@ -123,9 +143,12 @@ def _call_vision_api(png_path: Path, *, focus: str, description: str) -> ReviewR
 
     model = os.environ.get("SCREENSHOT_REVIEW_MODEL", DEFAULT_MODEL).strip() or DEFAULT_MODEL
     image_b64 = base64.standard_b64encode(png_path.read_bytes()).decode("ascii")
+    sensitive = _load_sensitive_terms()
+    sensitive_label = ", ".join(sensitive) if sensitive else "(none configured)"
     prompt = RUBRIC.format(
         description=description or "(not provided)",
         focus=focus or "(general UI state)",
+        sensitive_terms=sensitive_label,
     )
 
     try:

@@ -2,16 +2,17 @@ import {
   Box, Text, Tooltip, UnstyledButton, Group, Burger, Stack,
 } from '@mantine/core'
 import {
-  IconFileText, IconActivity, IconMessageCircle,
+  IconFileText, IconActivity, IconMessageCircle, IconSettings,
   IconChevronLeft, IconChevronRight,
 } from '@tabler/icons-react'
 
-export type AppView = 'articles' | 'health' | 'feedback'
+export type AppView = 'articles' | 'health' | 'feedback' | 'settings'
 
 const NAV_ITEMS: { id: AppView; label: string; Icon: typeof IconFileText }[] = [
   { id: 'articles', label: 'Articles', Icon: IconFileText },
   { id: 'health', label: 'Health', Icon: IconActivity },
   { id: 'feedback', label: 'Feedback', Icon: IconMessageCircle },
+  { id: 'settings', label: 'Settings', Icon: IconSettings },
 ]
 
 export interface NavSidebarProps {

@@ -238,9 +238,6 @@ function ReviewArticleRow({
               </Button>
             </>
           )}
-          <Button size="xs" color="teal" variant="light" onClick={onReview}>
-            Review
-          </Button>
           <ActionIcon
             size="xs"
             color="red"

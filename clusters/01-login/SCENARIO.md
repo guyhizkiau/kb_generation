@@ -13,9 +13,11 @@ cluster. The cluster runs against the production tenant at
 ## Target environment
 
 - Hostname: `app.specterx.com`
-- Account: `guy@specterx.com` (credentials in `~/.config/specterx-kb/.env`
-  as `SPECTERX_USERNAME` and `SPECTERX_PASSWORD`)
-- Tenant identity provider for `guy@specterx.com`: email + password
+- **Data owner** account: configured in Ghostwriter Settings as
+  `users.data_owner` (`users.data_owner.email` / `.password` in test plans).
+  Legacy fallback: `SPECTERX_USERNAME` and `SPECTERX_PASSWORD` in
+  `~/.config/specterx-kb/.env`.
+- Tenant identity provider for the data owner: email + password
   (the account is not SSO-bound); SSO sign-in flows must be described
   from product documentation, not exercised, on this account.
 
@@ -46,16 +48,16 @@ sessions expire on their own and no shared state is created.
 
 ### 02-set-or-reset-password
 
-- **Do not run the reset flow against `SPECTERX_USERNAME`** (Guy's
-  working account). Resetting his password mid-flow blocks every other
+- **Do not run the reset flow against the data owner account**
+  (`users.data_owner`). Resetting that password mid-flow blocks every other
   article in the cluster.
 - For runs that need to exercise the end-to-end flow (read the
   verification code, capture the **Create New Password** screen, and
-  capture the post-submit success state), use the dedicated test
-  account documented in `tester/TEST_RESOURCES.md`
-  (`TEST_RECIPIENT_EMAIL` / `TEST_RECIPIENT_GMAIL_PASSWORD`). The
-  pipeline can log into that account's Gmail to read the verification
-  code without needing Guy to forward it.
+  capture the post-submit success state), use the configured **recipient**
+  roles documented in `tester/TEST_RESOURCES.md`
+  (`users.recipient` / `users.recipient_gmail`). The pipeline can log into
+  that account's Gmail to read the verification code without needing manual
+  forwarding.
 - For lightweight runs that only need the entry-point screens (the
   sign-in page's **Reset password** link and the `/forgotPassword`
   request form), capture those only and stop before submit. The

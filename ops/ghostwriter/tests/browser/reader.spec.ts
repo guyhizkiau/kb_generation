@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 import { mockApiRoutes } from './fixtures'
 
-test('reader overlay opens from Review button', async ({ page }) => {
+test('reader overlay opens from article title', async ({ page }) => {
   await mockApiRoutes(page)
 
   await page.route('**/api/articles/*/preview', async (route) => {
@@ -12,7 +12,7 @@ test('reader overlay opens from Review button', async ({ page }) => {
   })
 
   await page.goto('./')
-  await page.getByRole('button', { name: 'Review' }).first().click()
+  await page.getByRole('button', { name: /Review Log in/i }).click()
   const overlay = page.getByTestId('article-reader-overlay')
   await expect(overlay).toBeVisible()
   await expect(overlay.locator('iframe')).toBeVisible()

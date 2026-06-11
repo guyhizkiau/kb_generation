@@ -46,6 +46,22 @@ export interface Annotation {
   created?: string
 }
 
+export interface TestConfigUser {
+  email: string
+  password?: string
+  has_password?: boolean
+}
+
+export interface TestConfigData {
+  users: Record<string, TestConfigUser>
+  files: {
+    default: string
+    list: string[]
+    folder: string
+    folder_files: string[]
+  }
+}
+
 export interface FeedbackData {
   slug: string
   annotations: Annotation[]
@@ -260,5 +276,23 @@ export function useRetry() {
         method: 'POST',
         body: JSON.stringify({ comment_id: commentId }),
       }),
+  })
+}
+
+// ── test config ───────────────────────────────────────────────────────────────
+
+export function useTestConfig() {
+  return useQuery<TestConfigData>({
+    queryKey: ['test-config'],
+    queryFn: () => apiFetch('/api/test-config'),
+  })
+}
+
+export function useSaveTestConfig() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (config: TestConfigData) =>
+      apiFetch('/api/test-config', { method: 'PUT', body: JSON.stringify(config) }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['test-config'] }),
   })
 }

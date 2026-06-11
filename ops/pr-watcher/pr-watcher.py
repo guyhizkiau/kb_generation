@@ -40,11 +40,13 @@ try:
     from preview_transform import resolve_preview_html
     import dispatcher as _dispatcher
     from store import machine as _machine
+    from store import test_config as _test_config
     from pipeline import publish as _publish
     _QUEUE_STORE_AVAILABLE = True
 except ImportError:
     _dispatcher = None  # type: ignore[assignment]
     _machine = None  # type: ignore[assignment]
+    _test_config = None  # type: ignore[assignment]
     _publish = None  # type: ignore[assignment]
     _qs = None  # type: ignore[assignment]
     _fb = None  # type: ignore[assignment]
@@ -785,6 +787,15 @@ class _ControlHandler(BaseHTTPRequestHandler):
                 "content": notes_path.read_text(encoding="utf-8"),
                 "source": notes_path.name,
             }))
+        elif path == "/api/test-config":
+            if _test_config is None:
+                self._respond(503, json.dumps({"error": "test_config not available"}))
+                return
+            try:
+                cfg = _test_config.load()
+                self._respond(200, json.dumps(_test_config.mask_for_api(cfg)))
+            except Exception as exc:
+                self._respond(500, json.dumps({"error": str(exc)}))
         else:
             self._respond(404, json.dumps({"error": "not found"}))
 
@@ -803,6 +814,17 @@ class _ControlHandler(BaseHTTPRequestHandler):
                 with _queue_lock:
                     _qs.save_queue(q)
                 _poll_now.set()
+                self._respond(200, json.dumps({"ok": True}))
+            except Exception as exc:
+                self._respond(400, json.dumps({"error": str(exc)}))
+        elif path == "/api/test-config":
+            if _test_config is None:
+                self._respond(503, json.dumps({"error": "test_config not available"}))
+                return
+            try:
+                payload = self._read_json()
+                merged = _test_config.merge_update(payload)
+                _test_config.save(merged)
                 self._respond(200, json.dumps({"ok": True}))
             except Exception as exc:
                 self._respond(400, json.dumps({"error": str(exc)}))

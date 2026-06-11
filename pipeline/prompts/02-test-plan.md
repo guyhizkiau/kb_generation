@@ -24,7 +24,7 @@ executes each step against the live system.
     {
       "kind": "browser_login",
       "url": "https://app.specterx.com",
-      "credential": "SPECTERX_USERNAME / SPECTERX_PASSWORD"
+      "credential": "users.data_owner (see Ghostwriter Settings / test-config.json)"
     },
     {
       "kind": "desktop_app_running",
@@ -95,21 +95,25 @@ Each browser step has an `action` object with a `type`. Use one of:
 
 - `goto` — `url` (+ optional `wait_until`). Navigate to a URL.
 - `click` — locator. Click an element.
-- `fill` — locator + `value` or `value_env`. Type into an input
-  (clears first). Use `value_env` to read a secret from an env var
-  (e.g. `"value_env": "SPECTERX_PASSWORD"`); never inline secrets.
-- `type` — locator + `value` + optional `"confirm": "Enter"`. Same as
-  `fill`; with `confirm` it presses Enter afterward.
+- `fill` — locator + `value`, `value_ref`, or `value_env`. Type into an input
+  (clears first). Prefer `value_ref` for credentials, e.g.
+  `"value_ref": "users.data_owner.email"` or `"value_ref": "users.data_owner.password"`.
+  Legacy `value_env` (e.g. `"SPECTERX_PASSWORD"`) still works. Never inline secrets.
+- `type` — locator + `value`, `value_ref`, or `value_env` + optional `"confirm": "Enter"`.
+  Same as `fill`; with `confirm` it presses Enter afterward.
 - `select` — locator + `value`. Choose from a dropdown (native
   `<select>` or a custom one).
 - `file_upload` — locator + one of:
-  - `filename` — a single file under `tester/fixtures/`.
-  - `filenames` — a list of files under `tester/fixtures/` (multi-select).
-  - `folder` — a subdirectory under `tester/fixtures/`; uploads every
-    file inside it (whole-folder upload).
-  Available fixtures: `test-document.pdf`, `test-document-2.pdf`,
-  `test-document-3.pdf`, `test-report.txt`, `test-image.png`, and the
-  folder `sample-folder/`.
+  - `filename` — a single file under `tester/fixtures/` (use `{{files.default}}`).
+  - `filenames` — a list of files under `tester/fixtures/` (multi-select; use
+    names from `{{files.list}}` or literal placeholders).
+  - `folder` — a subdirectory under `tester/fixtures/` (use `{{files.folder}}`);
+    uploads every file inside it (whole-folder upload).
+  Configured fixture names live in Ghostwriter **Settings** (`test-config.json`).
+  Use placeholders so plans track the configured names:
+  `{{files.default}}`, individual entries from the multi-file list, and
+  `{{files.folder}}` for folder uploads. The tester generates missing fixtures
+  at run time.
 - `clear` — locator. Clear an input field.
 - `hover` — locator. Hover over an element.
 - `navigate` — `url` OR a locator. Goto a URL, or click a close/back
@@ -147,10 +151,10 @@ four steps before any article-specific steps:
  "action": {"type": "goto", "url": "https://app.specterx.com", "wait_until": "domcontentloaded"},
  "screenshot": {"after": false}, "verify": ""},
 {"id": "00-email", "description": "Fill email", "backend": "browser",
- "action": {"type": "fill", "placeholder": "Enter your email", "value_env": "SPECTERX_USERNAME"},
+ "action": {"type": "fill", "placeholder": "Enter your email", "value_ref": "users.data_owner.email"},
  "screenshot": {"after": false}, "verify": ""},
 {"id": "00-password", "description": "Fill password", "backend": "browser",
- "action": {"type": "fill", "placeholder": "Enter your password", "value_env": "SPECTERX_PASSWORD"},
+ "action": {"type": "fill", "placeholder": "Enter your password", "value_ref": "users.data_owner.password"},
  "screenshot": {"after": false}, "verify": ""},
 {"id": "00-signin", "description": "Click Sign In", "backend": "browser",
  "action": {"type": "click", "selector": "button[type='submit']"},
@@ -274,6 +278,22 @@ Example (Share a folder article):
 
 Derive every click target from the draft's literal instruction text. If the
 draft says click **"Share a folder"**, the action `name` is `"Share a folder"`.
+
+## Test resources (users & files)
+
+Credentials and upload file names are configured in Ghostwriter **Settings**
+(`~/.config/specterx-kb/test-config.json`). Test plans reference them — never
+hardcode emails or fixture names.
+
+| Role | `value_ref` keys | Use when |
+|------|------------------|----------|
+| Data owner (login) | `users.data_owner.email`, `users.data_owner.password` | Every browser test that signs in |
+| Share recipient | `users.recipient.email` | Share flows, recipient fields |
+| Gmail / inbox login | `users.recipient_gmail.email`, `users.recipient_gmail.password` | Password-reset flows that read verification email |
+
+For file uploads use `{{files.default}}`, list entries matching Settings, or
+`{{files.folder}}`. You may also use `{{...}}` in `description`, `verify`, and
+screenshot `focus` strings so assertions track configured names.
 
 ## Rules
 

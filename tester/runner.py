@@ -10,6 +10,7 @@ import argparse
 import datetime as dt
 import json
 import logging
+import os
 import sys
 from pathlib import Path
 from typing import Any
@@ -21,7 +22,9 @@ if str(REPO_ROOT) not in sys.path:
 from store.machine import block, transition  # noqa: E402
 from store.paths import article_dir  # noqa: E402
 from store.state import read_state, write_state  # noqa: E402
+from store.test_config import load as load_test_config  # noqa: E402
 from tester.browser_runner import BrowserRunner, StepResult
+from tester.fixtures._generate import ensure_configured_fixtures
 from tester.step_classifier import classify
 
 log = logging.getLogger("tester.runner")
@@ -154,6 +157,10 @@ def execute(slug: str) -> int:
         log.warning("no steps in test-plan for %s; nothing to do", slug)
         return 0
 
+    test_config = load_test_config()
+    fixtures_dir = Path(os.environ.get("TEST_FIXTURES_DIR", str(REPO_ROOT / "tester" / "fixtures")))
+    ensure_configured_fixtures(fixtures_dir, test_config)
+
     for s in steps:
         if classify(s) == "desktop":
             block(slug, "desktop steps present; desktop backend not implemented")
@@ -166,7 +173,10 @@ def execute(slug: str) -> int:
 
     browser_steps = [s for s in steps if classify(s) == "browser"]
     if browser_steps:
-        with _browser_runner_cls(screenshots_dir=screenshots_dir) as runner:
+        with _browser_runner_cls(
+            screenshots_dir=screenshots_dir,
+            test_config=test_config,
+        ) as runner:
             log.info("browser backend mode=%s", runner.mode)
             for s in steps:
                 if classify(s) != "browser":

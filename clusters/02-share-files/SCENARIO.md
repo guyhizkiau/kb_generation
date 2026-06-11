@@ -17,17 +17,17 @@ cluster. The cluster runs against the production tenant at
 ## Target environment
 
 - Hostname: `app.specterx.com`
-- Account: `guy@specterx.com` (credentials in `~/.config/specterx-kb/.env`
-  as `SPECTERX_USERNAME` and `SPECTERX_PASSWORD`)
-- Test recipient: `TEST_RECIPIENT_EMAIL` (from `~/.config/specterx-kb/.env`);
-  the pipeline can read the recipient's Gmail inbox for verification codes
-  using `TEST_RECIPIENT_GMAIL_PASSWORD`
+- **Data owner**: `users.data_owner` in Ghostwriter Settings (legacy:
+  `SPECTERX_USERNAME` / `SPECTERX_PASSWORD` in `.env`).
+- **Share recipient**: `users.recipient.email` in Settings (legacy:
+  `TEST_RECIPIENT_EMAIL` in `.env`); use `users.recipient_gmail` to read
+  verification mail when needed.
 
 ## Baseline state before each article's test
 
-Start from a **logged-in** browser session as `guy@specterx.com`, on the
-My Files page (`/my-files`). The tester should have a small test file
-available to upload (e.g. a sample PDF from `tester/fixtures/`).
+Start from a **logged-in** browser session as the configured data owner, on the
+My Files page (`/my-files`). The tester should have upload fixtures available
+(see `{{files.default}}` and related names in Ghostwriter Settings).
 
 - For articles that require a pre-existing share (07, 08, 09), the tester
   runs article 04 first to create the share, or uses an existing shared
@@ -42,7 +42,7 @@ available to upload (e.g. a sample PDF from `tester/fixtures/`).
 
 - Upload a fresh test file during the test; do not reuse a file that is
   already shared.
-- Recipient: use `TEST_RECIPIENT_EMAIL`.
+- Recipient: use `users.recipient.email` (`value_ref` in test plans).
 - Capture screenshots of: (1) the Share dialog open on the file, (2) the
   policy selector, (3) the post-share confirmation.
 - Do not surface real recipient email addresses in screenshots — redact

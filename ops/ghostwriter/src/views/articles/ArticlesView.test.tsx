@@ -92,7 +92,7 @@ describe('ArticlesView', () => {
   it('shows review section and planning section separately', () => {
     renderWithProviders(<ArticlesView />)
     expect(screen.getAllByText('WRITTEN & IN PROGRESS')[0]).toBeInTheDocument()
-    expect(screen.getAllByRole('button', { name: 'Review' })[0]).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Review Log in/i })).toBeInTheDocument()
     expect(screen.getAllByText('UP NEXT')[0]).toBeInTheDocument()
     expect(screen.getAllByText('Next up')[0]).toBeInTheDocument()
   })

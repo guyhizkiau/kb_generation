@@ -67,7 +67,7 @@ test('annotation in reader posts to /api/feedback and refreshes sidebar', async 
   })
 
   await page.goto('./')
-  await page.getByRole('button', { name: 'Review' }).first().click()
+  await page.getByRole('button', { name: /Review Log in/i }).click()
   const overlay = page.getByTestId('article-reader-overlay')
   await expect(overlay).toBeVisible()
   await expect.poll(() => feedbackPost).not.toBeNull()

@@ -2,24 +2,30 @@
 
 Resources the pipeline uses when a flow needs to actually receive a
 verification email, SMS, or password-reset link — i.e. flows where
-hitting `SPECTERX_USERNAME` (Guy's working account) would block him.
+hitting the **data owner** account would block the operator.
 
-**Credential values are NOT stored in this repo.** Names below refer to
-keys in `~/.config/specterx-kb/.env` (mode 600, gitignored). Source: PR #4
-review on `02-set-or-reset-password`.
+**Credential values are NOT stored in this repo.** Configure accounts in
+Ghostwriter **Settings** (`#/settings`) or edit
+`~/.config/specterx-kb/test-config.json` (mode 600, gitignored). Legacy
+env vars in `~/.config/specterx-kb/.env` still work as fallbacks when a
+config field is empty.
 
-## Dedicated password-reset / verification-recipient account
+## Config roles (test-config.json → `users.*`)
 
-| Field          | Value                                             |
-| -------------- | ------------------------------------------------- |
-| SpecterX email | `davidch@specterx.com`                            |
-| Gmail mailbox  | same address — log into Gmail to read messages    |
-| Gmail password | env var `TEST_RECIPIENT_GMAIL_PASSWORD`           |
-| SpecterX login | same env var (Gmail and SpecterX share the password) |
-| Env handle     | env var `TEST_RECIPIENT_EMAIL`                    |
+| Role key | Purpose | Typical `value_ref` keys |
+| -------- | ------- | ------------------------ |
+| `data_owner` | Primary SpecterX login for upload/share tests | `users.data_owner.email`, `users.data_owner.password` |
+| `recipient` | Share recipient, external-user flows | `users.recipient.email` |
+| `recipient_gmail` | Read verification / reset emails in Gmail | `users.recipient_gmail.email`, `users.recipient_gmail.password` |
 
-Use this account — **not** `SPECTERX_USERNAME` — whenever the test plan
-needs to:
+Add custom roles in Settings when a flow needs another login (e.g. a second
+tenant user). Reference them in test plans with `value_ref`:
+`users.<role>.email` / `users.<role>.password`.
+
+### Dedicated password-reset / verification-recipient account
+
+Use the configured **`recipient`** / **`recipient_gmail`** roles — **not**
+`data_owner` — whenever the test plan needs to:
 
 - Trigger a real password-reset email and read the verification code.
 - Click an activation / confirm-user link end-to-end.
@@ -28,18 +34,17 @@ needs to:
   article's `test-notes.md` § "Limitation acknowledged up front"
   resolves once the test runner reads the inbox via Gmail).
 
-Resetting `davidch@specterx.com` does **not** lock out Guy's working
-account.
+Resetting the recipient account does **not** lock out the data owner's
+working account.
 
 ### Provisioning prerequisite (learned the hard way on PR #4)
 
-A Google Workspace mailbox at `davidch@specterx.com` is **not enough**.
-The address must also be invited as an active SpecterX user in the
-target tenant before the password-reset flow will work end-to-end.
-SpecterX is no-enumeration: if you click **Reset password** for an
-address that has a mailbox but no SpecterX user, the UI silently looks
-identical to a successful submission and no verification email is
-ever sent.
+A Google Workspace mailbox for the recipient is **not enough**. The address
+must also be invited as an active SpecterX user in the target tenant before
+the password-reset flow will work end-to-end. SpecterX is no-enumeration: if
+you click **Reset password** for an address that has a mailbox but no
+SpecterX user, the UI silently looks identical to a successful submission
+and no verification email is ever sent.
 
 When introducing a new test recipient:
 
@@ -55,6 +60,19 @@ If a future article's E2E run produces zero reset emails for the
 recipient and the SpecterX UI looks normal, the most likely cause is
 that the recipient was de-provisioned or never provisioned in the
 target tenant. Re-run step 1 before debugging Playwright or Gmail.
+
+## Upload file names (`files.*` in test-config.json)
+
+Configure in Ghostwriter **Settings**:
+
+| Field | Placeholder | Use |
+| ----- | ----------- | --- |
+| `files.default` | `{{files.default}}` | Single-file upload steps |
+| `files.list` | individual names | Multi-select uploads |
+| `files.folder` | `{{files.folder}}` | Whole-folder upload |
+| `files.folder_files` | — | Contents generated under the folder |
+
+The tester creates missing fixtures under `tester/fixtures/` at run start.
 
 ## Ad-hoc throwaway recipient mailboxes — Mailinator
 
@@ -114,11 +132,9 @@ should retry rather than reading the inbox once.
 
 ## Hard rules
 
-- Never paste any of the values stored in env vars (Gmail password,
-  Quackr API key) into a markdown file, draft, screenshot, commit
-  message, or PR description. They live in `~/.config/specterx-kb/.env`
-  only.
-- Do not include `davidch@specterx.com` in committed screenshots either
-  — redact per `tester/sensitive-terms.txt` (add the address to that
-  list if it is not already covered).
+- Never paste passwords, API keys, or env values into markdown, drafts,
+  screenshots, commit messages, or PR descriptions.
+- Do not include configured recipient emails in committed screenshots —
+  redact per `tester/sensitive-terms.txt` (configured emails are included
+  automatically in screenshot review).
 - Mailinator inboxes are public — never send anything sensitive to one.

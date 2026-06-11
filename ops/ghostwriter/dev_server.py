@@ -57,10 +57,12 @@ _dashboard = _import_module("dash_dev", DASHBOARD_DIR / "dev_server.py")
 SIM = _dashboard.Simulator()
 
 os.environ.setdefault("KB_REPO_ROOT", str(REPO_ROOT))
+sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(PR_WATCHER_DIR))
 _qs = _import_module("queue_store", PR_WATCHER_DIR / "queue_store.py")
 _pt = _import_module("preview_transform", PR_WATCHER_DIR / "preview_transform.py")
 _fb = _import_module("feedback_store", PR_WATCHER_DIR / "feedback_store.py")
+_tc = _import_module("test_config", REPO_ROOT / "store" / "test_config.py")
 
 
 def control_reachable() -> bool:
@@ -222,6 +224,17 @@ def local_delete_article(slug: str, remove_from_plan: bool) -> tuple[int, dict]:
     return 200, result
 
 
+def local_test_config_get() -> dict:
+    cfg = _tc.load()
+    return _tc.mask_for_api(cfg)
+
+
+def local_test_config_put(payload: dict) -> tuple[int, dict]:
+    merged = _tc.merge_update(payload)
+    _tc.save(merged)
+    return 200, {"ok": True}
+
+
 def local_remove_feedback(slug: str, ann_id: str) -> tuple[int, dict]:
     if not slug:
         return 400, {"ok": False, "error": "slug required"}
@@ -342,6 +355,12 @@ class ShimHandler(BaseHTTPRequestHandler):
                     return
                 self._send_json(local_feedback(slug))
                 return
+            if path == "/api/test-config":
+                try:
+                    self._send_json(local_test_config_get())
+                except Exception as exc:
+                    self._send_json({"error": str(exc)}, 500)
+                return
             self._send_json({"error": "not found"}, 404)
             return
 
@@ -349,11 +368,32 @@ class ShimHandler(BaseHTTPRequestHandler):
 
     def do_PUT(self) -> None:
         parsed = urlparse(self.path)
-        if parsed.path != "/api/queue":
+        path = parsed.path
+        body = self._read_body()
+
+        if path == "/api/test-config":
+            if self._control_up():
+                try:
+                    code, raw = proxy_request("PUT", path, body=body)
+                    self._send_bytes(code, raw)
+                    return
+                except urllib.error.HTTPError as exc:
+                    self._send_bytes(exc.code, exc.read())
+                    return
+                except Exception:
+                    pass
+            try:
+                payload = json.loads(body or b"{}")
+                code, result = local_test_config_put(payload)
+                self._send_json(result, code)
+            except Exception as exc:
+                self._send_json({"error": str(exc)}, 400)
+            return
+
+        if path != "/api/queue":
             self._send_json({"error": "not found"}, 404)
             return
 
-        body = self._read_body()
         if self._control_up():
             try:
                 code, raw = proxy_request("PUT", parsed.path, body=body)

@@ -37,6 +37,7 @@ from playwright.sync_api import (
 )
 
 from tester.screenshot_review import ReviewResult, review_screenshot
+from store.test_config import load as load_test_config, prepare_step, resolve_action_value
 
 log = logging.getLogger("tester.browser")
 
@@ -132,9 +133,11 @@ class BrowserRunner:
         cdp_url: str | None = None,
         headless: bool | None = None,
         viewport: tuple[int, int] = (1280, 800),
+        test_config: dict[str, Any] | None = None,
     ) -> None:
         self.screenshots_dir = Path(screenshots_dir)
         self.screenshots_dir.mkdir(parents=True, exist_ok=True)
+        self._test_config = test_config if test_config is not None else load_test_config()
         self._cdp_url = cdp_url if cdp_url is not None else _resolve_cdp_url()
         if headless is None:
             headless = os.environ.get("PLAYWRIGHT_HEADLESS", "1") != "0"
@@ -197,14 +200,15 @@ class BrowserRunner:
     # ---- step execution -----------------------------------------------------
 
     def run_step(self, step: dict[str, Any]) -> StepResult:
-        result = self._run_step_once(step)
+        prepared = prepare_step(step, self._test_config)
+        result = self._run_step_once(prepared)
         if result.ok:
             return result
         try:
             self.page.keyboard.press("Escape")
         except Exception:
             pass
-        return self._run_step_once(step)
+        return self._run_step_once(prepared)
 
     def _run_step_once(self, step: dict[str, Any]) -> StepResult:
         step_id = str(step.get("id", "??"))
@@ -248,28 +252,18 @@ class BrowserRunner:
             target.click(timeout=timeout)
         elif kind == "fill":
             target = self._locate(action, timeout=timeout)
-            value = action.get("value")
-            if value is None and action.get("value_env"):
-                env_name = action["value_env"]
-                value = os.environ.get(env_name)
-                if value is None:
-                    raise ValueError(
-                        f"fill: env var {env_name!r} not set; export it before running"
-                    )
+            value = resolve_action_value(action, self._test_config)
             if value is None:
-                raise ValueError("fill action requires 'value' or 'value_env'")
+                hint = action.get("value_ref") or action.get("value_env") or "value"
+                raise ValueError(f"fill: could not resolve credential {hint!r}")
             target.fill(value, timeout=timeout)
         elif kind == "type":
             target = self._locate(action, timeout=timeout)
-            value = action.get("value")
-            if value is None and action.get("value_env"):
-                env_name = action["value_env"]
-                value = os.environ.get(env_name)
-                if value is None:
-                    raise ValueError(
-                        f"type: env var {env_name!r} not set; export it before running"
-                    )
-            target.fill(value or "", timeout=timeout)
+            value = resolve_action_value(action, self._test_config)
+            if value is None:
+                hint = action.get("value_ref") or action.get("value_env") or "value"
+                raise ValueError(f"type: could not resolve credential {hint!r}")
+            target.fill(value, timeout=timeout)
             if "enter" in str(action.get("confirm", "")).lower():
                 page.keyboard.press("Enter")
         elif kind == "navigate":

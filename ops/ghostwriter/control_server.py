@@ -70,6 +70,7 @@ def main() -> None:
     print(f"  Listen:   http://127.0.0.1:{port}/")
     print("  Routes: GET/PUT /api/queue  POST /api/queue/trigger")
     print("          POST /api/queue/approve  POST /api/queue/publish  POST /api/queue/request-changes")
+    print("          GET /api/test-config  PUT /api/test-config")
     print("          GET /api/feedback  POST /api/feedback  DELETE /api/feedback")
     print("          GET /api/articles/{slug}/preview  DELETE /api/articles/{slug}")
     print("          POST /poll-now")
