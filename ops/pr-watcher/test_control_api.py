@@ -236,13 +236,16 @@ class ControlApiTests(unittest.TestCase):
         self._restore_queue()
         slug = "02-set-or-reset-password"
         with mock.patch.object(
-            self.pw, "git", side_effect=self._git_side_effect(slug, tracked=False),
-        ):
+            self.pw, "git", side_effect=self._git_side_effect(slug, tracked=True),
+        ) as git:
             code, payload, _ = self._req(
                 "DELETE", f"/api/articles/{slug}?remove_from_plan=true",
             )
         self.assertEqual(code, 200)
         self.assertTrue(payload["removed_from_plan"])
+        self.assertTrue(payload["pushed"])
+        called = [c.args for c in git.call_args_list]
+        self.assertIn(("add", "--", "clusters/queue.json"), called)
         q = json.loads((self.root / "clusters" / "queue.json").read_text())
         slugs = [a["slug"] for c in q["clusters"] for a in c["articles"]]
         self.assertNotIn(slug, slugs)

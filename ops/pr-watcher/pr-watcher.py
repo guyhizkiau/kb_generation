@@ -661,9 +661,21 @@ def _handle_delete_article(slug: str, remove_from_plan: bool) -> dict:
     pushed = False
     push_failed = False
     push_error = ""
+
+    removed_from_plan = False
+    if remove_from_plan:
+        try:
+            with _queue_lock:
+                removed_from_plan = _qs.remove_article_from_queue(slug)
+            _poll_now.set()
+        except Exception as exc:
+            log(f"  WARNING: remove {slug} from queue failed: {exc}")
+
     if tracked:
         _qs.delete_article_dir(slug)
         git("add", "-A", "--", f"articles/{slug}", check=False)
+        if removed_from_plan:
+            git("add", "--", "clusters/queue.json", check=False)
         git("commit", "-m", f"chore(article): delete {slug}", check=False)
         try:
             git("push", "origin", "main")
@@ -680,15 +692,6 @@ def _handle_delete_article(slug: str, remove_from_plan: bool) -> dict:
             _fb.delete_feedback(slug)
         except Exception as exc:
             log(f"  WARNING: delete feedback for {slug} failed: {exc}")
-
-    removed_from_plan = False
-    if remove_from_plan:
-        try:
-            with _queue_lock:
-                removed_from_plan = _qs.remove_article_from_queue(slug)
-            _poll_now.set()
-        except Exception as exc:
-            log(f"  WARNING: remove {slug} from queue failed: {exc}")
 
     log(f"  Ghostwriter deleted article {slug} "
         f"(merged={merged}, removed_from_plan={removed_from_plan})")
