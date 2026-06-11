@@ -28,8 +28,6 @@ from store.paths import article_dir, articles_root, repo_root, state_path
 from store.queue import (
     SLUG_RE,
     TERMINAL_PHASES,
-    VALID_MODES,
-    VALID_STATUSES,
     article_is_merged,
     article_state_fields,
     article_state_path,
@@ -52,8 +50,6 @@ from store.state import (
 __all__ = [
     "SLUG_RE",
     "TERMINAL_PHASES",
-    "VALID_MODES",
-    "VALID_STATUSES",
     "append_feedback",
     "article_dir",
     "article_is_merged",

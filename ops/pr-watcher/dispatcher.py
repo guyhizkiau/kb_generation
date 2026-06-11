@@ -82,18 +82,14 @@ def dispatch_idle(
     save_state,
     log,
 ) -> None:
-    """Pick up queued or stale work when no article is in flight."""
+    """When idle, optionally queue stale-article re-verification only.
+
+    New articles in the plan are not auto-started — use Ghostwriter
+    "Write next" (POST /api/queue/trigger reason=manual).
+    """
     if is_claude_running():
         return
-    if queue_reverification():
-        return
-    picked = first_queued_slug()
-    if picked:
-        slug, cluster_id = picked
-        if not (article_dir(slug) / "STATE").exists():
-            write_state(slug, {"PHASE": "QUEUED", "CLUSTER": cluster_id, "NEXT_ACTION": ""})
-        transition(slug, "RESEARCHING")
-        _launch(slug, "research", launch_phase, state, save_state, log)
+    queue_reverification()
 
 
 def _dedupe_key(slug: str, action: str) -> str:

@@ -58,9 +58,6 @@ def strip_queue_for_save(q: dict) -> dict:
         clusters.append({
             "id": cluster["id"],
             "title": cluster.get("title", ""),
-            "mode": cluster.get("mode", "serial"),
-            "status": cluster.get("status", "active"),
-            "pause_after": cluster.get("pause_after", False),
             "articles": [
                 {"slug": art["slug"], "title": art.get("title", art["slug"])}
                 for art in cluster.get("articles", [])
@@ -125,8 +122,6 @@ def article_is_merged(slug: str) -> bool:
 
 
 SLUG_RE = re.compile(r"^\d{2}-[a-z0-9-]+$")
-VALID_MODES = {"serial", "parallel"}
-VALID_STATUSES = {"active", "paused", "done"}
 TERMINAL_PHASES = {"PUBLISHED"}
 
 
@@ -153,28 +148,15 @@ def next_article(merged_slug: str, q: dict | None = None) -> dict:
             return {"action": "noop", "cluster_id": cid, "articles": [],
                     "pause_notice": "revision-cycle re-merge, not advancing cluster"}
 
-        if cluster.get("status") == "paused":
-            return {"action": "paused", "cluster_id": cid, "articles": [],
-                    "pause_notice": f"cluster {cid} is paused"}
-
         idx = slugs.index(merged_slug)
 
         if idx >= len(articles) - 1:
-            if cluster.get("pause_after"):
-                return {"action": "pause", "cluster_id": cid, "articles": [],
-                        "pause_notice": (
-                            f"All articles in cluster {cid} merged. "
-                            "Pausing for review before next cluster."
-                        )}
             clusters = q.get("clusters", [])
             cidx = next((i for i, c in enumerate(clusters) if c["id"] == cid), -1)
             if cidx < 0 or cidx >= len(clusters) - 1:
                 return {"action": "cluster_done", "cluster_id": cid, "articles": [],
                         "pause_notice": f"cluster {cid} complete, no next cluster"}
             next_cluster = clusters[cidx + 1]
-            if next_cluster.get("status") == "paused":
-                return {"action": "paused", "cluster_id": next_cluster["id"], "articles": [],
-                        "pause_notice": f"next cluster {next_cluster['id']} is paused"}
             next_arts = next_cluster.get("articles", [])
             if not next_arts:
                 return {"action": "cluster_done", "cluster_id": next_cluster["id"],
@@ -256,15 +238,6 @@ def validate_slugs(q: dict) -> list[dict]:
 
     for cluster in q.get("clusters", []):
         cid = cluster.get("id", "?")
-        mode = cluster.get("mode", "serial")
-        status = cluster.get("status", "active")
-
-        if mode not in VALID_MODES:
-            issues.append({"level": "error",
-                            "message": f"cluster {cid}: invalid mode '{mode}'"})
-        if status not in VALID_STATUSES:
-            issues.append({"level": "error",
-                            "message": f"cluster {cid}: invalid status '{status}'"})
 
         for art in cluster.get("articles", []):
             slug = art.get("slug", "")

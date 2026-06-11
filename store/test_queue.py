@@ -19,9 +19,6 @@ def _seed_queue(root: Path) -> dict:
             {
                 "id": "01-login",
                 "title": "Login cluster",
-                "mode": "serial",
-                "status": "active",
-                "pause_after": True,
                 "articles": [
                     {"slug": "01-log-in-to-specterx", "title": "Log in"},
                     {"slug": "02-set-or-reset-password", "title": "Reset password"},
@@ -31,9 +28,6 @@ def _seed_queue(root: Path) -> dict:
             {
                 "id": "02-sharing",
                 "title": "Sharing cluster",
-                "mode": "serial",
-                "status": "active",
-                "pause_after": False,
                 "articles": [
                     {"slug": "04-share-file", "title": "Share a file"},
                 ],
@@ -75,18 +69,11 @@ class QueueStoreTests(unittest.TestCase):
         plan = qs.next_article("01-log-in-to-specterx")
         self.assertEqual(plan["action"], "noop")
 
-    def test_next_article_pause_after_last(self):
+    def test_next_article_rollover_to_next_cluster(self):
         plan = qs.next_article("03-what-is-specterx")
-        self.assertEqual(plan["action"], "pause")
-
-    def test_next_article_ignores_parallel_mode(self):
-        q = qs.load_queue()
-        q["clusters"][0]["mode"] = "parallel"
-        qs.save_queue(q)
-        plan = qs.next_article("01-log-in-to-specterx", q)
         self.assertEqual(plan["action"], "next_article")
-        self.assertEqual(len(plan["articles"]), 1)
-        self.assertEqual(plan["articles"][0]["slug"], "02-set-or-reset-password")
+        self.assertEqual(plan["cluster_id"], "02-sharing")
+        self.assertEqual(plan["articles"][0]["slug"], "04-share-file")
 
     def test_write_state_fields_round_trip(self):
         path = qs.article_state_path("01-log-in-to-specterx")

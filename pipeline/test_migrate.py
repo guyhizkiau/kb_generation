@@ -21,7 +21,7 @@ class MigrateTests(unittest.TestCase):
         subprocess.run(["git", "config", "user.name", "t"], cwd=self.root, check=True)
         (self.root / "clusters").mkdir()
         (self.root / "clusters" / "queue.json").write_text(
-            '{"version":1,"clusters":[{"id":"c1","status":"active","pause_after":false,'
+            '{"version":1,"clusters":[{"id":"c1",'
             '"articles":[{"slug":"01-a","title":"A"},{"slug":"02-b","title":"B"}]}]}'
         )
         for slug, phase in [("01-a", "TESTING"), ("02-b", "DRAFTING")]:
@@ -76,7 +76,7 @@ class MigrateTests(unittest.TestCase):
     def test_seeds_queued_state_for_unstarted_articles(self):
         # Queue articles without a STATE file get explicit PHASE=QUEUED.
         (self.root / "clusters" / "queue.json").write_text(
-            '{"version":1,"clusters":[{"id":"c1","status":"active","pause_after":false,'
+            '{"version":1,"clusters":[{"id":"c1",'
             '"articles":[{"slug":"01-a","title":"A"},{"slug":"02-b","title":"B"},'
             '{"slug":"03-c","title":"C"}]}]}'
         )

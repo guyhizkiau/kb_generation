@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react'
 import {
-  Grid, Card, Text, Badge, Group, Stack, Button, Select,
-  Switch, ActionIcon, Title, Box, NavLink, TextInput,
-  SegmentedControl, Tooltip, UnstyledButton, Textarea, Collapse,
+  Grid, Card, Text, Badge, Group, Stack, Button,
+  ActionIcon, Title, Box, NavLink, TextInput,
+  Tooltip, UnstyledButton, Textarea, Collapse,
 } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { modals } from '@mantine/modals'
@@ -37,9 +37,6 @@ export function toPersistableQueue(q: QueueData): Pick<QueueData, 'version' | 'c
     clusters: q.clusters.map((c) => ({
       id: c.id,
       title: c.title,
-      mode: c.mode,
-      status: c.status,
-      pause_after: c.pause_after,
       articles: c.articles.map((a) => ({ slug: a.slug, title: a.title })),
     })) as Cluster[],
   }
@@ -378,16 +375,6 @@ export function ArticlesView() {
     [queueData],
   )
 
-  function updateCluster(patch: Partial<Cluster>) {
-    if (!activeCluster) return
-    markDirty((q) => ({
-      ...q,
-      clusters: q.clusters.map((c) =>
-        c.id === activeCluster.id ? { ...c, ...patch } : c,
-      ),
-    }))
-  }
-
   function handleDragEnd(event: DragEndEvent) {
     if (!activeCluster) return
     const { active, over } = event
@@ -589,7 +576,6 @@ export function ArticlesView() {
               <NavLink
                 key={c.id}
                 label={c.title}
-                description={c.status}
                 active={activeClusterId === c.id}
                 onClick={() => switchCluster(c.id)}
                 variant="filled"
@@ -603,41 +589,7 @@ export function ArticlesView() {
           {activeCluster ? (
             <Stack gap="md">
               <Card withBorder>
-                <Stack gap="xs" mb="md">
-                  <Group justify="space-between" wrap="wrap">
-                    <Text fw={600}>{activeCluster.title}</Text>
-                    <Group gap="xs" wrap="wrap">
-                      <SegmentedControl
-                        size="xs"
-                        value={activeCluster.mode}
-                        onChange={(v) => updateCluster({ mode: v as 'serial' | 'parallel' })}
-                        data={[
-                          { label: 'Serial', value: 'serial' },
-                          { label: 'Parallel', value: 'parallel' },
-                        ]}
-                      />
-                      <Select
-                        size="xs"
-                        w={100}
-                        value={activeCluster.status}
-                        onChange={(v) =>
-                          updateCluster({ status: v as Cluster['status'] })
-                        }
-                        data={['active', 'paused', 'done']}
-                      />
-                      <Tooltip label="Pause auto-advance after last article merges">
-                        <Switch
-                          size="xs"
-                          checked={activeCluster.pause_after ?? false}
-                          onChange={(e) =>
-                            updateCluster({ pause_after: e.currentTarget.checked })
-                          }
-                          label="Pause after"
-                        />
-                      </Tooltip>
-                    </Group>
-                  </Group>
-                </Stack>
+                <Text fw={600} mb="md">{activeCluster.title}</Text>
 
                 <Text size="xs" fw={600} c="dimmed" mb="xs">WRITTEN & IN PROGRESS</Text>
                 {reviewable.length === 0 ? (

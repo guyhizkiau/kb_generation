@@ -19,7 +19,7 @@ todos:
     content: Add ops/pr-watcher/queue_store.py (load/save/next_article cluster-aware + merge STATE incl. REVISION_CYCLE/PUBLISH_STALE) reusing build_index read_state logic
     status: pending
   - id: rewire-watcher
-    content: "Rewire pr-watcher.py: remove CLUSTER_1_ARTICLES, use queue_store.next_article, honor pause_after/mode/status, guard cluster-advance on REVISION_CYCLE==0"
+    content: "Rewire pr-watcher.py: remove CLUSTER_1_ARTICLES, use queue_store.next_article, guard cluster-advance on REVISION_CYCLE==0"
     status: pending
   - id: api
     content: Extend _ControlHandler with GET/PUT /api/queue, POST /api/queue/trigger, GET /api/feedback (+CORS); keep /poll-now and /retry
@@ -157,10 +157,7 @@ stays the human backlog):
     {
       "id": "01-login",
       "title": "Login & Account",
-      "mode": "serial",
       "scenario": true,
-      "status": "in_progress",
-      "pause_after": "03-what-is-specterx",
       "articles": [
         { "slug": "01-log-in-to-specterx", "title": "Log in to the SpecterX web platform" },
         { "slug": "02-set-or-reset-password", "title": "Set or reset your password" },
@@ -171,9 +168,6 @@ stays the human backlog):
 }
 ```
 
-- `mode`: `serial` (one at a time) or `parallel` (trigger all at once).
-- `pause_after`: stop and wait for a human after this slug merges (replaces
-  the hardcoded cluster-1 review pause).
 - Per-article `state` is NOT stored here; it is read live from
   `articles/<slug>/STATE`.
 - Seed it from the current `clusters/01-login/articles.txt` + the hardcoded
@@ -183,7 +177,7 @@ stays the human backlog):
 
 - New `ops/pr-watcher/queue_store.py`: `load_queue()`, `save_queue()`,
   `next_article(merged_slug)` (cluster-aware: serial advance, cluster
-  rollover, `pause_after`, parallel fan-out), and `queue_with_states()` that
+  rollover), and `queue_with_states()` that
   merges `articles/<slug>/STATE` (reuse `read_state()` logic from
   [pipeline/build_index.py](pipeline/build_index.py)). **`next_article()`
   also owns the revision-cycle guard** (see [Part B](#b4-re-entry-into-the-pipeline)):
@@ -191,7 +185,7 @@ stays the human backlog):
   `REVISION_CYCLE > 0`.
 - Rewire [ops/pr-watcher/pr-watcher.py](ops/pr-watcher/pr-watcher.py): delete
   `CLUSTER_1_ARTICLES`; `trigger_next_article()` calls
-  `queue_store.next_article()`; respect `pause_after`/`status`.
+  `queue_store.next_article()`.
 - Extend `_ControlHandler` (currently only `POST /poll-now`, `/retry`) into a
   small REST surface — see the [unified API table](#reconciled-control-plane-api).
 
@@ -217,8 +211,7 @@ alias, `VITE_*` env, files ≤200 LOC, `Component.module.scss` per component).
 - **Queue view** (`src/views/queue/`): master-detail per design cheatsheet.
   - Left: cluster side-selector (white, selected = teal left-border + tint).
   - Right: ordered article list with drag-to-reorder, phase badges
-    (`PLANNED → … → DONE`), a clear "Next up" marker, cluster
-    `mode`/`pause_after` controls, add/remove article (from
+    (`PLANNED → … → DONE`), a clear "Next up" marker, add/remove article (from
     `ARTICLES_PLAN.md` backlog), and a "Write this next" action.
   - For an in-flight article, render the 6-step **comment-resolution track**
     from `status.json.current_task` (reuse the bulb-rail concept).
@@ -341,7 +334,7 @@ new GET/PUT routes):
 | Route | Purpose | Owner |
 |---|---|---|
 | `GET /api/queue` | clusters + merged live `STATE` + which slug is "next" + `PUBLISH_STALE` | Ghostwriter |
-| `PUT /api/queue` | replace full queue (reorder / add / remove / mode / `pause_after`); validates slugs against `editorial/ARTICLES_PLAN.md` | Ghostwriter |
+| `PUT /api/queue` | replace full queue (reorder / add / remove); validates slugs against `editorial/ARTICLES_PLAN.md` | Ghostwriter |
 | `POST /api/queue/trigger` | force a slug next; `{ reason: "manual" \| "feedback", issue? }` — feedback re-entry uses `reason: "feedback"` | shared |
 | `GET /api/feedback?slug=` | stored annotations for an article (page re-anchor + Feedback view) | Feedback loop |
 | `POST /poll-now`, `POST /retry` | existing — unchanged | existing |

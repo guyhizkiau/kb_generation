@@ -128,6 +128,22 @@ class TriggerTests(unittest.TestCase):
         merged2 = fb.merge_feedback(slug, [{"id": "existing-1"}, {"id": "new-2"}])
         self.assertEqual(len(merged2), 2)
 
+    def test_prepare_manual_research_seeds_missing_state(self):
+        slug = "02-set-or-reset-password"
+        self.assertFalse((self.root / "articles" / slug / "STATE").exists())
+        self.assertTrue(self.pw._prepare_manual_research(slug))
+        fields = self.pw._qs.read_state_fields(self.root / "articles" / slug / "STATE")
+        self.assertEqual(fields["PHASE"], "RESEARCHING")
+        self.assertEqual(fields["CLUSTER"], "01-login")
+
+    def test_prepare_manual_research_from_skipped(self):
+        from store.state import write_state
+        slug = "02-set-or-reset-password"
+        write_state(slug, {"PHASE": "SKIPPED", "CLUSTER": "01-login"})
+        self.assertTrue(self.pw._prepare_manual_research(slug))
+        fields = self.pw._qs.read_state_fields(self.root / "articles" / slug / "STATE")
+        self.assertEqual(fields["PHASE"], "RESEARCHING")
+
     def test_manual_drain_launches_research(self):
         self.pw._manual_trigger_set.append({
             "slug": "02-set-or-reset-password", "reason": "manual", "issue": "",

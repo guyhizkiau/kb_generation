@@ -20,9 +20,6 @@ export interface ArticleEntry {
 export interface Cluster {
   id: string
   title: string
-  mode: 'serial' | 'parallel'
-  status: 'active' | 'paused' | 'done'
-  pause_after: boolean
   articles: ArticleEntry[]
 }
 

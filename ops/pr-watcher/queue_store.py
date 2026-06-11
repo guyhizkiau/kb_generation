@@ -11,8 +11,6 @@ if str(_root) not in sys.path:
 from store.queue import (  # noqa: F401
     SLUG_RE,
     TERMINAL_PHASES,
-    VALID_MODES,
-    VALID_STATUSES,
     article_is_merged,
     article_state_fields,
     article_state_path,

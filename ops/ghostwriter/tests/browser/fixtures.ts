@@ -7,9 +7,6 @@ export const mockQueue = {
   clusters: [{
     id: '01-login',
     title: 'Login cluster',
-    mode: 'serial',
-    status: 'active',
-    pause_after: true,
     articles: [
       {
         slug: '01-log-in-to-specterx',

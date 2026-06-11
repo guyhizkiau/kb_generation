@@ -649,6 +649,33 @@ def _cluster_id_for_slug(slug: str) -> str:
     return ""
 
 
+def _prepare_manual_research(slug: str) -> bool:
+    """Seed STATE if needed and transition to RESEARCHING for Write next."""
+    if not _machine:
+        return True
+    from store.paths import article_dir
+    from store.state import read_state, write_state
+
+    fields = read_state(slug)
+    cur = _machine.LEGACY_MAP.get(fields.get("PHASE", ""), fields.get("PHASE", "UNKNOWN"))
+    if not (article_dir(slug) / "STATE").exists() or cur == "UNKNOWN":
+        cluster_id = _cluster_id_for_slug(slug)
+        seed: dict[str, str] = {"PHASE": "QUEUED", "NEXT_ACTION": ""}
+        if cluster_id:
+            seed["CLUSTER"] = cluster_id
+        write_state(slug, seed)
+        cur = "QUEUED"
+    if cur not in ("QUEUED", "SKIPPED"):
+        log(f"  Manual trigger: {slug} is {cur}, not startable")
+        return False
+    try:
+        _machine.transition(slug, "RESEARCHING")
+    except Exception as exc:
+        log(f"  Manual trigger: could not transition {slug}: {exc}")
+        return False
+    return True
+
+
 def _handle_delete_article(slug: str, remove_from_plan: bool) -> dict:
     """Delete an article's files and optionally drop it from the queue."""
     if not _QUEUE_STORE_AVAILABLE:
@@ -1050,11 +1077,8 @@ def main():
                         break
                     slug = trig["slug"]
                     _manual_trigger_set.pop(0)
-                    if _machine:
-                        try:
-                            _machine.transition(slug, "RESEARCHING")
-                        except Exception as exc:
-                            log(f"  Manual trigger: could not transition {slug}: {exc}")
+                    if not _prepare_manual_research(slug):
+                        continue
                     _launch_phase(slug, "research")
                     state.setdefault("handled", []).append(f"article-triggered-{slug}")
                     save_state(state)

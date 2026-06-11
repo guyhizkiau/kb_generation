@@ -25,7 +25,7 @@ class DispatcherTests(unittest.TestCase):
         (self.root / "clusters" / "queue.json").write_text(json.dumps({
             "version": 1,
             "clusters": [{
-                "id": "c1", "status": "active", "pause_after": False,
+                "id": "c1",
                 "articles": [
                     {"slug": "01-a", "title": "A"},
                     {"slug": "02-b", "title": "B"},
@@ -78,22 +78,20 @@ class DispatcherTests(unittest.TestCase):
 
     # -- dispatch_idle -----------------------------------------------------
 
-    def test_idle_seeds_state_and_launches_research(self):
+    def test_idle_does_not_auto_launch(self):
         self._mk_article("01-a", "PUBLISHED")
         self._idle()
-        self.assertEqual(self.launches, [("02-b", "research")])
-        fields = read_state("02-b")
-        self.assertEqual(fields["PHASE"], "RESEARCHING")
-        self.assertEqual(fields["CLUSTER"], "c1")
+        self.assertEqual(self.launches, [])
+        self.assertFalse((self.root / "articles" / "02-b" / "STATE").exists())
+
+    def test_idle_runs_reverification_without_launching(self):
+        self._mk_article("01-a", "QUEUED")
+        self._idle(reverify=lambda: True)
+        self.assertEqual(self.launches, [])
 
     def test_idle_defers_while_claude_running(self):
         self._mk_article("01-a", "QUEUED")
         self._idle(running=lambda: True)
-        self.assertEqual(self.launches, [])
-
-    def test_idle_reverification_outranks_new_work(self):
-        self._mk_article("01-a", "QUEUED")
-        self._idle(reverify=lambda: True)
         self.assertEqual(self.launches, [])
 
     # -- dispatch ----------------------------------------------------------

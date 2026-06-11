@@ -36,9 +36,6 @@ def make_fixture_repo() -> tuple[tempfile.TemporaryDirectory, Path]:
         "clusters": [{
             "id": "01-login",
             "title": "Login",
-            "mode": "serial",
-            "status": "active",
-            "pause_after": True,
             "articles": [
                 {"slug": "01-log-in-to-specterx", "title": "Log in"},
                 {"slug": "02-set-or-reset-password", "title": "Reset"},
