@@ -508,6 +508,20 @@ Before pressing the shutter on any screenshot, walk through this list. The goal 
 
 If any of these are still visible when you press the shutter, recapture — do not commit the dirty frame.
 
+#### Post-capture review checklist
+
+After every capture — before clicking anything else or moving to the next step —
+open the PNG and ask: is this a good screenshot?
+
+- **Stable frame?** No mid-animation transitions, half-open dialogs, or fading overlays.
+- **Fully loaded?** No spinners, skeleton screens, or blank/partially rendered regions.
+- **Focus unobscured?** No tooltips, toasts, unrelated dropdowns, or promo popups covering the element the step is about.
+- **Right subject?** The UI element named in the step (or the `focus` field in the test plan) is clearly visible.
+- **Clean enough to publish?** Same bar as the pre-capture checklist — if a dirty frame slipped through, recapture now.
+
+The automated tester runs this review in-loop via AI vision; agent-driven captures
+(research UI recon, manual retakes) must self-review the same way.
+
 ### Cropping
 
 After capture, crop to the relevant region:

@@ -63,6 +63,10 @@ image syntax. No more `> Screenshot: ...` placeholders in draft-2.
 - If the draft had both placeholders but the tester only produced one
   screenshot, add the missing screenshot step to `test-plan.json` and
   re-run the tester rather than silently dropping the close-up.
+- If `test-notes.md` flags a step with `screenshot flagged by review —
+  may need a retake`, inspect that PNG. Patch `test-plan.json` (e.g. add
+  or extend a `wait_for` before the capture step) and re-run the tester.
+  Do not embed a flagged frame in `draft-2.md` without a retake attempt.
 
 The tester supports element-level close-ups via the `"element"` field in
 the screenshot spec (see `pipeline/prompts/02-test-plan.md`). When a step

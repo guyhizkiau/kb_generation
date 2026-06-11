@@ -225,7 +225,11 @@ Procedure:
 3. Open and close any menus or dialogs the flow will involve
 4. Capture full-viewport screenshots of each state to
    `ui-snapshot/00-<state>.png`, `01-<state>.png`, etc.
-5. For each captured state, read the accessibility tree and extract
+5. **Before moving to the next state**, open each PNG you just saved and
+   review it: is anything mid-animation, showing a loader/spinner, or
+   obscuring the UI you meant to capture? Recapture if bad — do not proceed
+   with a dirty frame.
+6. For each captured state, read the accessibility tree and extract
    labels into `ui-glossary.md`
 
 Format for `ui-glossary.md`:

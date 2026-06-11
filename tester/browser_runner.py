@@ -36,6 +36,8 @@ from playwright.sync_api import (
     sync_playwright,
 )
 
+from tester.screenshot_review import ReviewResult, review_screenshot
+
 log = logging.getLogger("tester.browser")
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -43,6 +45,9 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 CDP_DEFAULT_PORT = 9222
 CDP_DEFAULT_TIMEOUT_S = 3
 STEP_DEFAULT_TIMEOUT_MS = 15_000
+SCREENSHOT_SETTLE_MS = 3_000
+SCREENSHOT_REVIEW_MAX_ATTEMPTS = 3
+SCREENSHOT_REVIEW_RETRY_WAITS_MS = (2_000, 4_000)
 
 
 def _wsl_host_ip() -> str | None:
@@ -216,11 +221,19 @@ class BrowserRunner:
 
         observation = self._observe(step)
         artifact = action.get("_download_path")
-        screenshot_path = artifact or (
-            self._capture(step_id, screenshot_spec) if screenshot_spec.get("after") else None
-        )
+        screenshot_path: str | None = None
+        if artifact:
+            screenshot_path = artifact
+        elif screenshot_spec.get("after"):
+            screenshot_path, review_note = self._capture(
+                step_id,
+                screenshot_spec,
+                description=desc,
+            )
+            if review_note:
+                observation = f"{observation}; {review_note}"
 
-        return StepResult(step_id, True, observation, screenshot=screenshot_path)
+        return StepResult(step_id, True, observation, screenshot=screenshot_path or None)
 
     # ---- actions ------------------------------------------------------------
 
@@ -399,34 +412,66 @@ class BrowserRunner:
                 parts.append(f"verify({verify!r})=error:{exc.__class__.__name__}")
         return "; ".join(parts)
 
-    def _capture(self, step_id: str, spec: dict[str, Any]) -> str:
+    def _write_screenshot(self, out: Path, spec: dict[str, Any]) -> None:
+        element_selector = spec.get("element")
+        if element_selector:
+            loc = self.page.locator(element_selector).first
+            bbox = loc.bounding_box()
+            if bbox:
+                pad_x, pad_y = 60, 30
+                clip = {
+                    "x": max(0.0, bbox["x"] - pad_x),
+                    "y": max(0.0, bbox["y"] - pad_y),
+                    "width": bbox["width"] + pad_x * 2,
+                    "height": bbox["height"] + pad_y * 2,
+                }
+                self.page.screenshot(path=str(out), clip=clip)
+            else:
+                loc.screenshot(path=str(out))
+        else:
+            self.page.screenshot(path=str(out), full_page=bool(spec.get("full_page", False)))
+
+    def _relative_screenshot_path(self, out: Path) -> str:
+        if out.is_relative_to(self.screenshots_dir.parent):
+            return str(out.relative_to(self.screenshots_dir.parent))
+        return str(out)
+
+    def _capture(
+        self,
+        step_id: str,
+        spec: dict[str, Any],
+        *,
+        description: str = "",
+    ) -> tuple[str, str]:
         filename = spec.get("filename") or f"{step_id}-after.png"
         out = self.screenshots_dir / filename
-        # Always wait 3 s before capturing so animations and lazy-loading settle
-        self.page.wait_for_timeout(3000)
-        try:
-            element_selector = spec.get("element")
-            if element_selector:
-                # Close-up of a specific element with padding for context
-                loc = self.page.locator(element_selector).first
-                bbox = loc.bounding_box()
-                if bbox:
-                    pad_x, pad_y = 60, 30
-                    clip = {
-                        "x": max(0.0, bbox["x"] - pad_x),
-                        "y": max(0.0, bbox["y"] - pad_y),
-                        "width": bbox["width"] + pad_x * 2,
-                        "height": bbox["height"] + pad_y * 2,
-                    }
-                    self.page.screenshot(path=str(out), clip=clip)
-                else:
-                    loc.screenshot(path=str(out))
+        focus = str(spec.get("focus") or "")
+        last_review = ReviewResult(ok=False, reason="capture loop did not run")
+
+        for attempt in range(1, SCREENSHOT_REVIEW_MAX_ATTEMPTS + 1):
+            if attempt == 1:
+                self.page.wait_for_timeout(SCREENSHOT_SETTLE_MS)
             else:
-                self.page.screenshot(path=str(out), full_page=bool(spec.get("full_page", False)))
-        except Exception as exc:
-            log.warning("screenshot failed for step %s: %s", step_id, exc)
-            return ""
-        return str(out.relative_to(self.screenshots_dir.parent)) if out.is_relative_to(self.screenshots_dir.parent) else str(out)
+                wait_idx = attempt - 2
+                if wait_idx < len(SCREENSHOT_REVIEW_RETRY_WAITS_MS):
+                    self.page.wait_for_timeout(SCREENSHOT_REVIEW_RETRY_WAITS_MS[wait_idx])
+            try:
+                self._write_screenshot(out, spec)
+            except Exception as exc:
+                log.warning("screenshot failed for step %s: %s", step_id, exc)
+                return "", ""
+
+            last_review = review_screenshot(out, focus=focus, description=description)
+            if last_review.skipped or last_review.ok:
+                return (
+                    self._relative_screenshot_path(out),
+                    last_review.observation_suffix(attempts=attempt),
+                )
+
+        return (
+            self._relative_screenshot_path(out),
+            last_review.observation_suffix(attempts=SCREENSHOT_REVIEW_MAX_ATTEMPTS),
+        )
 
 
 def _name_from_hint(hint: str) -> str | None:

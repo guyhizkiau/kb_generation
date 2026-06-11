@@ -164,3 +164,38 @@ class RunnerTests(unittest.TestCase):
             rc = runner.execute(self.slug)
         self.assertEqual(rc, 1)
         self.assertIn("desktop", read_state(self.slug)["BLOCKED_REASON"])
+
+    def test_bad_screenshot_review_does_not_block_passing_run(self):
+        self._plan([{"id": "1", "description": "click", "action": {"type": "noop"}}])
+
+        class OkRunnerBadScreenshot:
+            mode = "stub"
+
+            def __init__(self, **kwargs):
+                pass
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *a):
+                pass
+
+            def run_step(self, step):
+                from tester.browser_runner import StepResult
+
+                return StepResult(
+                    str(step["id"]),
+                    True,
+                    "ok; screenshot-review=BAD: spinner visible after 3 attempts",
+                    screenshot="screenshots/01.png",
+                )
+
+        runner._browser_runner_cls = OkRunnerBadScreenshot
+        with mock.patch("tester.runner.classify", return_value="browser"):
+            rc = runner.execute(self.slug)
+        self.assertEqual(rc, 0)
+        fields = read_state(self.slug)
+        self.assertEqual(fields["PHASE"], "REVISING")
+        self.assertNotEqual(fields.get("NEXT_ACTION"), "repair-test-plan")
+        notes = (self.root / "articles" / self.slug / "test-notes.md").read_text()
+        self.assertIn("screenshot flagged by review", notes)

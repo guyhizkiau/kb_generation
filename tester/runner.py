@@ -84,6 +84,8 @@ def write_test_notes(
         lines.append(f"- observation: {r['observation']}")
         if r.get("screenshot"):
             lines.append(f"- screenshot: `{r['screenshot']}`")
+        if "screenshot-review=BAD" in str(r.get("observation", "")):
+            lines.append("- > ⚠ screenshot flagged by review — may need a retake")
         if r.get("error"):
             lines.append(f"- error: `{r['error']}`")
         if not r["ok"] and not r.get("skipped_cascade"):

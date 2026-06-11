@@ -237,7 +237,10 @@ The `screenshot` object supports these fields:
 
 - `"after": true/false` — whether to take a screenshot after this step (required).
 - `"filename": "name.png"` — output filename under `screenshots/`.
-- `"focus": "…"` — human-readable description of what to check (for logs/report).
+- `"focus": "…"` — concrete, checkable description of what must be visible in the
+  frame. The automated tester sends each screenshot to an AI reviewer with this
+  string; vague focus text produces unreliable verdicts. Good: `"Policy dropdown
+  open with Default selected"`. Bad: `"the policy thing"`.
 - `"full_page": true` — capture the full scrollable page height (default: false).
 - `"element": "css-selector"` — take a **close-up** of the matched element with ~60px
   horizontal and ~30px vertical padding. Use this when the article text tells the user
