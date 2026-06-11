@@ -19,7 +19,6 @@
       "pause_after": true,
       "articles": [
         {"slug": "04-share-a-file",                  "title": "Securely share a file from the SpecterX web platform"},
-        {"slug": "05-share-a-folder",                "title": "Share a folder"},
         {"slug": "06-set-recipient-permissions",     "title": "Set recipient permissions"},
         {"slug": "07-update-permissions",            "title": "Update permissions after sharing"},
         {"slug": "08-revoke-access",                 "title": "Revoke access to a shared file"},
