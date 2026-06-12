@@ -293,8 +293,13 @@ def _fetch_all_repos():
 
 
 def is_claude_running() -> bool:
-    """Return True if a claude process is already running on the VM."""
-    for pattern in (r"claude.*--dangerously", r"claude.*-p", r"run_claude_code\.py"):
+    """Return True if a claude process or phase launcher is already running on the VM."""
+    for pattern in (
+        r"claude.*--dangerously",
+        r"claude.*-p",
+        r"run_claude_code\.py",
+        r"run-.+-(research|draft|test-plan|repair-test-plan|revise-from-test|revise-from-feedback|voice-pass)\.sh",
+    ):
         r = subprocess.run(["pgrep", "-f", pattern], capture_output=True)
         if r.returncode == 0:
             return True
@@ -650,7 +655,10 @@ def _cluster_id_for_slug(slug: str) -> str:
 
 
 def _prepare_manual_research(slug: str) -> bool:
-    """Seed STATE if needed and transition to RESEARCHING for Write next."""
+    """Seed STATE if needed and validate startability for Write next.
+
+    The writer transitions QUEUED/SKIPPED → RESEARCHING after git pull.
+    """
     if not _machine:
         return True
     from store.paths import article_dir
@@ -667,11 +675,6 @@ def _prepare_manual_research(slug: str) -> bool:
         cur = "QUEUED"
     if cur not in ("QUEUED", "SKIPPED"):
         log(f"  Manual trigger: {slug} is {cur}, not startable")
-        return False
-    try:
-        _machine.transition(slug, "RESEARCHING")
-    except Exception as exc:
-        log(f"  Manual trigger: could not transition {slug}: {exc}")
         return False
     return True
 

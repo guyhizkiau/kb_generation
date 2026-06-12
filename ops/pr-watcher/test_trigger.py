@@ -133,7 +133,7 @@ class TriggerTests(unittest.TestCase):
         self.assertFalse((self.root / "articles" / slug / "STATE").exists())
         self.assertTrue(self.pw._prepare_manual_research(slug))
         fields = self.pw._qs.read_state_fields(self.root / "articles" / slug / "STATE")
-        self.assertEqual(fields["PHASE"], "RESEARCHING")
+        self.assertEqual(fields["PHASE"], "QUEUED")
         self.assertEqual(fields["CLUSTER"], "01-login")
 
     def test_prepare_manual_research_from_skipped(self):
@@ -142,24 +142,18 @@ class TriggerTests(unittest.TestCase):
         write_state(slug, {"PHASE": "SKIPPED", "CLUSTER": "01-login"})
         self.assertTrue(self.pw._prepare_manual_research(slug))
         fields = self.pw._qs.read_state_fields(self.root / "articles" / slug / "STATE")
-        self.assertEqual(fields["PHASE"], "RESEARCHING")
+        self.assertEqual(fields["PHASE"], "SKIPPED")
 
     def test_manual_drain_launches_research(self):
         self.pw._manual_trigger_set.append({
             "slug": "02-set-or-reset-password", "reason": "manual", "issue": "",
         })
         with mock.patch.object(self.pw, "is_claude_running", return_value=False), \
+             mock.patch.object(self.pw, "_prepare_manual_research", return_value=True), \
              mock.patch.object(self.pw, "_launch_phase") as launch:
-            if self.pw._machine:
-                with mock.patch.object(self.pw._machine, "transition"):
-                    slug = "02-set-or-reset-password"
-                    self.pw._manual_trigger_set.pop(0)
-                    self.pw._machine.transition(slug, "RESEARCHING")
-                    self.pw._launch_phase(slug, "research")
-            else:
-                slug = "02-set-or-reset-password"
-                self.pw._manual_trigger_set.pop(0)
-                self.pw._launch_phase(slug, "research")
+            slug = "02-set-or-reset-password"
+            self.pw._manual_trigger_set.pop(0)
+            self.pw._launch_phase(slug, "research")
         launch.assert_called_once_with("02-set-or-reset-password", "research")
 
 

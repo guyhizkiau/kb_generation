@@ -316,3 +316,58 @@ class RunClaudeCodeTests(unittest.TestCase):
         self.assertIn("data:image", html.read_text(encoding="utf-8"))
         state = (art / "STATE").read_text()
         self.assertIn("PHASE=IN_REVIEW", state)
+
+    def test_research_from_skipped_transitions_to_drafting(self):
+        slug = "05-share-a-folder"
+        self._write_state(slug, "SKIPPED")
+        art = self.root / "articles" / slug
+        research = art / "research"
+        research.mkdir(parents=True, exist_ok=True)
+        (research / "competitor-coverage.md").write_text(
+            "## Articles read\n\n- Vendor A article\n- Vendor B article\n- Vendor C article\n"
+        )
+        (research / "codebase-findings.md").write_text("# findings\n")
+        (research / "internal-sources.md").write_text("# sources\n")
+        (research / "ui-glossary.md").write_text("# glossary\n")
+        os.environ["KB_SERIAL_OVERRIDE"] = "1"
+        result = self._run(
+            "--article", slug, "--phase", "research",
+            "--claude-bin", "/usr/bin/true", "--force",
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        state = (art / "STATE").read_text()
+        self.assertIn("PHASE=DRAFTING", state)
+
+    def test_phase_mismatch_from_skipped_exits_without_blocking(self):
+        slug = "05-skipped-draft"
+        self._write_state(slug, "SKIPPED")
+        art = self._write_draft_inputs(slug)
+        (art / "draft-1.md").write_text("# draft\n")
+        os.environ["KB_SERIAL_OVERRIDE"] = "1"
+        result = self._run(
+            "--article", slug, "--phase", "draft",
+            "--claude-bin", "/usr/bin/true", "--force",
+        )
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        state = (art / "STATE").read_text()
+        self.assertIn("PHASE=SKIPPED", state)
+        self.assertNotIn("BLOCKED", state)
+        self.assertIn("cannot block", result.stdout)
+
+    def test_writer_log_includes_pid(self):
+        slug = "05-log-pid"
+        self._write_state(slug, "RESEARCHING")
+        art = self.root / "articles" / slug
+        research = art / "research"
+        research.mkdir(parents=True, exist_ok=True)
+        (research / "competitor-coverage.md").write_text(
+            "## Articles read\n\n- A\n- B\n- C\n"
+        )
+        os.environ["KB_SERIAL_OVERRIDE"] = "1"
+        self._run(
+            "--article", slug, "--phase", "research",
+            "--claude-bin", "/usr/bin/true", "--force",
+        )
+        logs = list((art / ".writer-logs").glob("*-research.log"))
+        self.assertTrue(logs, "expected at least one research log file")
+        self.assertRegex(logs[0].name, r"^\d{8}T\d{6}Z-\d+-research\.log$")

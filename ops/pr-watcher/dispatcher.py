@@ -59,7 +59,7 @@ def dispatch(
     adir = article_dir(slug)
 
     handlers = {
-        "QUEUED": lambda: _launch(slug, "research", launch_phase, state, save_state, log, pre_transition=("RESEARCHING",)),
+        "QUEUED": lambda: _launch(slug, "research", launch_phase, state, save_state, log),
         "RESEARCHING": lambda: _relaunch_if_idle(slug, "research", launch_phase, is_claude_running, log),
         "DRAFTING": lambda: _launch(slug, "draft", launch_phase, state, save_state, log),
         "TESTING": lambda: _dispatch_testing(slug, adir, launch_phase, run_tester, is_claude_running, state, save_state, log),

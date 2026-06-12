@@ -94,6 +94,11 @@ class MachineTests(unittest.TestCase):
         result = transition(self._slug(), "RESEARCHING")
         self.assertEqual(result["PHASE"], "RESEARCHING")
 
+    def test_block_rejects_skipped(self):
+        self._init(self._slug(), "SKIPPED")
+        with self.assertRaises(InvalidTransition):
+            block(self._slug(), "research completed but phase mismatch")
+
     def test_normalize_legacy_rewrites_value(self):
         self._init(self._slug(), "DONE")
         self.assertEqual(normalize_legacy(self._slug()), "PUBLISHED")

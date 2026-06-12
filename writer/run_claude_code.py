@@ -41,7 +41,13 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from store.feedback import feedback_path  # noqa: E402
-from store.machine import active_article, block, current_phase, transition  # noqa: E402
+from store.machine import (  # noqa: E402
+    InvalidTransition,
+    active_article,
+    block,
+    current_phase,
+    transition,
+)
 from store.paths import article_dir  # noqa: E402
 from store.state import write_state  # noqa: E402
 
@@ -675,6 +681,31 @@ def run_gate_with_remediation(
 
 # ── state transitions ─────────────────────────────────────────────────────────
 
+def _block_or_log(slug: str, reason: str) -> None:
+    """Block the article when allowed; otherwise log and leave STATE unchanged."""
+    try:
+        block(slug, reason)
+    except InvalidTransition:
+        print(
+            f"[writer] cannot block {slug} ({current_phase(slug)}): {reason}",
+            flush=True,
+        )
+
+
+def _ensure_researching(slug: str) -> None:
+    """Transition QUEUED/SKIPPED → RESEARCHING at research phase start.
+
+    Runs after the launcher's git pull so state_path() resolves consistently.
+    """
+    cur = current_phase(slug)
+    if cur in {"QUEUED", "SKIPPED"}:
+        transition(slug, "RESEARCHING")
+    elif cur != "RESEARCHING":
+        raise RuntimeError(
+            f"research phase requires QUEUED, SKIPPED, or RESEARCHING; got {cur}"
+        )
+
+
 def apply_phase_transition(slug: str, phase: str) -> None:
     """Transition STATE after a successful phase completion."""
     spec = PHASE_TRANSITIONS.get(phase)
@@ -683,7 +714,7 @@ def apply_phase_transition(slug: str, phase: str) -> None:
     expected_from, to_phase = spec
     cur = current_phase(slug)
     if cur != expected_from:
-        block(slug, f"{phase} completed but phase is {cur}, expected {expected_from}")
+        _block_or_log(slug, f"{phase} completed but phase is {cur}, expected {expected_from}")
         raise RuntimeError(f"phase mismatch: {cur} != {expected_from}")
     transition(slug, to_phase)
 
@@ -732,13 +763,21 @@ def main(argv: list[str] | None = None) -> int:
     log_dir = adir / ".writer-logs"
     log_dir.mkdir(exist_ok=True)
     stamp = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    log_path = log_dir / f"{stamp}-{args.phase}.log"
+    log_path = log_dir / f"{stamp}-{os.getpid()}-{args.phase}.log"
+
+    if args.phase == "research":
+        try:
+            _ensure_researching(slug)
+        except (RuntimeError, InvalidTransition) as exc:
+            _block_or_log(slug, f"research start failed: {exc}")
+            print(f"[writer] research start failed: {exc}", flush=True)
+            return 1
 
     # ── pre-flight ────────────────────────────────────────────────────────────
     try:
         _preflight(slug, args.phase, args.claude_bin)
     except RuntimeError as exc:
-        block(slug, f"preflight failed: {exc}")
+        _block_or_log(slug, f"preflight failed: {exc}")
         print(f"[writer] preflight failed: {exc}", flush=True)
         return 1
 
@@ -795,12 +834,12 @@ def main(argv: list[str] | None = None) -> int:
 
     # ── outcome checks ────────────────────────────────────────────────────────
     if rc != 0:
-        block(slug, f"{args.phase} failed: subprocess exit {rc}")
+        _block_or_log(slug, f"{args.phase} failed: subprocess exit {rc}")
         return 1
 
     artifact = PHASE_ARTIFACTS.get(args.phase)
     if artifact and not (adir / artifact).is_file():
-        block(slug, f"{args.phase} failed: missing artifact {artifact}")
+        _block_or_log(slug, f"{args.phase} failed: missing artifact {artifact}")
         return 1
 
     if args.phase in ("research", "test-plan", "revise-from-test", "voice-pass"):
@@ -809,7 +848,7 @@ def main(argv: list[str] | None = None) -> int:
                 slug, args.phase, args.claude_bin, log
             )
         if not ok:
-            block(slug, f"{args.phase} gate: {gate_msg}")
+            _block_or_log(slug, f"{args.phase} gate: {gate_msg}")
             return 1
         print(f"[writer] gate passed: {gate_msg}", flush=True)
 
@@ -818,7 +857,7 @@ def main(argv: list[str] | None = None) -> int:
             try:
                 _render_committed_html(slug, log)
             except RuntimeError as exc:
-                block(slug, str(exc))
+                _block_or_log(slug, str(exc))
                 print(f"[writer] {exc}", flush=True)
                 return 1
 
@@ -829,7 +868,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         apply_phase_transition(slug, args.phase)
     except Exception as exc:
-        block(slug, f"{args.phase} transition failed: {exc}")
+        _block_or_log(slug, f"{args.phase} transition failed: {exc}")
         return 1
 
     return 0

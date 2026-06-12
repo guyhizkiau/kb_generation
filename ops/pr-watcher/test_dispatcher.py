@@ -112,7 +112,7 @@ class DispatcherTests(unittest.TestCase):
         self._mk_article("01-a", "QUEUED")
         self._dispatch("01-a")
         self.assertEqual(self.launches, [("01-a", "research")])
-        self.assertEqual(current_phase("01-a"), "RESEARCHING")
+        self.assertEqual(current_phase("01-a"), "QUEUED")
 
     def test_dispatch_dedupes(self):
         self._mk_article("01-a", "DRAFTING")
