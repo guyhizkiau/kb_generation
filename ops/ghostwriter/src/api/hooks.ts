@@ -298,3 +298,110 @@ export function useSaveTestConfig() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['test-config'] }),
   })
 }
+
+// ── knowledge docs ────────────────────────────────────────────────────────────
+
+export interface DocSummary {
+  id: string
+  title: string
+  group: string
+  path: string
+  exists: boolean
+  mtime: number | null
+}
+
+export interface DocContent {
+  id: string
+  content: string
+}
+
+export interface ResearchFile {
+  name: string
+  content: string
+}
+
+export interface ResearchData {
+  slug: string
+  files: ResearchFile[]
+  images: string[]
+}
+
+export function useDocs() {
+  return useQuery<{ docs: DocSummary[] }>({
+    queryKey: ['docs'],
+    queryFn: () => apiFetch('/api/docs'),
+  })
+}
+
+export function useDoc(id: string) {
+  return useQuery<DocContent>({
+    queryKey: ['doc', id],
+    queryFn: () => apiFetch(`/api/docs/${encodeURIComponent(id)}`),
+    enabled: !!id,
+  })
+}
+
+export function useSaveDoc() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, content }: { id: string; content: string }) =>
+      apiFetch(`/api/docs/${encodeURIComponent(id)}`, {
+        method: 'PUT',
+        body: JSON.stringify({ content }),
+      }),
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: ['doc', variables.id] })
+      qc.invalidateQueries({ queryKey: ['docs'] })
+    },
+  })
+}
+
+export function useResearch(slug: string, enabled: boolean) {
+  return useQuery<ResearchData>({
+    queryKey: ['research', slug],
+    queryFn: () => apiFetch(`/api/articles/${encodeURIComponent(slug)}/research`),
+    enabled: enabled && !!slug,
+  })
+}
+
+export function docPreviewUrl(id: string): string {
+  return apiUrl(`/api/docs/${encodeURIComponent(id)}/preview`)
+}
+
+export function researchAssetUrl(slug: string, name: string): string {
+  return apiUrl(
+    `/api/articles/${encodeURIComponent(slug)}/research/asset/${encodeURIComponent(name)}`,
+  )
+}
+
+export function usePreviewAvailable(slug: string, phase: string) {
+  const poll = phase === 'RESEARCHING' || phase === 'DRAFTING'
+  return useQuery<{ available: boolean }>({
+    queryKey: ['preview-available', slug],
+    queryFn: async () => {
+      try {
+        const res = await fetch(articlePreviewUrl(slug))
+        return { available: res.ok }
+      } catch {
+        return { available: false }
+      }
+    },
+    enabled: !!slug,
+    refetchInterval: poll ? 5000 : false,
+  })
+}
+
+export function useReviseDoc() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) =>
+      apiFetch(`/api/docs/${encodeURIComponent(id)}/revise`, {
+        method: 'POST',
+        body: '{}',
+      }),
+    onSuccess: (_data, id) => {
+      qc.invalidateQueries({ queryKey: ['feedback', `doc--${id}`] })
+      qc.invalidateQueries({ queryKey: ['doc', id] })
+    },
+  })
+}

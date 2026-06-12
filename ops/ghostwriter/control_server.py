@@ -72,6 +72,7 @@ def main() -> None:
     print("          POST /api/queue/approve  POST /api/queue/publish  POST /api/queue/request-changes")
     print("          GET /api/test-config  PUT /api/test-config")
     print("          GET /api/feedback  POST /api/feedback  DELETE /api/feedback")
+    print("          GET /api/docs  GET/PUT /api/docs/{id}  POST /api/docs/{id}/revise")
     print("          GET /api/articles/{slug}/preview  DELETE /api/articles/{slug}")
     print("          POST /poll-now")
     print("  Press Ctrl+C to stop.")

@@ -3,14 +3,15 @@ import {
 } from '@mantine/core'
 import {
   IconFileText, IconActivity, IconSettings,
-  IconChevronLeft, IconChevronRight,
+  IconChevronLeft, IconChevronRight, IconBook,
 } from '@tabler/icons-react'
 
-export type AppView = 'articles' | 'health' | 'settings'
+export type AppView = 'articles' | 'health' | 'settings' | 'knowledge'
 
 const NAV_ITEMS: { id: AppView; label: string; Icon: typeof IconFileText }[] = [
   { id: 'articles', label: 'Articles', Icon: IconFileText },
   { id: 'health', label: 'Health', Icon: IconActivity },
+  { id: 'knowledge', label: 'Knowledge', Icon: IconBook },
   { id: 'settings', label: 'Settings', Icon: IconSettings },
 ]
 

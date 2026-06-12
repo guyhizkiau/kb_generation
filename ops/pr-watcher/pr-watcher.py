@@ -31,13 +31,18 @@ sys.path.insert(0, str(_script_dir))
 if str(REPO_PATH) not in sys.path:
     sys.path.insert(0, str(REPO_PATH))
 os.environ.setdefault("KB_REPO_ROOT", str(REPO_PATH))
+import docs_store
+from preview_transform import (
+    resolve_preview_html,
+    patch_article_preview_html,
+    _preview_cache_dir,
+)
 _vm_repo = "/home/ubuntu/kb_generation"
 if os.environ.get("KB_REPO_ROOT") == _vm_repo and Path(_vm_repo).exists():
     os.environ.setdefault("GHOSTWRITER_FEEDBACK_DIR", "/home/ubuntu/ghostwriter-feedback")
 try:
     import queue_store as _qs
     import feedback_store as _fb
-    from preview_transform import resolve_preview_html
     import dispatcher as _dispatcher
     from store import machine as _machine
     from store import test_config as _test_config
@@ -50,7 +55,6 @@ except ImportError:
     _publish = None  # type: ignore[assignment]
     _qs = None  # type: ignore[assignment]
     _fb = None  # type: ignore[assignment]
-    resolve_preview_html = None  # type: ignore[assignment,misc]
     _QUEUE_STORE_AVAILABLE = False
 
 
@@ -302,6 +306,7 @@ def is_claude_running() -> bool:
         r"claude.*--dangerously",
         r"claude.*-p",
         r"run_claude_code\.py",
+        r"run_doc_revise\.py",
         r"run-.+-(research|draft|test-plan|repair-test-plan|revise-from-test|revise-from-feedback|voice-pass)\.sh",
     ):
         r = subprocess.run(["pgrep", "-f", pattern], capture_output=True)
@@ -416,6 +421,60 @@ def _launch_phase(slug: str, phase: str):
         start_new_session=True,
     )
     log(f"  Launched phase {phase} for {slug}")
+
+
+def _read_doc_feedback(doc_id: str) -> list:
+    pseudo = f"doc--{doc_id}"
+    if _fb is not None:
+        return _fb.read_feedback(pseudo)
+    from store.feedback import read_feedback
+    return read_feedback(pseudo)
+
+
+def _launch_doc_revise(pseudo_slug: str) -> None:
+    """Launch run_doc_revise.py for doc--<id> pseudo-slug."""
+    doc_id = pseudo_slug.removeprefix("doc--")
+    script = _script_dir.parent.parent / "writer" / "run_doc_revise.py"
+    venv_python = "/opt/specterx-kb-venv/bin/python3"
+    if not Path(venv_python).is_file():
+        venv_python = sys.executable
+    log_dir = Path("/home/ubuntu") if Path("/home/ubuntu").is_dir() else REPO_PATH / ".ghostwriter"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_path = log_dir / f"doc-{doc_id}-revise.log"
+    with open(log_path, "a", encoding="utf-8") as logf:
+        subprocess.Popen(
+            [venv_python, str(script), "--doc", doc_id],
+            stdout=logf,
+            stderr=subprocess.STDOUT,
+            cwd=str(_script_dir.parent.parent),
+            start_new_session=True,
+        )
+    log(f"  Launched doc revise for {doc_id}")
+
+
+def _handle_doc_revise(doc_id: str) -> dict:
+    if docs_store.doc_entry(doc_id) is None:
+        return {"ok": False, "error": "unknown doc"}
+    pseudo = f"doc--{doc_id}"
+    try:
+        annotations = _read_doc_feedback(doc_id)
+    except Exception as exc:
+        return {"ok": False, "error": str(exc)}
+    if not annotations:
+        return {"ok": False, "error": "no doc feedback"}
+    already_queued = any(
+        t.get("slug") == pseudo and t.get("reason") == "doc-revise-launch"
+        for t in _manual_trigger_set
+    )
+    if already_queued:
+        return {"ok": False, "error": f"Doc revision already queued for {doc_id}"}
+    if not is_claude_running():
+        _launch_doc_revise(pseudo)
+        return {"ok": True, "launched": True}
+    log(f"  Claude running — queued doc revise for {doc_id}")
+    _manual_trigger_set.append({"slug": pseudo, "reason": "doc-revise-launch"})
+    _poll_now.set()
+    return {"ok": True, "launched": False}
 
 
 def _handle_trigger(data: dict) -> dict:
@@ -793,6 +852,87 @@ def _remove_feedback(slug: str, ann_id: str) -> dict:
     return _fb.remove_feedback(slug, ann_id)
 
 
+def _docs_list() -> dict:
+    return {"docs": docs_store.list_docs(REPO_PATH)}
+
+
+def _doc_get(doc_id: str) -> tuple[int, dict]:
+    text = docs_store.read_doc(REPO_PATH, doc_id)
+    if text is None:
+        return 404, {"error": "doc not found"}
+    return 200, {"id": doc_id, "content": text}
+
+
+def _doc_put(doc_id: str, content) -> tuple[int, dict]:
+    if docs_store.doc_entry(doc_id) is None:
+        return 404, {"error": "unknown doc"}
+    if not isinstance(content, str):
+        return 400, {"error": "content required"}
+    docs_store.write_doc(REPO_PATH, doc_id, content)
+    rel = docs_store.doc_entry(doc_id)["path"]
+    area = docs_store.doc_area(doc_id)
+    msg = f"docs({area}): update {doc_id} via ghostwriter"
+    subprocess.run(["git", "-C", str(REPO_PATH), "add", rel], check=False)
+    res = subprocess.run(
+        ["git", "-C", str(REPO_PATH), "commit", "-m", msg, "--", rel],
+        capture_output=True,
+        text=True,
+    )
+    committed = res.returncode == 0
+    return 200, {"ok": True, "committed": committed}
+
+
+def _doc_preview_html(doc_id: str, origin: str) -> tuple[int, str]:
+    _tooling = _script_dir.parent.parent
+    if str(_tooling) not in sys.path:
+        sys.path.insert(0, str(_tooling))
+    from pipeline.render_html import render
+
+    src = docs_store.doc_path(REPO_PATH, doc_id)
+    if src is None or not src.is_file():
+        return 404, ""
+    cache_dir = _preview_cache_dir(REPO_PATH)
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    pseudo_dir = cache_dir / doc_id
+    render(pseudo_dir, source_md=src, out_dir=cache_dir)
+    html_path = cache_dir / f"{doc_id}.html"
+    if not html_path.is_file():
+        return 404, ""
+    html = html_path.read_text(encoding="utf-8")
+    return 200, patch_article_preview_html(html, f"doc--{doc_id}", origin)
+
+
+_RESEARCH_FILES = (
+    "internal-sources.md",
+    "codebase-findings.md",
+    "competitor-coverage.md",
+    "ui-snapshot/ui-glossary.md",
+)
+
+
+def _research_payload(slug: str) -> dict:
+    research_dir = REPO_PATH / "articles" / slug / "research"
+    files: list[dict] = []
+    for rel in _RESEARCH_FILES:
+        fp = research_dir / rel
+        if fp.is_file():
+            files.append({"name": rel, "content": fp.read_text(encoding="utf-8")})
+    images: list[str] = []
+    snap = research_dir / "ui-snapshot"
+    if snap.is_dir():
+        images = sorted(p.name for p in snap.glob("*.png") if p.is_file())
+    return {"slug": slug, "files": files, "images": images}
+
+
+def _research_asset(slug: str, name: str) -> tuple[int, bytes | str, str]:
+    if "/" in name or "\\" in name or ".." in name:
+        return 400, json.dumps({"error": "bad asset name"}), "json"
+    fp = REPO_PATH / "articles" / slug / "research" / "ui-snapshot" / name
+    if not fp.is_file():
+        return 404, json.dumps({"error": "asset not found"}), "json"
+    return 200, fp.read_bytes(), "png"
+
+
 class _ControlHandler(BaseHTTPRequestHandler):
     def log_message(self, *args):
         pass  # silence default access log
@@ -828,6 +968,33 @@ class _ControlHandler(BaseHTTPRequestHandler):
                 return
             annotations = _fb.read_feedback(slug)
             self._respond(200, json.dumps({"slug": slug, "annotations": annotations}))
+        elif "/research/asset/" in path and path.startswith("/api/articles/"):
+            slug, _, name = path[len("/api/articles/"):].partition("/research/asset/")
+            if not slug or not name:
+                self._respond(404, json.dumps({"error": "not found"}))
+                return
+            try:
+                code, body, kind = _research_asset(slug, name)
+                if kind == "png":
+                    self.send_response(code)
+                    self.send_header("Content-Type", "image/png")
+                    self.send_header("Content-Length", str(len(body)))
+                    self._cors_headers()
+                    self.end_headers()
+                    self.wfile.write(body)
+                else:
+                    self._respond(code, body)
+            except Exception as exc:
+                self._respond(500, json.dumps({"error": str(exc)}))
+        elif path.startswith("/api/articles/") and path.endswith("/research"):
+            slug = path[len("/api/articles/"):-len("/research")]
+            if not slug:
+                self._respond(400, json.dumps({"error": "slug required"}))
+                return
+            try:
+                self._respond(200, json.dumps(_research_payload(slug)))
+            except Exception as exc:
+                self._respond(500, json.dumps({"error": str(exc)}))
         elif path.startswith("/api/articles/") and path.endswith("/preview"):
             slug = path[len("/api/articles/"):-len("/preview")]
             if not slug:
@@ -866,6 +1033,28 @@ class _ControlHandler(BaseHTTPRequestHandler):
                 self._respond(200, json.dumps(_test_config.mask_for_api(cfg)))
             except Exception as exc:
                 self._respond(500, json.dumps({"error": str(exc)}))
+        elif path == "/api/docs":
+            self._respond(200, json.dumps(_docs_list()))
+        elif path.startswith("/api/docs/") and path.endswith("/preview"):
+            doc_id = path[len("/api/docs/"):-len("/preview")]
+            if not doc_id:
+                self._respond(404, json.dumps({"error": "doc preview not found for "}))
+                return
+            try:
+                code, html = _doc_preview_html(doc_id, _request_origin(self))
+                if code != 200:
+                    self._respond(404, json.dumps({"error": f"doc preview not found for {doc_id}"}))
+                    return
+                self._respond_html(200, html)
+            except Exception as exc:
+                self._respond(500, json.dumps({"error": str(exc)}))
+        elif path.startswith("/api/docs/"):
+            doc_id = path[len("/api/docs/"):]
+            if not doc_id or "/" in doc_id:
+                self._respond(404, json.dumps({"error": "not found"}))
+                return
+            code, payload = _doc_get(doc_id)
+            self._respond(code, json.dumps(payload))
         else:
             self._respond(404, json.dumps({"error": "not found"}))
 
@@ -896,6 +1085,17 @@ class _ControlHandler(BaseHTTPRequestHandler):
                 merged = _test_config.merge_update(payload)
                 _test_config.save(merged)
                 self._respond(200, json.dumps({"ok": True}))
+            except Exception as exc:
+                self._respond(400, json.dumps({"error": str(exc)}))
+        elif path.startswith("/api/docs/"):
+            doc_id = path[len("/api/docs/"):]
+            if not doc_id or "/" in doc_id:
+                self._respond(404, json.dumps({"error": "not found"}))
+                return
+            try:
+                body = self._read_json()
+                code, result = _doc_put(doc_id, body.get("content"))
+                self._respond(code, json.dumps(result))
             except Exception as exc:
                 self._respond(400, json.dumps({"error": str(exc)}))
         else:
@@ -953,6 +1153,19 @@ class _ControlHandler(BaseHTTPRequestHandler):
                 slug = (data.get("slug") or "").strip()
                 result = _append_feedback(slug, data)
                 code = 200 if result.get("ok") else 400
+                self._respond(code, json.dumps(result))
+            except Exception as exc:
+                self._respond(400, json.dumps({"error": str(exc)}))
+        elif path.startswith("/api/docs/") and path.endswith("/revise"):
+            doc_id = path[len("/api/docs/"):-len("/revise")]
+            try:
+                result = _handle_doc_revise(doc_id)
+                if result.get("ok"):
+                    code = 200
+                elif result.get("error") == "unknown doc":
+                    code = 404
+                else:
+                    code = 400
                 self._respond(code, json.dumps(result))
             except Exception as exc:
                 self._respond(400, json.dumps({"error": str(exc)}))
@@ -1077,6 +1290,12 @@ def main():
                     if not is_claude_running():
                         _manual_trigger_set.pop(0)
                         _launch_phase(trig["slug"], "revise-from-feedback")
+                    else:
+                        break
+                elif trig.get("reason") == "doc-revise-launch":
+                    if not is_claude_running():
+                        _manual_trigger_set.pop(0)
+                        _launch_doc_revise(trig["slug"])
                     else:
                         break
                 elif trig.get("reason") == "manual":

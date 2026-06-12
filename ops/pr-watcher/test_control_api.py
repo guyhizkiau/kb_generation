@@ -354,6 +354,163 @@ class ControlApiTests(unittest.TestCase):
         self.assertEqual(code, 200)
         self.assertTrue(payload["ok"])
 
+    def test_get_api_docs(self):
+        code, payload, _ = self._req("GET", "/api/docs")
+        self.assertEqual(code, 200)
+        self.assertEqual(len(payload["docs"]), 8)
+        self.assertEqual(payload["docs"][0]["id"], "articles-plan")
+
+    def test_get_api_doc_by_id(self):
+        glossary = self.root / "canon" / "GLOSSARY.md"
+        glossary.parent.mkdir(parents=True, exist_ok=True)
+        glossary.write_text("# Glossary\n", encoding="utf-8")
+        code, payload, _ = self._req("GET", "/api/docs/glossary")
+        self.assertEqual(code, 200)
+        self.assertEqual(payload["id"], "glossary")
+        self.assertIn("Glossary", payload["content"])
+
+    def test_get_api_doc_not_found(self):
+        code, payload, _ = self._req("GET", "/api/docs/bad-id")
+        self.assertEqual(code, 404)
+        self.assertEqual(payload["error"], "doc not found")
+
+    def test_put_api_doc(self):
+        with mock.patch.object(self.pw.subprocess, "run") as git_run:
+            git_run.return_value.returncode = 0
+            code, payload, _ = self._req("PUT", "/api/docs/glossary", {"content": "hello"})
+        self.assertEqual(code, 200)
+        self.assertTrue(payload["ok"])
+        written = self.root / "canon" / "GLOSSARY.md"
+        self.assertEqual(written.read_text(encoding="utf-8"), "hello")
+        commit_calls = [
+            c.args[0] for c in git_run.call_args_list
+            if c.args and isinstance(c.args[0], list) and "commit" in c.args[0]
+        ]
+        self.assertTrue(commit_calls)
+        self.assertIn("docs(canon): update glossary via ghostwriter", commit_calls[0])
+
+    def test_put_api_doc_unknown(self):
+        with mock.patch.object(self.pw.subprocess, "run"):
+            code, payload, _ = self._req("PUT", "/api/docs/bad-id", {"content": "x"})
+        self.assertEqual(code, 404)
+        self.assertEqual(payload["error"], "unknown doc")
+
+    def test_put_api_doc_missing_content(self):
+        with mock.patch.object(self.pw.subprocess, "run"):
+            code, payload, _ = self._req("PUT", "/api/docs/glossary", {})
+        self.assertEqual(code, 400)
+        self.assertEqual(payload["error"], "content required")
+
+    def test_get_doc_preview(self):
+        glossary = self.root / "canon" / "GLOSSARY.md"
+        glossary.parent.mkdir(parents=True, exist_ok=True)
+        glossary.write_text("# Glossary\n\nhello", encoding="utf-8")
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{self.port}/api/docs/glossary/preview",
+            method="GET",
+        )
+        with urllib.request.urlopen(req) as resp:
+            self.assertEqual(resp.status, 200)
+            self.assertTrue(resp.headers.get("Content-Type", "").startswith("text/html"))
+            body = resp.read().decode()
+            self.assertIn("ghostwriter-annotate.js", body)
+            self.assertIn('data-slug="doc--glossary"', body)
+
+    def test_get_doc_preview_not_found(self):
+        try:
+            urllib.request.urlopen(
+                f"http://127.0.0.1:{self.port}/api/docs/bad-id/preview",
+            )
+            self.fail("expected HTTPError")
+        except urllib.error.HTTPError as exc:
+            self.assertEqual(exc.code, 404)
+            payload = json.loads(exc.read().decode())
+            self.assertIn("doc preview not found", payload["error"])
+
+    def test_get_article_research(self):
+        slug = "02-set-or-reset-password"
+        research = self.root / "articles" / slug / "research"
+        research.mkdir(parents=True, exist_ok=True)
+        (research / "competitor-coverage.md").write_text("# coverage\n", encoding="utf-8")
+        snap = research / "ui-snapshot"
+        snap.mkdir()
+        (snap / "ui-glossary.md").write_text("# glossary\n", encoding="utf-8")
+        (snap / "a.png").write_bytes(b"\x89PNG\r\n\x1a\n")
+        code, payload, _ = self._req("GET", f"/api/articles/{slug}/research")
+        self.assertEqual(code, 200)
+        self.assertEqual(payload["slug"], slug)
+        self.assertEqual(len(payload["files"]), 2)
+        self.assertEqual(payload["files"][0]["name"], "competitor-coverage.md")
+        self.assertEqual(payload["files"][1]["name"], "ui-snapshot/ui-glossary.md")
+        self.assertEqual(payload["images"], ["a.png"])
+
+    def test_get_article_research_empty(self):
+        slug = "99-no-research"
+        code, payload, _ = self._req("GET", f"/api/articles/{slug}/research")
+        self.assertEqual(code, 200)
+        self.assertEqual(payload["files"], [])
+        self.assertEqual(payload["images"], [])
+
+    def test_get_research_asset_png(self):
+        slug = "02-set-or-reset-password"
+        snap = self.root / "articles" / slug / "research" / "ui-snapshot"
+        snap.mkdir(parents=True, exist_ok=True)
+        (snap / "a.png").write_bytes(b"\x89PNG\r\n\x1a\n")
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{self.port}/api/articles/{slug}/research/asset/a.png",
+            method="GET",
+        )
+        with urllib.request.urlopen(req) as resp:
+            self.assertEqual(resp.status, 200)
+            self.assertEqual(resp.headers.get("Content-Type"), "image/png")
+
+    def test_get_research_asset_bad_name(self):
+        slug = "02-set-or-reset-password"
+        code, payload, _ = self._req(
+            "GET", f"/api/articles/{slug}/research/asset/../STATE",
+        )
+        self.assertEqual(code, 400)
+        self.assertEqual(payload["error"], "bad asset name")
+
+    def test_get_research_asset_missing(self):
+        slug = "02-set-or-reset-password"
+        code, payload, _ = self._req(
+            "GET", f"/api/articles/{slug}/research/asset/missing.png",
+        )
+        self.assertEqual(code, 404)
+        self.assertEqual(payload["error"], "asset not found")
+
+    def test_post_doc_revise_no_feedback(self):
+        code, payload, _ = self._req("POST", "/api/docs/glossary/revise", {})
+        self.assertEqual(code, 400)
+        self.assertEqual(payload["error"], "no doc feedback")
+
+    def test_post_doc_revise_launches(self):
+        import feedback_store as fb
+        fb.write_feedback("doc--glossary", [{"id": "a1", "body": [{"value": "fix term"}]}])
+        with mock.patch.object(self.pw, "is_claude_running", return_value=False):
+            with mock.patch.object(self.pw, "_launch_doc_revise") as launch:
+                code, payload, _ = self._req("POST", "/api/docs/glossary/revise", {})
+        self.assertEqual(code, 200)
+        self.assertTrue(payload["launched"])
+        launch.assert_called_once_with("doc--glossary")
+
+    def test_post_doc_revise_queues_when_busy(self):
+        import feedback_store as fb
+        fb.write_feedback("doc--glossary", [{"id": "a2", "body": [{"value": "fix"}]}])
+        with mock.patch.object(self.pw, "is_claude_running", return_value=True):
+            code, payload, _ = self._req("POST", "/api/docs/glossary/revise", {})
+        self.assertEqual(code, 200)
+        self.assertFalse(payload["launched"])
+        self.assertTrue(
+            any(t.get("reason") == "doc-revise-launch" for t in self.pw._manual_trigger_set),
+        )
+
+    def test_post_doc_revise_unknown(self):
+        code, payload, _ = self._req("POST", "/api/docs/bad-id/revise", {})
+        self.assertEqual(code, 404)
+        self.assertEqual(payload["error"], "unknown doc")
+
 
 if __name__ == "__main__":
     unittest.main()
