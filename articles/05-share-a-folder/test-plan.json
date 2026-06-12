@@ -1,0 +1,478 @@
+{
+  "article_id": "05-share-a-folder",
+  "preconditions": [
+    {
+      "kind": "browser_login",
+      "url": "https://app.specterx.com",
+      "credential": "users.data_owner (see Ghostwriter Settings / test-config.json)"
+    }
+  ],
+  "steps": [
+    {
+      "id": "00-goto",
+      "description": "Navigate to SpecterX",
+      "backend": "browser",
+      "action": {
+        "type": "goto",
+        "url": "https://app.specterx.com",
+        "wait_until": "domcontentloaded"
+      },
+      "screenshot": {
+        "after": false
+      },
+      "verify": ""
+    },
+    {
+      "id": "00-email",
+      "description": "Fill email",
+      "backend": "browser",
+      "action": {
+        "type": "fill",
+        "placeholder": "Enter your email",
+        "value_ref": "users.data_owner.email"
+      },
+      "screenshot": {
+        "after": false
+      },
+      "verify": ""
+    },
+    {
+      "id": "00-password",
+      "description": "Fill password",
+      "backend": "browser",
+      "action": {
+        "type": "fill",
+        "placeholder": "Enter your password",
+        "value_ref": "users.data_owner.specterx_password"
+      },
+      "screenshot": {
+        "after": false
+      },
+      "verify": ""
+    },
+    {
+      "id": "00-signin",
+      "description": "Click Sign In",
+      "backend": "browser",
+      "action": {
+        "type": "click",
+        "selector": "button[type='submit']"
+      },
+      "screenshot": {
+        "after": false
+      },
+      "verify": ""
+    },
+    {
+      "id": "00-dashboard",
+      "description": "Wait for My Files",
+      "backend": "browser",
+      "action": {
+        "type": "wait_for",
+        "name": "My Files",
+        "state": "visible"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "00-dashboard.png",
+        "focus": "My Files dashboard"
+      },
+      "verify": "My Files"
+    },
+    {
+      "id": "01-share-files-closeup",
+      "description": "Capture close-up of the Share files sidebar button before hovering",
+      "backend": "browser",
+      "action": {
+        "type": "wait_for",
+        "role": "button",
+        "name": "Share files",
+        "state": "visible"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "01-share-files-button.png",
+        "element": "button:has-text('Share files')",
+        "focus": "Share files button in the My Files sidebar \u2014 close-up"
+      },
+      "verify": "Share files button is visible"
+    },
+    {
+      "id": "02-hover-share-files",
+      "description": "Hover the Share files button to reveal the Share a folder / Share a file dropdown",
+      "backend": "browser",
+      "action": {
+        "type": "hover",
+        "role": "button",
+        "name": "Share files"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "02-share-files-dropdown.png",
+        "focus": "Dropdown revealed by hovering Share files, showing Share a folder and Share a file options"
+      },
+      "verify": "Dropdown with Share a folder option is visible"
+    },
+    {
+      "id": "03-wait-folder-option",
+      "description": "Wait for the Share a folder option to appear in the dropdown",
+      "backend": "browser",
+      "action": {
+        "type": "wait_for",
+        "role": "button",
+        "name": "Share a folder",
+        "state": "visible"
+      },
+      "screenshot": {
+        "after": false
+      },
+      "verify": "Share a folder option is visible in the dropdown"
+    },
+    {
+      "id": "04-click-folder-option",
+      "description": "Click Share a folder to open the Share Files drawer in folder mode",
+      "backend": "browser",
+      "action": {
+        "type": "click",
+        "role": "button",
+        "name": "Share a folder"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "04-drawer-folder-mode.png",
+        "focus": "Share Files drawer open in folder mode with the dragger area showing 'Choose a folder or drag it here'"
+      },
+      "verify": "Share Files drawer is open in folder mode"
+    },
+    {
+      "id": "05-upload-folder",
+      "description": "Upload the test folder via the folder upload input",
+      "backend": "browser",
+      "action": {
+        "type": "file_upload",
+        "selector": "input[data-testid='uploadDrawer_dragdropArea']",
+        "folder": "{{files.folder}}"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "05-folder-uploading.png",
+        "focus": "{{files.folder}} folder listed in the upload area with upload progress indicator"
+      },
+      "verify": "{{files.folder}} folder appears in the upload area"
+    },
+    {
+      "id": "06-wait-upload-complete",
+      "description": "Wait for folder upload to finish \u2014 Next button becomes visible when complete",
+      "backend": "browser",
+      "action": {
+        "type": "wait_for",
+        "selector": "[data-testid='uploadDrawer_nextButton']",
+        "state": "visible"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "06-upload-complete.png",
+        "focus": "Folder listed in the upload area with upload complete and the Next button visible"
+      },
+      "verify": "Next button is visible, indicating upload has finished"
+    },
+    {
+      "id": "07-add-recipient",
+      "description": "Type recipient email address and press Enter to add them to the share",
+      "backend": "browser",
+      "action": {
+        "type": "type",
+        "selector": "[data-testid='uploadDrawer_emailField'] input",
+        "value_ref": "users.recipient.email",
+        "confirm": "Enter"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "07-recipient-added.png",
+        "focus": "Recipient email address shown as a row in the Share with block below the email input"
+      },
+      "verify": "Recipient row appears in the Share with block"
+    },
+    {
+      "id": "08-open-role-dropdown",
+      "description": "Click the recipient role dropdown to open it",
+      "backend": "browser",
+      "action": {
+        "type": "click",
+        "role": "combobox"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "08-role-dropdown-open.png",
+        "focus": "Recipient role dropdown open showing Viewer, Contributor, and Co-owner options"
+      },
+      "verify": "Role dropdown is open showing Viewer, Contributor, and Co-owner options"
+    },
+    {
+      "id": "09-select-contributor",
+      "description": "Select Contributor role for the recipient",
+      "backend": "browser",
+      "action": {
+        "type": "click",
+        "selector": ".ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option-content:has-text('Contributor')"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "09-contributor-selected.png",
+        "focus": "Recipient row showing Contributor role selected in the role dropdown"
+      },
+      "verify": "Recipient row shows Contributor role"
+    },
+    {
+      "id": "10-next-button-closeup",
+      "description": "Capture close-up of the Next button at the bottom of the drawer",
+      "backend": "browser",
+      "action": {
+        "type": "wait_for",
+        "selector": "[data-testid='uploadDrawer_nextButton']",
+        "state": "visible"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "10-next-button.png",
+        "element": "[data-testid='uploadDrawer_nextButton']",
+        "focus": "Next button at the bottom of the Share Files drawer \u2014 close-up"
+      },
+      "verify": "Next button is visible and enabled"
+    },
+    {
+      "id": "11-click-next",
+      "description": "Click Next to continue to the policy step",
+      "backend": "browser",
+      "action": {
+        "type": "click",
+        "selector": "[data-testid='uploadDrawer_nextButton']"
+      },
+      "screenshot": {
+        "after": false
+      },
+      "verify": ""
+    },
+    {
+      "id": "12-wait-policy-loaded",
+      "description": "Wait for auto-protection rules to complete and capture the policy step",
+      "backend": "browser",
+      "action": {
+        "type": "wait_for",
+        "selector": "[data-testid='uploadDrawer_shareButton']",
+        "state": "visible"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "12-policy-step.png",
+        "focus": "Select Policy step in the Share Files drawer showing the Choose Policy dropdown and the recipient with Contributor role"
+      },
+      "verify": "Share button is visible \u2014 policy step is fully loaded",
+      "timeout_ms": 30000
+    },
+    {
+      "id": "13-policy-dropdown-closeup",
+      "description": "Capture close-up of the Choose Policy dropdown before opening it",
+      "backend": "browser",
+      "action": {
+        "type": "wait_for",
+        "selector": "[data-testid='uploadDrawer_policyDropdown']",
+        "state": "visible"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "13-policy-dropdown.png",
+        "element": "[data-testid='uploadDrawer_policyDropdown']",
+        "focus": "Choose Policy dropdown in the policy step \u2014 close-up"
+      },
+      "verify": "Policy dropdown is visible in the policy step"
+    },
+    {
+      "id": "14-open-policy-dropdown",
+      "description": "Click the policy dropdown to open it and see available policies",
+      "backend": "browser",
+      "action": {
+        "type": "click",
+        "selector": "[data-testid='uploadDrawer_policyDropdown']"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "14-policy-dropdown-open.png",
+        "focus": "Policy dropdown open with available security policies listed for selection"
+      },
+      "verify": "Policy dropdown is open with available policies listed"
+    },
+    {
+      "id": "15-select-default-policy",
+      "description": "Select the Default policy from the dropdown",
+      "backend": "browser",
+      "action": {
+        "type": "click",
+        "selector": ".ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option-content:has-text('Default')"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "15-default-policy-selected.png",
+        "focus": "Policy step with Default policy selected in the Choose Policy dropdown"
+      },
+      "verify": "Default policy is selected in the Choose Policy dropdown"
+    },
+    {
+      "id": "16-click-share",
+      "description": "Click Share to send the folder share to the recipient",
+      "backend": "browser",
+      "action": {
+        "type": "click",
+        "selector": "[data-testid='uploadDrawer_shareButton']"
+      },
+      "screenshot": {
+        "after": false
+      },
+      "verify": ""
+    },
+    {
+      "id": "17-wait-success",
+      "description": "Wait for the Shared successfully confirmation on the Confirm step",
+      "backend": "browser",
+      "action": {
+        "type": "wait_for",
+        "selector": "[data-testid='uploadDrawer_messageFileShared']",
+        "state": "visible"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "17-shared-successfully.png",
+        "focus": "Confirm step showing 'Shared successfully' with the folder name, recipient email, Contributor role, and Default policy in the summary"
+      },
+      "verify": "Shared successfully message is visible with the share summary"
+    },
+    {
+      "id": "18-copy-link",
+      "description": "Click Copy link to copy the protected folder link to the clipboard",
+      "backend": "browser",
+      "action": {
+        "type": "click",
+        "selector": "[data-testid='uploadDrawer_copyIcon']"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "18-link-copied.png",
+        "focus": "Confirm step after clicking Copy link \u2014 link copied to clipboard"
+      },
+      "verify": "Copy link action completes on the Confirm step"
+    },
+    {
+      "id": "19-click-done",
+      "description": "Click Done to close the Share Files drawer and return to My Files",
+      "backend": "browser",
+      "action": {
+        "type": "click",
+        "selector": "[data-testid='uploadDrawer_Done']"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "19-my-files-after-share.png",
+        "focus": "My Files page with the drawer closed and the shared folder visible in the file list"
+      },
+      "verify": "Share Files drawer is closed and My Files page is shown"
+    },
+    {
+      "id": "20-share-icon-closeup",
+      "description": "Capture close-up of the share icon on the shared folder row in My Files",
+      "backend": "browser",
+      "action": {
+        "type": "wait_for",
+        "selector": "[data-testid='myFiles_WhoHasAccess']",
+        "state": "visible"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "20-share-icon.png",
+        "element": "[data-testid='myFiles_WhoHasAccess']",
+        "focus": "Share icon on the folder row in My Files \u2014 close-up"
+      },
+      "verify": "Share icon is visible on the folder row"
+    },
+    {
+      "id": "21-click-share-icon",
+      "description": "Click the share icon to open the Permissions and Policy drawer",
+      "backend": "browser",
+      "action": {
+        "type": "click",
+        "selector": "[data-testid='myFiles_WhoHasAccess']"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "21-permissions-drawer.png",
+        "focus": "Permissions and Policy drawer open for the shared folder"
+      },
+      "verify": "Permissions and Policy drawer is open"
+    },
+    {
+      "id": "22-click-who-has-access",
+      "description": "Click Who has access to view all current recipients",
+      "backend": "browser",
+      "action": {
+        "type": "click",
+        "selector": "[data-testid='permissionDrawer_whoHasAccess']"
+      },
+      "screenshot": {
+        "after": true,
+        "filename": "22-who-has-access.png",
+        "focus": "Who has access view listing the recipient email with Contributor role dropdown and Revoke action visible"
+      },
+      "verify": "Recipient is listed in Who has access view with Contributor role and a Revoke action"
+    },
+    {
+      "id": "C1-open-permissions",
+      "description": "Open Who Has Access for the uploaded folder",
+      "backend": "browser",
+      "action": {
+        "type": "click",
+        "selector": "[data-testid=myFiles_WhoHasAccess]"
+      },
+      "screenshot": {
+        "after": false
+      },
+      "verify": "Permissions panel opens"
+    },
+    {
+      "id": "C2-revoke-recipient",
+      "description": "Revoke access for the test recipient",
+      "backend": "browser",
+      "action": {
+        "type": "click",
+        "role": "button",
+        "name": "Remove"
+      },
+      "screenshot": {
+        "after": false
+      },
+      "verify": "Recipient removed from access list"
+    },
+    {
+      "id": "C3-delete-folder",
+      "description": "Delete the uploaded test folder from My Files",
+      "backend": "browser",
+      "action": {
+        "type": "click",
+        "role": "button",
+        "name": "Delete"
+      },
+      "screenshot": {
+        "after": false
+      },
+      "verify": "Folder no longer appears in My Files"
+    }
+  ],
+  "postconditions": [
+    {
+      "kind": "cleanup",
+      "description": "Revoke recipient access: in the open Permissions and Policy drawer, click Revoke on the recipient row, then confirm in the Revocation Warning modal."
+    },
+    {
+      "kind": "cleanup",
+      "description": "Delete the uploaded test folder from My Files: close the drawer, find the folder row, open its context menu, and select Delete to leave the tenant clean."
+    }
+  ]
+}
