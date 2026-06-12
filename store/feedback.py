@@ -13,6 +13,8 @@ def feedback_path(slug: str) -> Path:
     env = os.environ.get("GHOSTWRITER_FEEDBACK_DIR")
     if env:
         return Path(env) / f"{slug}.json"
+    if slug.startswith("doc--"):
+        return repo_root() / "docs-feedback" / f"{slug}.json"
     return repo_root() / "articles" / slug / "feedback.json"
 
 
