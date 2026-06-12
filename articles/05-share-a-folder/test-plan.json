@@ -64,6 +64,21 @@
       "verify": ""
     },
     {
+      "id": "00-wait-redirect",
+      "description": "Wait for login redirect to complete — navigate to app root so the browser settles on the authenticated route before continuing",
+      "backend": "browser",
+      "action": {
+        "type": "goto",
+        "url": "https://app.specterx.com",
+        "wait_until": "load"
+      },
+      "timeout_ms": 30000,
+      "screenshot": {
+        "after": false
+      },
+      "verify": ""
+    },
+    {
       "id": "00-dashboard",
       "description": "Wait for My Files",
       "backend": "browser",
