@@ -8,7 +8,6 @@ import { buildHash, parseHash, type NavState } from '@/lib/hashLocation'
 interface NavigationContextValue extends NavState {
   setView: (view: AppView) => void
   setClusterId: (id: string | null) => void
-  setFeedbackSlug: (slug: string | null) => void
   openReader: (slug: string) => void
   closeReader: () => void
 }
@@ -59,10 +58,6 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
     (clusterId: string | null) => setState((prev) => ({ ...prev, clusterId })),
     [],
   )
-  const setFeedbackSlug = useCallback(
-    (feedbackSlug: string | null) => setState((prev) => ({ ...prev, feedbackSlug })),
-    [],
-  )
   const openReader = useCallback(
     (readerSlug: string) => setState((prev) => ({ ...prev, readerSlug })),
     [],
@@ -78,7 +73,6 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
         ...state,
         setView,
         setClusterId,
-        setFeedbackSlug,
         openReader,
         closeReader,
       }}

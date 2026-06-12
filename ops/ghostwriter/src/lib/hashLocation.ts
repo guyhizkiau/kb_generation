@@ -4,11 +4,10 @@ import type { AppView } from '@/components/NavSidebar'
 export interface NavState {
   view: AppView
   clusterId: string | null
-  feedbackSlug: string | null
   readerSlug: string | null
 }
 
-const VIEWS: readonly AppView[] = ['articles', 'health', 'feedback', 'settings']
+const VIEWS: readonly AppView[] = ['articles', 'health', 'settings']
 
 function isView(value: string): value is AppView {
   return (VIEWS as readonly string[]).includes(value)
@@ -17,7 +16,6 @@ function isView(value: string): value is AppView {
 export const DEFAULT_NAV_STATE: NavState = {
   view: 'articles',
   clusterId: null,
-  feedbackSlug: null,
   readerSlug: null,
 }
 
@@ -40,14 +38,11 @@ export function parseHash(hash: string): NavState {
   const state: NavState = {
     view,
     clusterId: null,
-    feedbackSlug: null,
     readerSlug: readerSlug || null,
   }
 
   if (view === 'articles') {
     state.clusterId = segments[1] ?? null
-  } else if (view === 'feedback') {
-    state.feedbackSlug = segments[1] ?? null
   }
 
   return state
@@ -59,8 +54,6 @@ export function buildHash(state: NavState): string {
 
   if (state.view === 'articles' && state.clusterId) {
     segments.push(state.clusterId)
-  } else if (state.view === 'feedback' && state.feedbackSlug) {
-    segments.push(state.feedbackSlug)
   }
 
   let hash = `#/${segments.join('/')}`

@@ -3,7 +3,6 @@ import { useDisclosure, useLocalStorage } from '@mantine/hooks'
 import { NavSidebar } from './NavSidebar'
 import { ArticlesView } from '@/views/articles/ArticlesView'
 import { HealthView } from '@/views/health/HealthView'
-import { FeedbackView } from '@/views/feedback/FeedbackView'
 import { SettingsView } from '@/views/settings/SettingsView'
 import { ArticleReaderOverlay } from '@/views/reader/ArticleReaderOverlay'
 import { NavigationProvider, useNavigation } from '@/context/NavigationContext'
@@ -54,7 +53,6 @@ function ShellContent() {
         <AppShell.Main>
           {active === 'articles' && <ArticlesView />}
           {active === 'health' && <HealthView />}
-          {active === 'feedback' && <FeedbackView />}
           {active === 'settings' && <SettingsView />}
         </AppShell.Main>
       </AppShell>

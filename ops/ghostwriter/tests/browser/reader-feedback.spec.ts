@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 import { mockApiRoutes, mockQueue } from './fixtures'
 
-test('feedback accept triggers revision', async ({ page }) => {
+test('reader accept triggers revision from articles view', async ({ page }) => {
   await mockApiRoutes(page)
   const queueWithIssue = {
     ...mockQueue,
@@ -36,8 +36,7 @@ test('feedback accept triggers revision', async ({ page }) => {
   })
 
   await page.goto('./')
-  await page.getByText('Feedback').click()
-  await page.getByText('Log in to SpecterX').click()
+  await page.getByRole('button', { name: 'Review Log in to SpecterX' }).click()
   const overlay = page.getByTestId('article-reader-overlay')
   await expect(overlay.getByText(/Sign in/)).toBeVisible()
   await overlay.getByRole('button', { name: 'Accept → revise' }).click()
@@ -47,5 +46,5 @@ test('feedback accept triggers revision', async ({ page }) => {
     reason: 'feedback',
     issue: '42',
   })
-  await page.screenshot({ path: 'test-results/feedback.png', fullPage: true })
+  await page.screenshot({ path: 'test-results/reader-feedback.png', fullPage: true })
 })
