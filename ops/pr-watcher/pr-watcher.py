@@ -260,9 +260,13 @@ def git(*args, check=True):
 
 
 def git_worktree(*args, check=True):
-    """Run git in the daemon worktree (branch checkouts / commits)."""
-    ensure_worktree()
-    return _run_git(args, WORKTREE_PATH, check=check)
+    """Single-branch model: run git on the main checkout (REPO_PATH).
+
+    Formerly targeted a separate daemon worktree for per-article branches.
+    Those branches are retired, so this now delegates to REPO_PATH, which
+    is permanently on main. Retained so existing callers keep working.
+    """
+    return _run_git(args, REPO_PATH, check=check)
 
 
 def _run_git(args, cwd: Path, check=True):
@@ -279,12 +283,12 @@ def _run_git(args, cwd: Path, check=True):
 
 
 def ensure_worktree() -> Path:
-    """Ensure WORKTREE_PATH exists as a git worktree rooted at main."""
-    if (WORKTREE_PATH / ".git").exists():
-        return WORKTREE_PATH
-    WORKTREE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    git("worktree", "add", str(WORKTREE_PATH), "main")
-    return WORKTREE_PATH
+    """Single-branch model: the legacy daemon worktree is retired.
+
+    Kept as a no-op (returns REPO_PATH) so existing callers keep working
+    while all git operations happen directly on the main checkout.
+    """
+    return REPO_PATH
 
 
 def _fetch_all_repos():
@@ -380,7 +384,7 @@ def _launch_phase(slug: str, phase: str):
         "export HOME=/home/ubuntu\n"
         'export PATH="/home/ubuntu/.local/bin:/usr/local/bin:/usr/bin:/bin"\n'
         "set -a; source /home/ubuntu/.config/specterx-kb/.env; set +a\n"
-        f"cd {WORKTREE_PATH}\n"
+        f"cd {REPO_PATH}\n"
         f"sudo -u ubuntu git checkout main\n"
         f"sudo -u ubuntu git pull origin main\n"
         + (pre_launch if pre_launch else "")
@@ -533,10 +537,10 @@ def _git_commit_push(message: str, *paths: str) -> None:
     for delay in (2, 4, 8, 16):
         r = subprocess.run(
             ["sudo", "-u", "ubuntu", "git", "push", "origin", "main"],
-            cwd=str(WORKTREE_PATH), capture_output=True,
+            cwd=str(REPO_PATH), capture_output=True,
         ) if os.environ.get("GHOSTWRITER_NO_SUDO") != "1" else subprocess.run(
             ["git", "push", "origin", "main"],
-            cwd=str(WORKTREE_PATH), capture_output=True,
+            cwd=str(REPO_PATH), capture_output=True,
         )
         if r.returncode == 0:
             return
