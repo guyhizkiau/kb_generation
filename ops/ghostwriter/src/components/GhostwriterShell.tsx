@@ -4,6 +4,7 @@ import { NavSidebar } from './NavSidebar'
 import { ArticlesView } from '@/views/articles/ArticlesView'
 import { HealthView } from '@/views/health/HealthView'
 import { SettingsView } from '@/views/settings/SettingsView'
+import { KnowledgeView } from '@/views/knowledge/KnowledgeView'
 import { ArticleReaderOverlay } from '@/views/reader/ArticleReaderOverlay'
 import { NavigationProvider, useNavigation } from '@/context/NavigationContext'
 
@@ -53,6 +54,7 @@ function ShellContent() {
         <AppShell.Main>
           {active === 'articles' && <ArticlesView />}
           {active === 'health' && <HealthView />}
+          {active === 'knowledge' && <KnowledgeView />}
           {active === 'settings' && <SettingsView />}
         </AppShell.Main>
       </AppShell>
