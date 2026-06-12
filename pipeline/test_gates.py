@@ -236,6 +236,57 @@ class TestPlanGateTests(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("selector_hint", msg)
 
+    def _login_step(self) -> dict:
+        return {
+            "id": "00-goto",
+            "backend": "browser",
+            "action": {"type": "goto", "url": "https://app.specterx.com"},
+        }
+
+    def test_state_creating_without_cleanup_fails(self):
+        self._write_plan([
+            self._login_step(),
+            {
+                "id": "05-upload-folder",
+                "description": "Upload test folder to share",
+                "backend": "browser",
+                "action": {
+                    "type": "file_upload",
+                    "selector": "input[data-testid='uploadDrawer_dragdropArea']",
+                    "folder": "{{files.folder}}",
+                },
+            },
+        ])
+        ok, msg = check_test_plan_gate(self.slug)
+        self.assertFalse(ok)
+        self.assertIn("cleanup", msg.lower())
+
+    def test_state_creating_with_cleanup_passes(self):
+        self._write_plan([
+            self._login_step(),
+            {
+                "id": "05-upload-folder",
+                "description": "Upload test folder to share",
+                "backend": "browser",
+                "action": {
+                    "type": "file_upload",
+                    "selector": "input[data-testid='uploadDrawer_dragdropArea']",
+                    "folder": "{{files.folder}}",
+                },
+            },
+            {
+                "id": "C1-delete-folder",
+                "description": "Delete uploaded test folder",
+                "backend": "browser",
+                "action": {
+                    "type": "click",
+                    "selector": "[data-testid='myFiles_WhoHasAccess']",
+                },
+            },
+        ])
+        ok, msg = check_test_plan_gate(self.slug)
+        self.assertTrue(ok, msg)
+
 
 class MarkdownGateTests(unittest.TestCase):
     def setUp(self):

@@ -309,6 +309,29 @@ screenshot `focus` strings so assertions track configured names.
   thing happens".
 - Cleanup steps are mandatory if the article creates new state
   (uploaded files, sent emails, created users). Be a good tenant.
+  **Every share/upload/create flow MUST end with cleanup steps whose ids
+  start with `C`** — the pipeline gate blocks plans without them.
+
+### Mandatory cleanup block (share/upload flows)
+
+After all article-specific steps, append cleanup steps that undo what
+the test created. Example for a folder-share flow:
+
+```json
+{"id": "C1-open-permissions", "description": "Open Who Has Access for the uploaded folder", "backend": "browser",
+ "action": {"type": "click", "selector": "[data-testid='myFiles_WhoHasAccess']"},
+ "screenshot": {"after": false}, "verify": "Permissions panel opens"},
+{"id": "C2-revoke-recipient", "description": "Revoke access for the test recipient", "backend": "browser",
+ "action": {"type": "click", "role": "button", "name": "Remove"},
+ "screenshot": {"after": false}, "verify": "Recipient removed from access list"},
+{"id": "C3-delete-folder", "description": "Delete the uploaded test folder from My Files", "backend": "browser",
+ "action": {"type": "click", "role": "button", "name": "Delete"},
+ "screenshot": {"after": false}, "verify": "Folder no longer appears in My Files"}
+```
+
+Adapt locators to what the plan actually created, but always include at
+least one `C*` step when any non-login step uploads, shares, or creates
+state.
 
 ## When you're done
 

@@ -637,6 +637,114 @@ def _run_gate_fixer(
     return False
 
 
+def _run_test_plan_fixer(
+    slug: str,
+    plan_path: Path,
+    gate_error: str,
+    claude_bin: str,
+    log_handle,
+) -> bool:
+    """Run a cheap haiku one-shot to add missing cleanup steps to test-plan.json.
+
+    Returns True if the test-plan gate passes after the fix.
+    """
+    from pipeline.gates import TEST_PLAN_CONTRACT, check_test_plan_gate
+
+    fixer_prompt = (
+        f"The file `{plan_path}` failed the pipeline quality gate.\n\n"
+        f"Gate error:\n{gate_error}\n\n"
+        "TASK: Fix the EXISTING test plan to satisfy the gate contract. "
+        "Do NOT delete or weaken existing steps or verify strings. "
+        "Do NOT remove login steps (00-*).\n\n"
+        f"Required format:\n{TEST_PLAN_CONTRACT}\n\n"
+        "If the gate error mentions missing cleanup steps (C*), append one or "
+        "more cleanup steps at the END of the steps array with ids starting "
+        "with 'C' (e.g. C1-revoke-access, C2-delete-folder) that undo state "
+        "the plan creates (uploads, shares, created folders/files). Use "
+        "confirmed SpecterX locators from the plan or "
+        "`[data-testid='myFiles_WhoHasAccess']` for revoke flows.\n\n"
+        "Steps:\n"
+        "1. Read the current test-plan.json.\n"
+        "2. Identify what state-creating actions the plan performs.\n"
+        "3. Add cleanup steps (C*) that reverse that state.\n"
+        "4. Write the updated valid JSON file.\n"
+    )
+
+    fixer_cmd = [
+        claude_bin,
+        "-p",
+        fixer_prompt,
+        "--add-dir",
+        str(article_dir(slug)),
+        "--allowedTools",
+        "Read Write Edit",
+        "--permission-mode",
+        "acceptEdits",
+        "--model",
+        WRITER_FIXER_MODEL,
+    ]
+
+    ts = dt.datetime.now(dt.timezone.utc).strftime("%H:%M:%S")
+    msg = (
+        f"[{ts}] [fixer] gate failed; launching haiku one-shot to repair "
+        f"test-plan.json (model: {WRITER_FIXER_MODEL})\n"
+    )
+    log_handle.write(msg)
+    log_handle.flush()
+    sys.stdout.write(msg)
+    sys.stdout.flush()
+
+    try:
+        result = subprocess.run(
+            fixer_cmd,
+            cwd=str(REPO_ROOT),
+            capture_output=True,
+            text=True,
+            timeout=180,
+        )
+        ts = dt.datetime.now(dt.timezone.utc).strftime("%H:%M:%S")
+        exit_line = f"[{ts}] [fixer] exit={result.returncode}\n"
+        log_handle.write(exit_line)
+        log_handle.flush()
+        sys.stdout.write(exit_line)
+        sys.stdout.flush()
+        if result.stdout.strip():
+            preview = result.stdout.strip()[:300].replace("\n", " ")
+            log_handle.write(f"[{ts}] [fixer] output: {preview}\n")
+            log_handle.flush()
+    except subprocess.TimeoutExpired:
+        ts = dt.datetime.now(dt.timezone.utc).strftime("%H:%M:%S")
+        msg = f"[{ts}] [fixer] TIMEOUT after 180s — skipping remediation\n"
+        log_handle.write(msg)
+        log_handle.flush()
+        sys.stdout.write(msg)
+        sys.stdout.flush()
+        return False
+    except Exception as exc:
+        ts = dt.datetime.now(dt.timezone.utc).strftime("%H:%M:%S")
+        msg = f"[{ts}] [fixer] ERROR: {exc}\n"
+        log_handle.write(msg)
+        log_handle.flush()
+        sys.stdout.write(msg)
+        sys.stdout.flush()
+        return False
+
+    ok, msg2 = check_test_plan_gate(slug)
+    ts = dt.datetime.now(dt.timezone.utc).strftime("%H:%M:%S")
+    if ok:
+        log_handle.write(f"[{ts}] [fixer] gate passed after fix: {msg2}\n")
+        log_handle.flush()
+        sys.stdout.write(f"[{ts}] [fixer] gate passed: {msg2}\n")
+        sys.stdout.flush()
+        return True
+
+    log_handle.write(f"[{ts}] [fixer] gate still failed after fix: {msg2}\n")
+    log_handle.flush()
+    sys.stdout.write(f"[{ts}] [fixer] gate still failed: {msg2}\n")
+    sys.stdout.flush()
+    return False
+
+
 def run_gate_with_remediation(
     slug: str,
     phase: str,
@@ -662,7 +770,15 @@ def run_gate_with_remediation(
         from pipeline.gates import check_test_plan_gate
 
         ok, msg = check_test_plan_gate(slug)
-        return ok, msg
+        if ok:
+            return True, msg
+        plan_path = article_dir(slug) / "test-plan.json"
+        if plan_path.is_file():
+            fixed = _run_test_plan_fixer(slug, plan_path, msg, claude_bin, log_handle)
+            if fixed:
+                ok2, msg2 = check_test_plan_gate(slug)
+                return ok2, msg2
+        return False, msg
 
     if phase == "revise-from-test":
         from pipeline.gates import check_draft2_gate

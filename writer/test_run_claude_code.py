@@ -265,6 +265,41 @@ class RunClaudeCodeTests(unittest.TestCase):
         self.assertFalse(ok)
         self.assertNotIn("fixer", log_buf.getvalue())
 
+    def test_test_plan_gate_fixer_invoked_when_cleanup_missing(self):
+        """When test-plan.json exists but gate fails on missing C*, fixer is attempted."""
+        import io
+        from writer.run_claude_code import run_gate_with_remediation
+
+        slug = "06-test-plan-fixer"
+        art = self.root / "articles" / slug
+        art.mkdir(parents=True)
+        (art / "test-plan.json").write_text(
+            json.dumps({
+                "steps": [
+                    {
+                        "id": "00-goto",
+                        "backend": "browser",
+                        "action": {"type": "goto", "url": "https://app.specterx.com"},
+                    },
+                    {
+                        "id": "05-upload-folder",
+                        "description": "Upload test folder to share",
+                        "backend": "browser",
+                        "action": {
+                            "type": "file_upload",
+                            "selector": "input[data-testid='uploadDrawer_dragdropArea']",
+                            "folder": "{{files.folder}}",
+                        },
+                    },
+                ],
+            })
+        )
+        os.environ["KB_SERIAL_OVERRIDE"] = "1"
+        log_buf = io.StringIO()
+        ok, _msg = run_gate_with_remediation(slug, "test-plan", "/usr/bin/true", log_buf)
+        self.assertFalse(ok)
+        self.assertIn("fixer", log_buf.getvalue())
+
     # ── build_command includes stream-json flags ──────────────────────────────
 
     def test_build_command_includes_stream_json(self):
